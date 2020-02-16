@@ -35,29 +35,31 @@ def main():
   parser.add_argument('output', type=str, metavar='OUTPUT')
   args = parser.parse_args()
 
-  lib = envi.open(args.library_file,'r')
-  record_list = lib.metadata['record']
-  record_list = record_list.replace('{','').replace('}','')
-  lib_records = [int(q) for q in record_list.split(',')]
-  lib_rfl = lib.load()
-
-  name_list = lib.metadata['spectra names']
-  name_list = name_list.replace('{','').replace('}','')
-  names = [q.strip() for q in name_list.split(',')]
-
-  wl_list = lib.metadata['wavelength']
-  wl_list = wl_list.replace('{','').replace('}','')
-  wl = [float(q) for q in wl_list.split(',')]
+  lib         = envi.open(args.library_file+'.hdr', args.library_file)
+  lib_rfl     = lib.spectra.copy()
+  lib_records = [int(q) for q in lib.metadata['record']]
+  names       = [q.strip() for q in lib.metadata['spectra names']]
+  wl          = s.array([float(q) for q in lib.metadata['wavelength']])
 
   nminerals = 10
   out_data = None
 
   with open(args.expert_system_file,'r') as fin:
-    lines = fin.getlines()
+    lines = fin.readlines()
 
-  i, group, spectrum, output_data = 0, None, None, None
+  # Go through expert system file one line at a time
+  i, group, spectrum, output_data, header = 0, None, None, None, True
   while i<len(lines):
-      if lines[i].beginswith('group'):
+
+      if lines[i].startswith('BEGIN SETUP'):
+          header = False
+
+      # ignore comments
+      if header or lines[i].startswith('\#'):
+          i = i+1
+          continue
+
+      if lines[i].startswith('group'):
           
           if group is not None:
              
@@ -95,19 +97,23 @@ def main():
                      my_chans = my_chans.reshape(1,1,nminerals)
              out_data = out_data + bd.reshape((rows,cols,1)) @ my_chans
 
-          group = int(line[i].strip().split()[-1])
+          group = int(lines[i].strip().split()[-1])
+
       if 'SMALL' in lines[i]:
-          record = int(lines[i].strip().split()[4])
-          rfl = lib_rfl[lib_records.index(record),0,:]
+          record = int(lines[i].strip().split()[3])
+          rfl = lib_rfl[lib_records.index(record),:]
+
       if 'define output' in lines[i]:
-          filename = float(lines[i+2].strip().split[0])
+          filename = lines[i+2].strip().split()[0]
           bd_scaling = float(lines[i+3].strip().split()[-1])
+
       if 'define features' in lines[i]:
           j= i+1
           features = []
           while ('endfeatures' not in lines[j]):
               if lines[j].strip().startswith('f'):
-                  features.append([float(f) for f in lines[j].split(' ')[2:6]])
+                  features.append([float(f) for f in 
+			lines[j].strip().split()[2:6]])
               j = j + 1
       i = i + 1
     
