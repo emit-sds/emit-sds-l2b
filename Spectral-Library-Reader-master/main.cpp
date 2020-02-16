@@ -42,6 +42,11 @@ int main(int argc, char **argv)
         records[nspec] = i;
         strncpy((char *) &(names[MAX_STR*nspec]), (const char *) record.ititl, 40);
         names[MAX_STR*nspec+39] = '\0';
+        for(k=0; k<40; k++) {
+          if (names[MAX_STR*nspec+k] == '=' ) {
+              names[MAX_STR*nspec+k] = '_';
+          }
+        }
       } 
 
       // Copy spectrum data.  Test to see whether this is the first 
@@ -76,9 +81,12 @@ int main(int argc, char **argv)
     string hdrfile = string(argv[2]).append(".hdr");
     ofstream header(hdrfile, ios::out);
     header << "ENVI" << endl;
-    header << "bands = " << nchan << endl;
-    header << "samples = 1" << endl;
+    header << "file type = ENVI Spectral Library" << endl;
+    header << "bands = 1" << endl;
+    header << "samples = " << nchan << endl;
     header << "lines = " << nspec << endl;
+    header << "band names = {Library translated from SPECPR}" << endl;
+    header << "wavelength units  = Micrometers" << endl;
     header << "wavelength = {";
     for (i=0; i<(nchan-1); i++) {
       header << wavelengths[i] << ",";
@@ -89,8 +97,13 @@ int main(int argc, char **argv)
       header << records[i] << ",";
     }
     header << records[nspec-1] << "}" << endl;
+    header << "spectra names = { "  << endl;
+    for (i=0; i<(nspec-1); i++) {
+      header <<" "<< &(names[MAX_STR * i]) << ", " << endl;
+    }
+    header << &(names[MAX_STR * (nspec-1)]) << "}" << endl;
     header << "header offset = 0 " << endl << "data type = 4" << endl;
-    header << "interleave = bip " << endl << "byte order = 0" << endl;
+    header << "interleave = bsq " << endl << "byte order = 0" << endl;
     header.close();
 
     // Clean up
