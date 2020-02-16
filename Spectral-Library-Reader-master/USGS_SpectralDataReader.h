@@ -23,6 +23,8 @@ Booz Allen Hamilton
 #include <fstream>
 #include <limits>
 #include <vector>
+#include <cstring>
+#include <cstddef>
 #define MAX_STRING 5000
 
 using namespace std;

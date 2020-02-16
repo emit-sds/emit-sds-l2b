@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include <cstdlib>
 #include <fstream>
 #include <list>
 #include "SpectralData.h"
@@ -71,7 +72,7 @@ int main(int argc, char **argv)
     }
 
     // Write binary data 
-    ofstream out(argv[2], ios::out);
+    ofstream out((const char *) argv[2], ios::out);
     for (i=0; i<nspec; i++){
       out.write((char *) &(spectra[MAX_CHN*i]), sizeof(float)*nchan);
     }
@@ -79,7 +80,7 @@ int main(int argc, char **argv)
 
     // Write the header
     string hdrfile = string(argv[2]).append(".hdr");
-    ofstream header(hdrfile, ios::out);
+    ofstream header((const char *) hdrfile.c_str(), ios::out);
     header << "ENVI" << endl;
     header << "file type = ENVI Spectral Library" << endl;
     header << "bands = 1" << endl;
