@@ -1,2 +1,2 @@
-specpr2envi: main.cpp
-	g++ -o specpr2envi USGS*cpp main.cpp
+specpr2envi: USGS_SpectralDataReader.cpp main.cpp
+	g++ -o specpr2envi USGS_SpectralDataReader.cpp main.cpp

@@ -12,7 +12,7 @@ USGS_SpectralDataReader::~USGS_SpectralDataReader()
 
 char * USGS_SpectralDataReader::aGetRecordBinaryData(int index){
 	//returns a pointer to the "index" record
-	char * rvalue = nullptr;
+	char * rvalue = NULL;
 
 	if (index >= 0 && index < this->mRecords.size()){
 		rvalue = this->mRecords[index];
