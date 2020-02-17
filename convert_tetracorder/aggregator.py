@@ -121,7 +121,7 @@ def main():
                   decompressed = gzip.decompress(compressed)
                   bd = s.frombuffer(decompressed, dtype=s.uint8, 
                       count=(rows+1)*cols)
-                  bd = bd[1:,:] # one line offset by convention? 
+                  bd = bd[cols:] # one line offset by convention? 
                   nz = s.where(bd!=0)[0]
                   bd = bd.reshape((rows,cols))
                  
