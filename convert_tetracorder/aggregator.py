@@ -102,6 +102,7 @@ def main():
               try:
                   # read header, arrange output data files
                   hdr = envi.read_envi_header(hdrpath)
+                  offs = int(hdr['header offset'])
                   if out_data is None:
                       out_hdr = hdr.copy()
                       out_hdr['interleave'] = 'bil'
@@ -120,8 +121,8 @@ def main():
                     compressed = fin.read()
                   decompressed = gzip.decompress(compressed)
                   bd = s.frombuffer(decompressed, dtype=s.uint8, 
-                      count=(rows+1)*cols)
-                  bd = bd[cols:] # one line offset by convention? 
+                      count=(rows*cols)+offs)
+                  bd = bd[offs:] # one line offset by convention? 
                   nz = s.where(bd!=0)[0]
                   bd = bd.reshape((rows,cols))
                  
