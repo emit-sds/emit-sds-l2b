@@ -72,7 +72,7 @@ def main():
   # Go through expert system file one line at a time
   i, group, spectrum, output_data, header, out_hdr, rows, cols = \
        0, None, None, None, True, None, 0,0
-  while i<len(lines):
+  while i<3000:#len(lines):
 
       # The Header flag excludes the definitions at the start
       if lines[i].startswith('BEGIN SETUP'):
@@ -107,7 +107,8 @@ def main():
                       out_hdr['interleave'] = 'bil'
                       out_hdr['data type'] = 4
                       out_hdr['wavelengths'] = '{'+','.join([str(q) for q in wl])+'}'
-                      out_hdr['bands'] = 10
+                      out_hdr['bands'] = nminerals
+                      out_hdr['header offset'] = 0
                       out_hdr['band names'] = emit_band_names
                       cols = int(hdr['samples']) 
                       rows = int(hdr['lines']) 
@@ -118,17 +119,21 @@ def main():
                   with open(datapath,'rb') as fin:
                     compressed = fin.read()
                   decompressed = gzip.decompress(compressed)
-                  bd = s.frombuffer(decompressed, dtype=s.uint8, count=rows*cols)
+                  bd = s.frombuffer(decompressed, dtype=s.uint8, 
+                      count=(rows+1)*cols)
+                  bd = bd[1:,:] # one line offset by convention? 
                   nz = s.where(bd!=0)[0]
                   bd = bd.reshape((rows,cols))
-                  if len(nz)>1e5:
-                     plt.imshow(bd/255.0)
-                     plt.show(block=True)
-                  
+                 
                   # normalize to the depth of the library spectrum,
                   # translating to aerial fractions
-                  bd_map = (bd / 255.0 * bd_scaling) / bd_library 
-                  
+                  bd = bd.astype(dtype=s.float32) / 255.0 * bd_scaling
+                  bd_map = bd / bd_library 
+
+                  bd_map[s.logical_not(s.isfinite(bd_map))] = 0
+                  bd_map[bd_map<0] = 0
+                  bd_map[bd_map>1] = 1
+                                    
                   # determine the mix of EMIT minerals
                   my_chans = chanmap[record].copy()
                   my_chans = my_chans.reshape(1,1,nminerals)
@@ -156,8 +161,9 @@ def main():
       i = i + 1
     
   # write as BIL interleave
-  out_data = out_data.transpose((0,2,1))
-  out_data.asarray(dtype=s.float32).tofile(args.output)
+  out_data = s.transpose(out_data,(0,2,1))
+  with open(args.output,'wb') as fout:
+    fout.write(out_data.astype(dtype=s.float32).tobytes())
   envi.write_envi_header(args.output+'.hdr', out_hdr)
  
 if __name__ == "__main__":
