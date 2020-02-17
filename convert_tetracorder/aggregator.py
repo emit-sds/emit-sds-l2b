@@ -72,7 +72,7 @@ def main():
   # Go through expert system file one line at a time
   i, group, spectrum, output_data, header, out_hdr, rows, cols = \
        0, None, None, None, True, None, 0,0
-  while i<3000:#len(lines):
+  while i<len(lines):
 
       # The Header flag excludes the definitions at the start
       if lines[i].startswith('BEGIN SETUP'):
