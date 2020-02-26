@@ -1,28 +1,24 @@
 # David Thompson
 
 
-import os, csv
-import sys, gzip
 import argparse
-from scipy import logical_and as aand
-import scipy as s
-import spectral
-import spectral.io.envi as envi
-import pylab as plt
+import gzip
+import numpy as np
 from scipy.interpolate import interp1d
+import spectral.io.envi as envi
 
 def band_depth(wl, reflectance, feature):
     """ Feature is a four-wavelength tuple defining the start and end of two
         averaging windows used for continnum interpolation"""
-    left_inds = s.where(aand(wl>=feature[0], wl<=feature[1]))[0]
+    left_inds = np.where(np.logical_and(wl>=feature[0], wl<=feature[1]))[0]
     left_x = wl[int(left_inds.mean())]
     left_y = reflectance[left_inds].mean()
-    right_inds = s.where(aand(wl>=feature[2], wl<=feature[3]))[0]
+    right_inds = np.where(np.logical_and(wl>=feature[2], wl<=feature[3]))[0]
     right_x = wl[int(right_inds.mean())]
     right_y = reflectance[right_inds].mean()
     ctm = interp1d([left_x, right_x],[left_y, right_y], 
             bounds_error=False, fill_value='extrapolate')(wl) 
-    feature_inds = aand(wl>=feature[0], wl<=feature[3])
+    feature_inds = np.logical_and(wl>=feature[0], wl<=feature[3])
     depths = 1.0-reflectance[feature_inds]/ctm[feature_inds]
     return max(depths)
 
@@ -42,7 +38,7 @@ def main():
   lib_rfl     = lib.spectra.copy()
   lib_records = [int(q) for q in lib.metadata['record']]
   names       = [q.strip() for q in lib.metadata['spectra names']]
-  wl          = s.array([float(q) for q in lib.metadata['wavelength']])
+  wl          = np.array([float(q) for q in lib.metadata['wavelength']])
 
   nminerals = 10
   out_data = None
@@ -113,25 +109,25 @@ def main():
                       out_hdr['band names'] = emit_band_names
                       cols = int(hdr['samples']) 
                       rows = int(hdr['lines']) 
-                      out_data = s.zeros((rows, cols, nminerals), 
-                                   dtype=s.float32)
+                      out_data = np.zeros((rows, cols, nminerals),
+                                   dtype=np.float32)
                   
                   # read band depth
                   with open(datapath,'rb') as fin:
                     compressed = fin.read()
                   decompressed = gzip.decompress(compressed)
-                  bd = s.frombuffer(decompressed, dtype=s.uint8, 
+                  bd = np.frombuffer(decompressed, dtype=np.uint8,
                       count=(rows*cols)+offs)
                   bd = bd[offs:] # one line offset by convention? 
-                  nz = s.where(bd!=0)[0]
+                  nz = np.where(bd!=0)[0]
                   bd = bd.reshape((rows,cols))
                  
                   # normalize to the depth of the library spectrum,
                   # translating to aerial fractions
-                  bd = bd.astype(dtype=s.float32) / 255.0 * bd_scaling
+                  bd = bd.astype(dtype=np.float32) / 255.0 * bd_scaling
                   bd_map = bd / bd_library 
 
-                  bd_map[s.logical_not(s.isfinite(bd_map))] = 0
+                  bd_map[np.logical_not(np.isfinite(bd_map))] = 0
                   bd_map[bd_map<0] = 0
                   bd_map[bd_map>1] = 1
                                     
@@ -162,9 +158,9 @@ def main():
       i = i + 1
     
   # write as BIL interleave
-  out_data = s.transpose(out_data,(0,2,1))
+  out_data = np.transpose(out_data,(0,2,1))
   with open(args.output,'wb') as fout:
-    fout.write(out_data.astype(dtype=s.float32).tobytes())
+    fout.write(out_data.astype(dtype=np.float32).tobytes())
   envi.write_envi_header(args.output+'.hdr', out_hdr)
  
 if __name__ == "__main__":
