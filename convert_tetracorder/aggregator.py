@@ -9,7 +9,7 @@ from scipy.interpolate import interp1d
 import spectral.io.envi as envi
 
 
-def band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple(float, float, float, float)):
+def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple):
     """ Calculate the Clark, 2003 continuum normalized band depth of a particular feature.
     Args:
         wavelengths: an array of wavelengths corresponding to given reflectance values
@@ -97,7 +97,7 @@ def main():
 
                 # get band depth of spectrum library file
                 try:
-                    library_band_depth = band_depth(
+                    library_band_depth = calculate_band_depth(
                         wavelengths, library_reflectance[library_records.index(record), :], features[0])
                 except ValueError:
                     expert_line_index = expert_line_index + 1
@@ -115,6 +115,8 @@ def main():
                     offs = int(hdr['header offset'])
                     if out_data is None:
                         out_hdr = hdr.copy()
+                        if ('file compression' in out_hdr.keys()):
+                            del out_hdr['file compression']
                         out_hdr['interleave'] = 'bil'
                         out_hdr['data type'] = 4
                         out_hdr['wavelengths'] = '{'+','.join([str(q) for q in wavelengths])+'}'
