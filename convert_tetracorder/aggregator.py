@@ -186,6 +186,5 @@ def main():
         fout.write(out_data.astype(dtype=np.float32).tobytes())
     envi.write_envi_header(args.output+'.hdr', out_hdr)
 
-
 if __name__ == "__main__":
     main()
