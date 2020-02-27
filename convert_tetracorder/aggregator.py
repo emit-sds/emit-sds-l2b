@@ -1,175 +1,190 @@
 # David Thompson
 
 
-import os, csv
-import sys, gzip
 import argparse
-from scipy import logical_and as aand
-import scipy as s
-import spectral
-import spectral.io.envi as envi
-import pylab as plt
+import gzip
+import numpy as np
+import pandas as pd
 from scipy.interpolate import interp1d
+import spectral.io.envi as envi
 
-def band_depth(wl, reflectance, feature):
-    """ Feature is a four-wavelength tuple defining the start and end of two
-        averaging windows used for continnum interpolation"""
-    left_inds = s.where(aand(wl>=feature[0], wl<=feature[1]))[0]
-    left_x = wl[int(left_inds.mean())]
+
+def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple):
+    """ Calculate the Clark, 2003 continuum normalized band depth of a particular feature.
+    Args:
+        wavelengths: an array of wavelengths corresponding to given reflectance values
+        reflectance: an array of reflectance values to calculate the band depth from
+        feature: definition of the feature to calculate band depth for, with the first two and last two values defining 
+                 the averaging windows used identify the feature of interest. 
+    :Returns
+        band_depth: the band depth as defined in Clark, 2003.
+    """
+
+    left_inds = np.where(np.logical_and(wavelengths >= feature[0], wavelengths <= feature[1]))[0]
+    left_x = wavelengths[int(left_inds.mean())]
     left_y = reflectance[left_inds].mean()
-    right_inds = s.where(aand(wl>=feature[2], wl<=feature[3]))[0]
-    right_x = wl[int(right_inds.mean())]
+
+    right_inds = np.where(np.logical_and(wavelengths >= feature[2], wavelengths <= feature[3]))[0]
+    right_x = wavelengths[int(right_inds.mean())]
     right_y = reflectance[right_inds].mean()
-    ctm = interp1d([left_x, right_x],[left_y, right_y], 
-            bounds_error=False, fill_value='extrapolate')(wl) 
-    feature_inds = aand(wl>=feature[0], wl<=feature[3])
-    depths = 1.0-reflectance[feature_inds]/ctm[feature_inds]
+
+    continuum = interp1d([left_x, right_x], [left_y, right_y],
+                         bounds_error=False, fill_value='extrapolate')(wavelengths)
+    feature_inds = np.logical_and(wavelengths >= feature[0], wavelengths <= feature[3])
+
+    # Band Depth definition from Clark, 2003 - max over this range will be taken as the 'band depth'
+    depths = 1.0 - reflectance[feature_inds] / continuum[feature_inds]
+
     return max(depths)
 
 
 # parse the command line (perform the correction on all command line arguments)
 def main():
 
-  parser = argparse.ArgumentParser(description="Translate to Rrs. and/or apply masks")
-  parser.add_argument('tetra_expert_file', type=str, metavar='TETRA_EXPERT_SYSTEM')
-  parser.add_argument('tetra_library_file',type=str, metavar='TETRA_LIBRARY_FILE')
-  parser.add_argument('tetra_output_base',type=str, metavar='TETRA_OUTPUT_DIR')
-  parser.add_argument('translation_file',type=str, metavar='MINERAL_FRACTIONS_FILE')
-  parser.add_argument('output', type=str, metavar='OUTPUT')
-  args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="Translate to Rrs. and/or apply masks")
+    parser.add_argument('tetra_expert_file', type=str, metavar='TETRA_EXPERT_SYSTEM')
+    parser.add_argument('tetra_library_file', type=str, metavar='TETRA_LIBRARY_FILE')
+    parser.add_argument('tetra_output_base', type=str, metavar='TETRA_OUTPUT_DIR')
+    parser.add_argument('translation_file', type=str, metavar='MINERAL_FRACTIONS_FILE')
+    parser.add_argument('output', type=str, metavar='OUTPUT')
+    args = parser.parse_args()
 
-  lib         = envi.open(args.tetra_library_file+'.hdr', args.tetra_library_file)
-  lib_rfl     = lib.spectra.copy()
-  lib_records = [int(q) for q in lib.metadata['record']]
-  names       = [q.strip() for q in lib.metadata['spectra names']]
-  wl          = s.array([float(q) for q in lib.metadata['wavelength']])
+    library = envi.open(args.tetra_library_file+'.hdr', args.tetra_library_file)
+    library_reflectance = library.spectra.copy()
+    library_records = [int(q) for q in library.metadata['record']]
+    names = [q.strip() for q in library.metadata['spectra names']]
+    wavelengths = np.array([float(q) for q in library.metadata['wavelength']])
 
-  nminerals = 10
-  out_data = None
+    num_minerals = 10
+    out_data = None
 
-  # Find the mapping of output file names to EMIT mineral fractions
-  # The 12 columns are: record number, then the name, then 10 fractions
-  with open(args.translation_file,'r') as fin:
-    lines = fin.readlines()
-  emit_band_names = lines[0].split(',')[2:]
-  chanmap = {}
-  for line in lines[1:]:
-      toks = line.split(',')
-      tetra_spec_record = int(toks[0].strip())
-      record = tetra_spec_record
-      fracs = s.array([float(q.strip()) for q in toks[2:]])
-      chanmap[record] = fracs
+    # Read the EMIT mineral fraction csv
+    translation_file_df = pd.read_csv(args.translation_file)
+    emit_band_names = np.array(list(translation_file_df))[2:].tolist()
+    tetra_record_numbers = np.array(translation_file_df['#Record']).tolist()
+    emit_10_mixture_fractions = np.array(translation_file_df[emit_band_names])
 
-  # read expert system file and strip comments
-  with open(args.tetra_expert_file,'r') as fin:
-    lines_commented = fin.readlines()
-  lines, orig_lineno = [],[]
-  for lineno, line in enumerate(lines_commented):
-    if not line.strip().startswith('\#'):
-      orig_lineno.append(lineno)
-      lines.append(line)
+    # read expert system file and strip comments
+    with open(args.tetra_expert_file, 'r') as fin:
+        expert_file_commented = fin.readlines()
 
-  # Go through expert system file one line at a time
-  i, group, spectrum, output_data, header, out_hdr, rows, cols = \
-       0, None, None, None, True, None, 0,0
-  while i<len(lines):
+    expert_file_text, orig_lineno = [], []
+    for line_index, line in enumerate(expert_file_commented):
+        if not line.strip().startswith('\#'):
+            orig_lineno.append(line_index)
+            expert_file_text.append(line)
+    del expert_file_commented
 
-      # The Header flag excludes the definitions at the start
-      if lines[i].startswith('BEGIN SETUP'):
-          header = False
-      elif header:
-          i = i + 1
-          continue
+    # Go through expert system file one line at a time, after initializing key variables
+    expert_line_index, group, spectrum, output_data, header, out_hdr, rows, cols = \
+        0, None, None, None, True, None, 0, 0
+    while expert_line_index < len(expert_file_text):
 
-      if lines[i].startswith('group'):
-          group = int(lines[i].strip().split()[1])
+        # The Header flag excludes the definitions at the start
+        if expert_file_text[expert_line_index].startswith('BEGIN SETUP'):
+            header = False
+        elif header:
+            expert_line_index = expert_line_index + 1
+            continue
 
-      if lines[i].startswith('endaction'):
-          if group in [1,2]:
+        # if keyword 'group' appears, define the current group name
+        if expert_file_text[expert_line_index].startswith('group'):
+            group = int(expert_file_text[expert_line_index].strip().split()[1])
 
-              # get band depth of spectrum library file
-              try: 
-                  bd_library = band_depth(wl, rfl, features[0])
-              except ValueError:
-                  i = i + 1
-                  continue
-              
-              # get band depths from map.  
-              groupdir = args.tetra_output_base+'/group.'+str(group)+'um/'
-              hdrpath = groupdir+filename+'.depth.gz.hdr'
-              datapath = groupdir+filename+'.depth.gz'
-              print('loading',hdrpath)
-              try:
-                  # read header, arrange output data files
-                  hdr = envi.read_envi_header(hdrpath)
-                  offs = int(hdr['header offset'])
-                  if out_data is None:
-                      out_hdr = hdr.copy()
-                      out_hdr['interleave'] = 'bil'
-                      out_hdr['data type'] = 4
-                      out_hdr['file compression'] = 0
-                      out_hdr['wavelengths'] = '{'+','.join([str(q) for q in wl])+'}'
-                      out_hdr['bands'] = nminerals
-                      out_hdr['header offset'] = 0
-                      out_hdr['band names'] = emit_band_names
-                      cols = int(hdr['samples']) 
-                      rows = int(hdr['lines']) 
-                      out_data = s.zeros((rows, cols, nminerals), 
-                                   dtype=s.float32)
-                  
-                  # read band depth
-                  with open(datapath,'rb') as fin:
-                    compressed = fin.read()
-                  decompressed = gzip.decompress(compressed)
-                  bd = s.frombuffer(decompressed, dtype=s.uint8, 
-                      count=(rows*cols)+offs)
-                  bd = bd[offs:] # one line offset by convention? 
-                  nz = s.where(bd!=0)[0]
-                  bd = bd.reshape((rows,cols))
-                 
-                  # normalize to the depth of the library spectrum,
-                  # translating to aerial fractions
-                  bd = bd.astype(dtype=s.float32) / 255.0 * bd_scaling
-                  bd_map = bd / bd_library 
+        # if we've gotten to the end of the record, time to pull everything together and write our output
+        if expert_file_text[expert_line_index].startswith('endaction'):
+            if group in [1, 2]:
 
-                  bd_map[s.logical_not(s.isfinite(bd_map))] = 0
-                  bd_map[bd_map<0] = 0
-                  bd_map[bd_map>1] = 1
-                                    
-                  # determine the mix of EMIT minerals
-                  my_chans = chanmap[record].copy()
-                  my_chans = my_chans.reshape(1,1,nminerals)
-                  out_data = out_data + bd_map.reshape((rows,cols,1)) @ my_chans
+                # get band depth of spectrum library file
+                try:
+                    library_band_depth = calculate_band_depth(
+                        wavelengths, library_reflectance[library_records.index(record), :], features[0])
+                except ValueError:
+                    expert_line_index = expert_line_index + 1
+                    continue
 
-              except FileNotFoundError:
-                 print(filename+'.depth.gz.hdr not found')
+                # get band depths from tetracorder output map
+                groupdir = args.tetra_output_base + '/group.' + str(group) + 'um/'
+                hdrpath = groupdir + filename + '.depth.gz.hdr'
+                datapath = groupdir + filename + '.depth.gz'
+                print('loading', hdrpath)
+                try:
+                    # TODO update IO
+                    # read header, arrange output data files
+                    hdr = envi.read_envi_header(hdrpath)
+                    offs = int(hdr['header offset'])
+                    if out_data is None:
+                        out_hdr = hdr.copy()
+                        if ('file compression' in out_hdr.keys()):
+                            del out_hdr['file compression']
+                        out_hdr['interleave'] = 'bil'
+                        out_hdr['data type'] = 4
+                        out_hdr['wavelengths'] = '{'+','.join([str(q) for q in wavelengths])+'}'
+                        out_hdr['bands'] = num_minerals
+                        out_hdr['header offset'] = 0
+                        out_hdr['band names'] = emit_band_names
+                        cols = int(hdr['samples'])
+                        rows = int(hdr['lines'])
+                        out_data = np.zeros((rows, cols, num_minerals), dtype=np.float32)
 
-      if 'SMALL' in lines[i]:
-          record = int(lines[i].strip().split()[3])
-          rfl = lib_rfl[lib_records.index(record),:]
+                    # read band depth
+                    with open(datapath, 'rb') as fin:
+                        compressed = fin.read()
+                    decompressed = gzip.decompress(compressed)
+                    band_depth = np.frombuffer(decompressed, dtype=np.uint8, count=(rows*cols)+offs)
+                    band_depth = band_depth[offs:]  # one line offset by convention?
+                    band_depth = band_depth.reshape((rows, cols))
 
-      if 'define output' in lines[i]:
-          filename = lines[i+2].strip().split()[0]
-          bd_scaling = float(lines[i+3].strip().split()[4])
+                    # convert data type
+                    band_depth = band_depth.astype(dtype=np.float32) / 255.0 * data_type_scaling
 
-      if 'define features' in lines[i]:
-          j= i+1
-          features = []
-          while ('endfeatures' not in lines[j]):
-              toks = lines[j].strip().split()
-              if len(toks)>5 and toks[0].startswith('f') and toks[1] == 'DLw':
-                  features.append([float(f) for f in toks[2:6]])
-              j = j + 1
-      i = i + 1
-    
-  # write as BIL interleave
-  out_data = s.transpose(out_data,(0,2,1))
-  with open(args.output,'wb') as fout:
-    fout.write(out_data.astype(dtype=s.float32).tobytes())
-  envi.write_envi_header(args.output+'.hdr', out_hdr)
- 
+                    # normalize to the depth of the library spectrum, translating to aerial fractions
+                    library_normalized_band_depth = band_depth / library_band_depth
+
+                    # convert values < 0, > 1, or bad (nan/inf) to 0
+                    library_normalized_band_depth[np.logical_not(
+                        np.isfinite(library_normalized_band_depth))] = 0
+                    library_normalized_band_depth[library_normalized_band_depth < 0] = 0
+                    library_normalized_band_depth[library_normalized_band_depth > 1] = 1
+
+                    # determine the mix of EMIT minerals
+                    current_mixture_fractions = emit_10_mixture_fractions[tetra_record_numbers.index(
+                        record)].copy()
+                    current_mixture_fractions = current_mixture_fractions.reshape(
+                        1, 1, num_minerals)
+                    out_data = out_data + \
+                        library_normalized_band_depth.reshape(
+                            (rows, cols, 1)) @ current_mixture_fractions
+
+                except FileNotFoundError:
+                    print(filename+'.depth.gz.hdr not found')
+
+        # SMALL keyword tells us to find the library record number
+        if 'SMALL' in expert_file_text[expert_line_index]:
+            record = int(expert_file_text[expert_line_index].strip().split()[3])
+
+        # 'define output' keyword tells us to get the 8 DN 255 scaling factor
+        if 'define output' in expert_file_text[expert_line_index]:
+            filename = expert_file_text[expert_line_index+2].strip().split()[0]
+            data_type_scaling = float(expert_file_text[expert_line_index+3].strip().split()[4])
+
+        # 'define features' means we've found the location to get the critical feature elements:
+        #  the requisite wavelengths for now.  currently continuum removal threshold ct and lct/rct ignored
+        if 'define features' in expert_file_text[expert_line_index]:
+            feature_line_index = expert_line_index + 1
+            features = []
+            while ('endfeatures' not in expert_file_text[feature_line_index]):
+                toks = expert_file_text[feature_line_index].strip().split()
+                if len(toks) > 5 and toks[0].startswith('f') and toks[1] == 'DLw':
+                    features.append([float(f) for f in toks[2:6]])
+                feature_line_index = feature_line_index + 1
+        expert_line_index = expert_line_index + 1
+
+    # write as BIL interleave
+    out_data = np.transpose(out_data, (0, 2, 1))
+    with open(args.output, 'wb') as fout:
+        fout.write(out_data.astype(dtype=np.float32).tobytes())
+    envi.write_envi_header(args.output+'.hdr', out_hdr)
+
 if __name__ == "__main__":
-  main()
-
-
-
+    main()
