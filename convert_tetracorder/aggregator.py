@@ -64,7 +64,6 @@ def main():
     tetra_record_numbers = np.array(translation_file_df['#Record']).tolist()
     emit_10_mixture_fractions = np.array(translation_file_df[emit_band_names])
 
-
     # read expert system file and strip comments
     with open(args.tetra_expert_file, 'r') as fin:
         expert_file_commented = fin.readlines()
@@ -88,15 +87,18 @@ def main():
             expert_line_index = expert_line_index + 1
             continue
 
+        # if keyword 'group' appears, define the current group name
         if expert_file_text[expert_line_index].startswith('group'):
             group = int(expert_file_text[expert_line_index].strip().split()[1])
 
+        # if we've gotten to the end of the record, time to pull everything together and write our output
         if expert_file_text[expert_line_index].startswith('endaction'):
             if group in [1, 2]:
 
                 # get band depth of spectrum library file
                 try:
-                    library_band_depth = band_depth(wavelengths, library_reflectance[library_records.index(record), :], features[0])
+                    library_band_depth = band_depth(
+                        wavelengths, library_reflectance[library_records.index(record), :], features[0])
                 except ValueError:
                     expert_line_index = expert_line_index + 1
                     continue
@@ -138,14 +140,19 @@ def main():
                     library_normalized_band_depth = band_depth / library_band_depth
 
                     # convert values < 0, > 1, or bad (nan/inf) to 0
-                    library_normalized_band_depth[np.logical_not(np.isfinite(library_normalized_band_depth))] = 0
+                    library_normalized_band_depth[np.logical_not(
+                        np.isfinite(library_normalized_band_depth))] = 0
                     library_normalized_band_depth[library_normalized_band_depth < 0] = 0
                     library_normalized_band_depth[library_normalized_band_depth > 1] = 1
 
                     # determine the mix of EMIT minerals
-                    current_mixture_fractions = emit_10_mixture_fractions[tetra_record_numbers.index(record)].copy()
-                    current_mixture_fractions = current_mixture_fractions.reshape(1, 1, num_minerals)
-                    out_data = out_data + library_normalized_band_depth.reshape((rows, cols, 1)) @ current_mixture_fractions
+                    current_mixture_fractions = emit_10_mixture_fractions[tetra_record_numbers.index(
+                        record)].copy()
+                    current_mixture_fractions = current_mixture_fractions.reshape(
+                        1, 1, num_minerals)
+                    out_data = out_data + \
+                        library_normalized_band_depth.reshape(
+                            (rows, cols, 1)) @ current_mixture_fractions
 
                 except FileNotFoundError:
                     print(filename+'.depth.gz.hdr not found')
