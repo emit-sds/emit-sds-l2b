@@ -107,6 +107,7 @@ def main():
                       out_hdr = hdr.copy()
                       out_hdr['interleave'] = 'bil'
                       out_hdr['data type'] = 4
+                      out_hdr['file compression'] = 0
                       out_hdr['wavelengths'] = '{'+','.join([str(q) for q in wl])+'}'
                       out_hdr['bands'] = nminerals
                       out_hdr['header offset'] = 0
