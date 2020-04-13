@@ -31,7 +31,7 @@ def main():
     
     
     # Run through line by line
-    for _line in tqdm(range(dataset.RasterYSize),ncols=80):
+    for _line in range(dataset.RasterYSize):
         # Load line
         dat = dataset.ReadAsArray(0,_line,dataset.RasterXSize,1)
     
@@ -52,6 +52,10 @@ def main():
         # write data and flush cache
         memmap[_line:_line+1,...] = dat 
         del memmap
+
+        if _line % 1000 == 0:
+            print('Scaled {}/{} lines'.format(_line,dataset.RasterYSize))
+    print('Scaling complete.')
 
 if __name__ == "__main__":
     main()
