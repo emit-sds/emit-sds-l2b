@@ -41,7 +41,7 @@ def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: 
 
 
 def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array, observed_reflectance_uncertainty: np.array,
-                library_reflectance: np.array, feature: tuple(float, float, float, float)):
+                library_reflectance: np.array, feature: tuple):
     """ Calculate the uncertainty of the Clark, 2003 continuum normalized band depth of a particular feature.
     Args:
         wavelengths: an array of wavelengths corresponding to given reflectance values
@@ -55,19 +55,21 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
     """
     inds = np.where(np.logical_and(wavelengths >= feature[1], wavelengths <= feature[2]))[0]
 
-    num = (len(inds) * np.sum(observed_reflectance[:, inds, :]*library_reflectance[inds], axis=1) - \
-            np.sum(observed_reflectance[:, inds, :], axis=1)*np.sum(library_reflectance[inds]))
+    num = (len(inds) * np.sum(observed_reflectance[:, inds, :]*library_reflectance[np.newaxis,inds,np.newaxis], axis=1) - \
+            np.sum(observed_reflectance[:, inds, :], axis=1)*np.sum(library_reflectance[np.newaxis,inds,np.newaxis]))
     den = len(inds) * np.sum(np.power(library_reflectance[inds],2)) - np.power(np.sum(library_reflectance[inds]),2)
 
     a = num/den
 
-    left_term = 1 / (np.sum(np.power(a*library_reflectance[inds],2)) - np.power(np.sum(a*library_reflectance[inds]),2))
+    left_term = np.power(1 / (np.sum(np.power(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],2),axis=1) - np.power(np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2)),2)
 
     # Likely a faster way of doing this, rather than running the loop
     right_term = 0
     for w in inds:
-        right_term += np.power(len(inds)*a*library_reflectance[w] - np.sum(a*library_reflectance),2) * \
-                      observed_reflectance_uncertainty[:,w,:]
+        right_term += np.power(len(inds)*a*library_reflectance[w] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2) * np.power(observed_reflectance_uncertainty[:,w,:],2)
+
+    # Possible vectorization, needs checking for broadcasting correctness
+    #right_term = np.sum(np.power(len(inds)*a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2) * observed_reflectance_uncertainty[:,inds,:],axis=1)
 
     psi = np.sqrt(left_term*right_term)
 
@@ -109,10 +111,10 @@ def main():
         refl_dataset = gdal.Open(args.reflectance_file, gdal.GA_ReadOnly)
         observed_reflectance = np.memmap(args.reflectance_file, mode='r',
                                          shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
-                                                refl_dataset.RasterYSize), dtype=np.float32)
+                                                refl_dataset.RasterXSize), dtype=np.float32)
         observed_reflectance_uncertainty = np.memmap(args.reflectance_uncertainty_file, mode='r',
                                          shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
-                                                refl_dataset.RasterYSize), dtype=np.float32)
+                                                refl_dataset.RasterXSize), dtype=np.float32)
     else:
         args.calculate_uncertainty = False
 
@@ -216,7 +218,7 @@ def main():
                     if args.calculate_uncertainty:
                         mixture_uncertainty = calculate_uncertainty(wavelengths, observed_reflectance,
                                                                     observed_reflectance_uncertainty,
-                                                                    library_reflectance, features[0])
+                                                                    library_reflectance[library_records.index(record), :], features[0])
                         out_uncertainty = out_uncertainty + \
                                           mixture_uncertainty.reshape((rows, cols, 1)) @ current_mixture_fractions
 
