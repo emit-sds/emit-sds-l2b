@@ -9,6 +9,8 @@ from scipy.interpolate import interp1d
 import spectral.io.envi as envi
 import emit_utils.file_checks
 import gdal
+import logging
+import emit_utils.common_logs
 
 
 def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple):
@@ -63,13 +65,12 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
 
     left_term = np.power(1 / (np.sum(np.power(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],2),axis=1) - np.power(np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2)),2)
 
-    # Likely a faster way of doing this, rather than running the loop
-    right_term = 0
-    for w in inds:
-        right_term += np.power(len(inds)*a*library_reflectance[w] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2) * np.power(observed_reflectance_uncertainty[:,w,:],2)
+    ## looped way, depcreated to below vectorization, preserved for context only
+    #right_term = 0
+    #for w in inds:
+    #    right_term += np.power(len(inds)*a*library_reflectance[w] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2) * np.power(observed_reflectance_uncertainty[:,w,:],2)
 
-    # Possible vectorization, needs checking for broadcasting correctness
-    #right_term = np.sum(np.power(len(inds)*a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2) * observed_reflectance_uncertainty[:,inds,:],axis=1)
+    right_term2 = np.sum(np.power(len(inds)*a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1)[:,np.newaxis,:],2) * np.power(observed_reflectance_uncertainty[:,inds,:],2),axis=1)
 
     psi = np.sqrt(left_term*right_term)
 
@@ -88,7 +89,16 @@ def main():
     parser.add_argument('-calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
     parser.add_argument('-reflectance_file', type=str, metavar='REFLECTANCE_FILE')
     parser.add_argument('-reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
+    parser.add_argument('-log_file', type=str, default=None)
+    parser.add_argument('-log_level', type=str, default='INFO')
     args = parser.parse_args()
+
+    if args.log_file is None:
+        logging.basicConfig(format='%(message)s', level=args.log_level)
+    else:
+        logging.basicConfig(format='%(message)s', level=args.log_level, filename=args.log_file)
+
+    emit_utils.common_logs.logtime()
 
     library = envi.open(args.tetra_library_file+'.hdr', args.tetra_library_file)
     library_reflectance = library.spectra.copy()
@@ -163,7 +173,7 @@ def main():
                 groupdir = args.tetra_output_base + '/group.' + str(group) + 'um/'
                 hdrpath = groupdir + filename + '.depth.gz.hdr'
                 datapath = groupdir + filename + '.depth.gz'
-                print('loading', hdrpath)
+                logging.info('loading: {}'.format(hdrpath))
                 try:
                     # TODO update IO
                     # read header, arrange output data files
@@ -225,7 +235,7 @@ def main():
 
 
                 except FileNotFoundError:
-                    print(filename+'.depth.gz.hdr not found')
+                    logging.error(filename+'.depth.gz.hdr not found')
 
         # SMALL keyword tells us to find the library record number
         if 'SMALL' in expert_file_text[expert_line_index]:
@@ -258,6 +268,7 @@ def main():
     with open(args.output + '_uncert', 'wb') as fout:
         fout.write(out_uncertainty.astype(dtype=np.float32).tobytes())
     envi.write_envi_header(args.output+'_uncert.hdr', out_hdr)
+    emit_utils.common_logs.logtime()
 
 if __name__ == "__main__":
     main()
