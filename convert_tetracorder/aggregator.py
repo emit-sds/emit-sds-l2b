@@ -74,6 +74,9 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
 
     psi = np.sqrt(left_term*right_term)
 
+    # Safegaurd against NANs that might occur for non-fits
+    psi[np.isnan(psi)] = 0
+
     return psi
 
 
@@ -121,10 +124,10 @@ def main():
         refl_dataset = gdal.Open(args.reflectance_file, gdal.GA_ReadOnly)
         observed_reflectance = np.memmap(args.reflectance_file, mode='r',
                                          shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
-                                                refl_dataset.RasterXSize), dtype=np.float32)
+                                                refl_dataset.RasterXSize), dtype=np.float32).copy()
         observed_reflectance_uncertainty = np.memmap(args.reflectance_uncertainty_file, mode='r',
                                          shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
-                                                refl_dataset.RasterXSize), dtype=np.float32)
+                                                refl_dataset.RasterXSize), dtype=np.float32).copy()
     else:
         args.calculate_uncertainty = False
 
@@ -225,7 +228,7 @@ def main():
                             (rows, cols, 1)) @ current_mixture_fractions
 
                     # Calculate uncertainty
-                    if args.calculate_uncertainty:
+                    if args.calculate_uncertainty and np.sum(library_normalized_band_depth !=0) > 0:
                         mixture_uncertainty = calculate_uncertainty(wavelengths, observed_reflectance,
                                                                     observed_reflectance_uncertainty,
                                                                     library_reflectance[library_records.index(record), :], features[0])
