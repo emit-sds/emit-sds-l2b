@@ -1,1 +1,0 @@
-while read -r line; do sbatch -n 1 --mem=15000 -o ../salton_sea/l2b/logs/o_${line} -e ../salton_sea/l2b/logs/e_${line} -w node032 --wrap="sh run_tetracorder.sh ../salton_sea/l2a/${line}/output/${line}_rfl ../salton_sea/l2b/${line}_rfl_scaled ../salton_sea/l2b/tetra_${line}"; done < ../salton_sea/lines.txt
