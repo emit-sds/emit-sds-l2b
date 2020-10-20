@@ -202,8 +202,16 @@ def main():
                     with open(datapath, 'rb') as fin:
                         compressed = fin.read()
                     decompressed = gzip.decompress(compressed)
-                    band_depth = np.frombuffer(decompressed, dtype=np.uint8, count=(rows*cols)+offs)
-                    band_depth = band_depth[offs:]  # one line offset by convention?
+
+                    vicar = decompressed[:offs].decode('ascii').split(' ')[0]
+                    if vicar[:7] != 'LBLSIZE':
+                        raise AttributeError(f'Incorrect file format {datapath}, no LBLSIZE found in VICAR header')
+                    # Read the header size from the VICAR header
+                    header_size = int(vicar.split('=')[-1])
+
+                    # Now pull out the rest of the binary file and reshape
+                    band_depth = np.frombuffer(decompressed, dtype=np.uint8, count=(rows*cols), 
+                                               offset=header_size)
                     band_depth = band_depth.reshape((rows, cols))
 
                     # convert data type
