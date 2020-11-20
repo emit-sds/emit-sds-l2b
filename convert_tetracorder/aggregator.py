@@ -7,6 +7,10 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
 import spectral.io.envi as envi
+import emit_utils.file_checks
+import gdal
+import logging
+import emit_utils.common_logs
 
 
 def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple):
@@ -38,6 +42,44 @@ def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: 
     return max(depths)
 
 
+def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array, observed_reflectance_uncertainty: np.array,
+                library_reflectance: np.array, feature: tuple):
+    """ Calculate the uncertainty of the Clark, 2003 continuum normalized band depth of a particular feature.
+    Args:
+        wavelengths: an array of wavelengths corresponding to given reflectance values
+        observed_reflectance: an array of observed reflectance values
+        observed_reflectance_uncertainty: an array of uncertainties of the observed reflectance values
+        library_reflectance: an array of library reference reflectance values
+        feature: definition of the feature to calculate band depth for, with the first two and last two values defining
+                 the averaging windows used identify the feature of interest.
+    :Returns
+        band_depth: the uncertainty for the band depth as defined in Clark, 2003.
+    """
+    inds = np.where(np.logical_and(wavelengths >= feature[1], wavelengths <= feature[2]))[0]
+
+    num = (len(inds) * np.sum(observed_reflectance[:, inds, :]*library_reflectance[np.newaxis,inds,np.newaxis], axis=1) - \
+            np.sum(observed_reflectance[:, inds, :], axis=1)*np.sum(library_reflectance[np.newaxis,inds,np.newaxis]))
+    den = len(inds) * np.sum(np.power(library_reflectance[inds],2)) - np.power(np.sum(library_reflectance[inds]),2)
+
+    a = num/den
+
+    left_term = np.power(1 / (np.sum(np.power(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],2),axis=1) - np.power(np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2)),2)
+
+    ## looped way, depcreated to below vectorization, preserved for context only
+    #right_term = 0
+    #for w in inds:
+    #    right_term += np.power(len(inds)*a*library_reflectance[w] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2) * np.power(observed_reflectance_uncertainty[:,w,:],2)
+
+    right_term = np.sum(np.power(len(inds)*a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1)[:,np.newaxis,:],2) * np.power(observed_reflectance_uncertainty[:,inds,:],2),axis=1)
+
+    psi = np.sqrt(left_term*right_term)
+
+    # Safegaurd against NANs that might occur for non-fits
+    psi[np.isnan(psi)] = 0
+
+    return psi
+
+
 # parse the command line (perform the correction on all command line arguments)
 def main():
 
@@ -47,7 +89,19 @@ def main():
     parser.add_argument('tetra_output_base', type=str, metavar='TETRA_OUTPUT_DIR')
     parser.add_argument('translation_file', type=str, metavar='MINERAL_FRACTIONS_FILE')
     parser.add_argument('output', type=str, metavar='OUTPUT')
+    parser.add_argument('-calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
+    parser.add_argument('-reflectance_file', type=str, metavar='REFLECTANCE_FILE')
+    parser.add_argument('-reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
+    parser.add_argument('-log_file', type=str, default=None)
+    parser.add_argument('-log_level', type=str, default='INFO')
     args = parser.parse_args()
+
+    if args.log_file is None:
+        logging.basicConfig(format='%(message)s', level=args.log_level)
+    else:
+        logging.basicConfig(format='%(message)s', level=args.log_level, filename=args.log_file)
+
+    emit_utils.common_logs.logtime()
 
     library = envi.open(args.tetra_library_file+'.hdr', args.tetra_library_file)
     library_reflectance = library.spectra.copy()
@@ -63,6 +117,20 @@ def main():
     emit_band_names = np.array(list(translation_file_df))[2:].tolist()
     tetra_record_numbers = np.array(translation_file_df['#Record']).tolist()
     emit_10_mixture_fractions = np.array(translation_file_df[emit_band_names])
+
+    if args.calculate_uncertainty == 1:
+        args.calculate_uncertainty = True
+        emit_utils.file_checks.check_raster_files([args.reflectance_file, args.reflectance_uncertainty_file], map_space=False)
+        refl_dataset = gdal.Open(args.reflectance_file, gdal.GA_ReadOnly)
+        observed_reflectance = np.memmap(args.reflectance_file, mode='r',
+                                         shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
+                                                refl_dataset.RasterXSize), dtype=np.float32).copy()
+        observed_reflectance_uncertainty = np.memmap(args.reflectance_uncertainty_file, mode='r',
+                                         shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
+                                                refl_dataset.RasterXSize), dtype=np.float32).copy()
+    else:
+        args.calculate_uncertainty = False
+
 
     # read expert system file and strip comments
     with open(args.tetra_expert_file, 'r') as fin:
@@ -99,6 +167,7 @@ def main():
                 try:
                     library_band_depth = calculate_band_depth(
                         wavelengths, library_reflectance[library_records.index(record), :], features[0])
+
                 except ValueError:
                     expert_line_index = expert_line_index + 1
                     continue
@@ -107,7 +176,7 @@ def main():
                 groupdir = args.tetra_output_base + '/group.' + str(group) + 'um/'
                 hdrpath = groupdir + filename + '.depth.gz.hdr'
                 datapath = groupdir + filename + '.depth.gz'
-                print('loading', hdrpath)
+                logging.info('loading: {}'.format(hdrpath))
                 try:
                     # TODO update IO
                     # read header, arrange output data files
@@ -126,13 +195,23 @@ def main():
                         cols = int(hdr['samples'])
                         rows = int(hdr['lines'])
                         out_data = np.zeros((rows, cols, num_minerals), dtype=np.float32)
+                        if args.calculate_uncertainty:
+                            out_uncertainty = np.zeros((rows, cols, num_minerals), dtype=np.float32)
 
                     # read band depth
                     with open(datapath, 'rb') as fin:
                         compressed = fin.read()
                     decompressed = gzip.decompress(compressed)
-                    band_depth = np.frombuffer(decompressed, dtype=np.uint8, count=(rows*cols)+offs)
-                    band_depth = band_depth[offs:]  # one line offset by convention?
+
+                    vicar = decompressed[:offs].decode('ascii').split(' ')[0]
+                    if vicar[:7] != 'LBLSIZE':
+                        raise AttributeError(f'Incorrect file format {datapath}, no LBLSIZE found in VICAR header')
+                    # Read the header size from the VICAR header
+                    header_size = int(vicar.split('=')[-1])
+
+                    # Now pull out the rest of the binary file and reshape
+                    band_depth = np.frombuffer(decompressed, dtype=np.uint8, count=(rows*cols), 
+                                               offset=header_size)
                     band_depth = band_depth.reshape((rows, cols))
 
                     # convert data type
@@ -156,8 +235,18 @@ def main():
                         library_normalized_band_depth.reshape(
                             (rows, cols, 1)) @ current_mixture_fractions
 
+                    # Calculate uncertainty
+                    if args.calculate_uncertainty and np.sum(library_normalized_band_depth !=0) > 0:
+                        mixture_uncertainty = calculate_uncertainty(wavelengths, observed_reflectance,
+                                                                    observed_reflectance_uncertainty,
+                                                                    library_reflectance[library_records.index(record), :], features[0])
+                        out_uncertainty = out_uncertainty + \
+                                          mixture_uncertainty.reshape((rows, cols, 1)) @ current_mixture_fractions
+
+
+
                 except FileNotFoundError:
-                    print(filename+'.depth.gz.hdr not found')
+                    logging.error(filename+'.depth.gz.hdr not found')
 
         # SMALL keyword tells us to find the library record number
         if 'SMALL' in expert_file_text[expert_line_index]:
@@ -185,6 +274,12 @@ def main():
     with open(args.output, 'wb') as fout:
         fout.write(out_data.astype(dtype=np.float32).tobytes())
     envi.write_envi_header(args.output+'.hdr', out_hdr)
+
+    out_uncertainty = np.transpose(out_uncertainty, (0, 2, 1))
+    with open(args.output + '_uncert', 'wb') as fout:
+        fout.write(out_uncertainty.astype(dtype=np.float32).tobytes())
+    envi.write_envi_header(args.output+'_uncert.hdr', out_hdr)
+    emit_utils.common_logs.logtime()
 
 if __name__ == "__main__":
     main()
