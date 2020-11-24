@@ -1,4 +1,4 @@
-# David Thompson
+# David R. Thompson and Philip G. Brodrick
 
 
 import argparse
@@ -11,6 +11,22 @@ import emit_utils.file_checks
 import gdal
 import logging
 import emit_utils.common_logs
+import os
+import tetracorder
+
+# TODO: Get these from....direct input?  Configuration file?
+MINERAL_FRACTION_FILES = [\
+    'kaolinite.group2.txt',
+    'calcite.group2.txt',
+    'dolomite.group2.txt',
+    'vermiculite.group2.txt',
+    'hematite-all-for-reference.group1.txt',
+    'goethite-all-for-reference.group1.txt',
+    'gypsum.group2.txt',
+    'chlorite.group2.txt',
+    'illite.group2.txt',
+    'montmorillonite.group2.txt',
+    ]
 
 
 def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple):
@@ -84,11 +100,10 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
 def main():
 
     parser = argparse.ArgumentParser(description="Translate to Rrs. and/or apply masks")
-    parser.add_argument('tetra_expert_file', type=str, metavar='TETRA_EXPERT_SYSTEM')
-    parser.add_argument('tetra_library_file', type=str, metavar='TETRA_LIBRARY_FILE')
-    parser.add_argument('tetra_output_base', type=str, metavar='TETRA_OUTPUT_DIR')
-    parser.add_argument('translation_file', type=str, metavar='MINERAL_FRACTIONS_FILE')
-    parser.add_argument('output', type=str, metavar='OUTPUT')
+    parser.add_argument('tetracorder_output_base', type=str, metavar='TETRA_OUTPUT_DIR')
+    parser.add_argument('spectral_reference_library', type=str, metavar='TETRA_LIBRARY_FILE')
+    parser.add_argument('output_base', type=str, metavar='OUTPUT')
+    parser.add_argument('-expert_system_file', type=str, default='cmd.lib.setup.t5.2d4', metavar='OUTPUT')
     parser.add_argument('-calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
     parser.add_argument('-reflectance_file', type=str, metavar='REFLECTANCE_FILE')
     parser.add_argument('-reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
@@ -103,7 +118,7 @@ def main():
 
     emit_utils.common_logs.logtime()
 
-    library = envi.open(args.tetra_library_file+'.hdr', args.tetra_library_file)
+    library = envi.open(args.spectral_reference_library+'.hdr', args.spectral_reference_library)
     library_reflectance = library.spectra.copy()
     library_records = [int(q) for q in library.metadata['record']]
     names = [q.strip() for q in library.metadata['spectra names']]
@@ -131,9 +146,24 @@ def main():
     else:
         args.calculate_uncertainty = False
 
+    expert_system_file = os.path.join(args.tetracorder_output_base, args.expert_system_file)
+    if os.path.isfile(expert_system_file) is False:
+        logging.error(f'No expert system file found, expected at: {expert_system_file}. Look for candidates in'
+                      f'{args.tetracorder_output_base} that start with cmd.lib.setup')
+        raise AttributeError('Could not find expert system file, see log for details.')
+
+    decoded_expert = tetracorder.decode_expert_system(expert_system_file, log_file=args.log_file,
+                                                      log_level=args.log_level)
+
+    mff = [os.path.join(args.tetracorder_output_base, 'cmds.abundances', 'lists.of.files.by.mineral', x) for x
+           in MINERAL_FRACTION_FILES]
+    mineral_fractions = tetracorder.read_mineral_fractions(mff)
+
+
+
 
     # read expert system file and strip comments
-    with open(args.tetra_expert_file, 'r') as fin:
+    with open(expert_system_file, 'r') as fin:
         expert_file_commented = fin.readlines()
 
     expert_file_text, orig_lineno = [], []
@@ -144,7 +174,7 @@ def main():
     del expert_file_commented
 
     # Go through expert system file one line at a time, after initializing key variables
-    expert_line_index, group, spectrum, output_data, header, out_hdr, rows, cols = \
+    expert_line_index, group, spectrum, output_data, header, output_header, rows, cols = \
         0, None, None, None, True, None, 0, 0
     while expert_line_index < len(expert_file_text):
 
@@ -173,39 +203,39 @@ def main():
                     continue
 
                 # get band depths from tetracorder output map
-                groupdir = args.tetra_output_base + '/group.' + str(group) + 'um/'
-                hdrpath = groupdir + filename + '.depth.gz.hdr'
-                datapath = groupdir + filename + '.depth.gz'
-                logging.info('loading: {}'.format(hdrpath))
+                groupdir = os.path.join(args.tetracorder_output_base, f'group.{group}um')
+
+                constituent_file = os.path.join(groupdir, f'{filename}.depth.gz')
+                logging.info(f'loading: {constituent_file}')
                 try:
-                    # TODO update IO
                     # read header, arrange output data files
-                    hdr = envi.read_envi_header(hdrpath)
-                    offs = int(hdr['header offset'])
+                    input_header = envi.read_envi_header(constituent_file + '.hdr')
+                    offs = int(input_header['header offset'])
                     if out_data is None:
-                        out_hdr = hdr.copy()
-                        if ('file compression' in out_hdr.keys()):
-                            del out_hdr['file compression']
-                        out_hdr['interleave'] = 'bil'
-                        out_hdr['data type'] = 4
-                        out_hdr['wavelengths'] = '{'+','.join([str(q) for q in wavelengths])+'}'
-                        out_hdr['bands'] = num_minerals
-                        out_hdr['header offset'] = 0
-                        out_hdr['band names'] = emit_band_names
-                        cols = int(hdr['samples'])
-                        rows = int(hdr['lines'])
+                        output_header = input_header.copy()
+                        if ('file compression' in output_header.keys()):
+                            del output_header['file compression']
+                        output_header['interleave'] = 'bil'
+                        output_header['data type'] = 4
+                        output_header['wavelengths'] = '{'+','.join([str(q) for q in wavelengths])+'}'
+                        output_header['bands'] = num_minerals
+                        output_header['header offset'] = 0
+                        output_header['band names'] = emit_band_names
+                        cols = int(input_header['samples'])
+                        rows = int(input_header['lines'])
                         out_data = np.zeros((rows, cols, num_minerals), dtype=np.float32)
                         if args.calculate_uncertainty:
                             out_uncertainty = np.zeros((rows, cols, num_minerals), dtype=np.float32)
 
                     # read band depth
-                    with open(datapath, 'rb') as fin:
+                    with open(constituent_file, 'rb') as fin:
                         compressed = fin.read()
                     decompressed = gzip.decompress(compressed)
 
                     vicar = decompressed[:offs].decode('ascii').split(' ')[0]
                     if vicar[:7] != 'LBLSIZE':
-                        raise AttributeError(f'Incorrect file format {datapath}, no LBLSIZE found in VICAR header')
+                        raise AttributeError(f'Incorrect file format {constituent_file},'
+                                             'no LBLSIZE found in VICAR header')
                     # Read the header size from the VICAR header
                     header_size = int(vicar.split('=')[-1])
 
@@ -239,7 +269,8 @@ def main():
                     if args.calculate_uncertainty and np.sum(library_normalized_band_depth !=0) > 0:
                         mixture_uncertainty = calculate_uncertainty(wavelengths, observed_reflectance,
                                                                     observed_reflectance_uncertainty,
-                                                                    library_reflectance[library_records.index(record), :], features[0])
+                                                                    library_reflectance[library_records.index(record), :],
+                                                                    features[0])
                         out_uncertainty = out_uncertainty + \
                                           mixture_uncertainty.reshape((rows, cols, 1)) @ current_mixture_fractions
 
@@ -271,14 +302,14 @@ def main():
 
     # write as BIL interleave
     out_data = np.transpose(out_data, (0, 2, 1))
-    with open(args.output, 'wb') as fout:
+    with open(args.output_base, 'wb') as fout:
         fout.write(out_data.astype(dtype=np.float32).tobytes())
-    envi.write_envi_header(args.output+'.hdr', out_hdr)
+    envi.write_envi_header(f'{args.output_base}.hdr', output_header)
 
     out_uncertainty = np.transpose(out_uncertainty, (0, 2, 1))
-    with open(args.output + '_uncert', 'wb') as fout:
+    with open(f'{args.output_base}_uncert', 'wb') as fout:
         fout.write(out_uncertainty.astype(dtype=np.float32).tobytes())
-    envi.write_envi_header(args.output+'_uncert.hdr', out_hdr)
+    envi.write_envi_header(f'{args.output_base}_uncert.hdr', output_header)
     emit_utils.common_logs.logtime()
 
 if __name__ == "__main__":
