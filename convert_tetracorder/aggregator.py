@@ -4,16 +4,14 @@
 import argparse
 import gzip
 import numpy as np
-import pandas as pd
 from scipy.interpolate import interp1d
 import spectral.io.envi as envi
 import emit_utils.file_checks
-import gdal
 import logging
 import emit_utils.common_logs
 import os
 import tetracorder
-import re
+from collections import OrderedDict
 
 # TODO: Get these from....direct input?  Configuration file?
 MINERAL_FRACTION_FILES = [\
@@ -30,106 +28,6 @@ MINERAL_FRACTION_FILES = [\
     ]
 
 
-def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple):
-    """ Calculate the Clark, 2003 continuum normalized band depth of a particular feature.
-    Args:
-        wavelengths: an array of wavelengths corresponding to given reflectance values
-        reflectance: an array of reflectance values to calculate the band depth from
-        feature: definition of the feature to calculate band depth for, with the first two and last two values defining 
-                 the averaging windows used identify the feature of interest. 
-    :Returns
-        band_depth: the band depth as defined in Clark, 2003.
-    """
-
-    left_inds = np.where(np.logical_and(wavelengths >= feature[0], wavelengths <= feature[1]))[0]
-    left_x = wavelengths[int(left_inds.mean())]
-    left_y = reflectance[left_inds].mean()
-
-    right_inds = np.where(np.logical_and(wavelengths >= feature[2], wavelengths <= feature[3]))[0]
-    right_x = wavelengths[int(right_inds.mean())]
-    right_y = reflectance[right_inds].mean()
-
-    continuum = interp1d([left_x, right_x], [left_y, right_y],
-                         bounds_error=False, fill_value='extrapolate')(wavelengths)
-    feature_inds = np.logical_and(wavelengths >= feature[0], wavelengths <= feature[3])
-
-    # Band Depth definition from Clark, 2003 - max over this range will be taken as the 'band depth'
-    depths = 1.0 - reflectance[feature_inds] / continuum[feature_inds]
-
-    return max(depths)
-
-
-def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array, observed_reflectance_uncertainty: np.array,
-                library_reflectance: np.array, feature: tuple):
-    """ Calculate the uncertainty of the Clark, 2003 continuum normalized band depth of a particular feature.
-    Args:
-        wavelengths: an array of wavelengths corresponding to given reflectance values
-        observed_reflectance: an array of observed reflectance values
-        observed_reflectance_uncertainty: an array of uncertainties of the observed reflectance values
-        library_reflectance: an array of library reference reflectance values
-        feature: definition of the feature to calculate band depth for, with the first two and last two values defining
-                 the averaging windows used identify the feature of interest.
-    :Returns
-        band_depth: the uncertainty for the band depth as defined in Clark, 2003.
-    """
-    inds = np.where(np.logical_and(wavelengths >= feature[1], wavelengths <= feature[2]))[0]
-
-    num = (len(inds) * np.sum(observed_reflectance[:, inds, :]*library_reflectance[np.newaxis,inds,np.newaxis], axis=1) - \
-            np.sum(observed_reflectance[:, inds, :], axis=1)*np.sum(library_reflectance[np.newaxis,inds,np.newaxis]))
-    den = len(inds) * np.sum(np.power(library_reflectance[inds],2)) - np.power(np.sum(library_reflectance[inds]),2)
-
-    a = num/den
-
-    left_term = np.power(1 / (np.sum(np.power(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],2),axis=1) - np.power(np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2)),2)
-
-    ## looped way, depcreated to below vectorization, preserved for context only
-    #right_term = 0
-    #for w in inds:
-    #    right_term += np.power(len(inds)*a*library_reflectance[w] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2) * np.power(observed_reflectance_uncertainty[:,w,:],2)
-
-    right_term = np.sum(np.power(len(inds)*a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1)[:,np.newaxis,:],2) * np.power(observed_reflectance_uncertainty[:,inds,:],2),axis=1)
-
-    psi = np.sqrt(left_term*right_term)
-
-    # Safegaurd against NANs that might occur for non-fits
-    psi[np.isnan(psi)] = 0
-
-    return psi
-
-
-def filepath_to_key(value):
-    return os.path.basename(value).split('.depth.gz')[0]
-
-def unique_file_fractions(fraction_dict, decoded_expert):
-    file_names = []
-    for key, item in fraction_dict.items():
-        file_names = file_names + [x['file'] for x in item]
-    unique_file_names = np.unique(file_names).tolist()
-
-    mineral_names = list(fraction_dict.keys())
-    fractions = np.zeros((len(unique_file_names), len(fraction_dict)))
-    scaling = np.zeros(len(unique_file_names))
-    record = np.zeros(len(unique_file_names), dtype=int)
-    for key, item in fraction_dict.items():
-        for constituent in item:
-            logging.info(f'{constituent}')
-            idx = unique_file_names.index(constituent['file'])
-            fractions[idx, mineral_names.index(key)] = constituent['BD_factor']
-            scaling[idx] = constituent['DN_scale']
-            if 'record' in constituent.keys():
-                record[idx] = constituent['record']
-            else:
-                logging.info('scanning for record in decoded expert system')
-                record[idx] = decoded_expert[filepath_to_key(constituent['file'])]['record']
-            logging.info(f'file: {unique_file_names[idx]}, DN_scale: {scaling[idx]}, record: {record[idx]}')
-
-
-    return unique_file_names, fractions, scaling, record
-
-
-
-
-# parse the command line (perform the correction on all command line arguments)
 def main():
 
     parser = argparse.ArgumentParser(description="Translate to Rrs. and/or apply masks")
@@ -154,16 +52,7 @@ def main():
     library = envi.open(args.spectral_reference_library+'.hdr', args.spectral_reference_library)
     library_reflectance = library.spectra.copy()
     library_records = [int(q) for q in library.metadata['record']]
-    names = [q.strip() for q in library.metadata['spectra names']]
     wavelengths = np.array([float(q) for q in library.metadata['wavelength']])
-
-    out_data = None
-
-    # Read the EMIT mineral fraction csv
-    #translation_file_df = pd.read_csv(args.translation_file)
-    #emit_band_names = np.array(list(translation_file_df))[2:].tolist()
-    #tetra_record_numbers = np.array(translation_file_df['#Record']).tolist()
-    #emit_10_mixture_fractions = np.array(translation_file_df[emit_band_names])
 
     if args.calculate_uncertainty == 1:
         args.calculate_uncertainty = True
@@ -175,14 +64,6 @@ def main():
         observed_reflectance_uncertainty_dataset = envi.open(args.reflectance_uncertainty_file + '.hdr')
         observed_reflectance_uncertainty = observed_reflectance_uncertainty_dataset.open_memmap(interleave='bil',
                                                                                                 writable=False)
-
-        #refl_dataset = gdal.Open(args.reflectance_file, gdal.GA_ReadOnly)
-        #observed_reflectance = np.memmap(args.reflectance_file, mode='r',
-        #                                 shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
-        #                                        refl_dataset.RasterXSize), dtype=np.float32).copy()
-        #observed_reflectance_uncertainty = np.memmap(args.reflectance_uncertainty_file, mode='r',
-        #                                 shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
-        #                                        refl_dataset.RasterXSize), dtype=np.float32).copy()
     else:
         args.calculate_uncertainty = False
 
@@ -201,7 +82,7 @@ def main():
     num_minerals = len(mineral_fractions.keys())
 
     logging.info('Organizing files to aggregate')
-    unique_file_names, fractions, scaling, records = unique_file_fractions(mineral_fractions, decoded_expert)
+    unique_file_names, fractions, scaling, library, records = unique_file_fractions(mineral_fractions, decoded_expert)
 
     logging.info('Loading complete, set up output file(s)')
     # Set up output files
@@ -225,7 +106,6 @@ def main():
     out_data = np.zeros((rows, cols, num_minerals), dtype=np.float32)
     if args.calculate_uncertainty:
         out_uncertainty = np.zeros((rows, cols, num_minerals), dtype=np.float32)
-
 
     library_band_depths = np.zeros(fractions.shape[0])
     for _f, (filename, record) in enumerate(zip(unique_file_names, records.tolist())):
@@ -293,6 +173,127 @@ def main():
             fout.write(out_uncertainty.astype(dtype=np.float32).tobytes())
     emit_utils.common_logs.logtime()
 
+
+def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple):
+    """ Calculate the Clark, 2003 continuum normalized band depth of a particular feature.
+    Args:
+        wavelengths: an array of wavelengths corresponding to given reflectance values
+        reflectance: an array of reflectance values to calculate the band depth from
+        feature: definition of the feature to calculate band depth for, with the first two and last two values defining
+                 the averaging windows used identify the feature of interest.
+    :Returns
+        band_depth: the band depth as defined in Clark, 2003.
+    """
+
+    left_inds = np.where(np.logical_and(wavelengths >= feature[0], wavelengths <= feature[1]))[0]
+    left_x = wavelengths[int(left_inds.mean())]
+    left_y = reflectance[left_inds].mean()
+
+    right_inds = np.where(np.logical_and(wavelengths >= feature[2], wavelengths <= feature[3]))[0]
+    right_x = wavelengths[int(right_inds.mean())]
+    right_y = reflectance[right_inds].mean()
+
+    continuum = interp1d([left_x, right_x], [left_y, right_y],
+                         bounds_error=False, fill_value='extrapolate')(wavelengths)
+    feature_inds = np.logical_and(wavelengths >= feature[0], wavelengths <= feature[3])
+
+    # Band Depth definition from Clark, 2003 - max over this range will be taken as the 'band depth'
+    depths = 1.0 - reflectance[feature_inds] / continuum[feature_inds]
+
+    return max(depths)
+
+
+def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array, observed_reflectance_uncertainty: np.array,
+                library_reflectance: np.array, feature: tuple):
+    """ Calculate the uncertainty of the Clark, 2003 continuum normalized band depth of a particular feature.
+    Args:
+        wavelengths: an array of wavelengths corresponding to given reflectance values
+        observed_reflectance: an array of observed reflectance values
+        observed_reflectance_uncertainty: an array of uncertainties of the observed reflectance values
+        library_reflectance: an array of library reference reflectance values
+        feature: definition of the feature to calculate band depth for, with the first two and last two values defining
+                 the averaging windows used identify the feature of interest.
+    :Returns
+        band_depth: the uncertainty for the band depth as defined in Clark, 2003.
+    """
+    inds = np.where(np.logical_and(wavelengths >= feature[1], wavelengths <= feature[2]))[0]
+
+    num = (len(inds) * np.sum(observed_reflectance[:, inds, :]*library_reflectance[np.newaxis,inds,np.newaxis], axis=1) - \
+            np.sum(observed_reflectance[:, inds, :], axis=1)*np.sum(library_reflectance[np.newaxis,inds,np.newaxis]))
+    den = len(inds) * np.sum(np.power(library_reflectance[inds],2)) - np.power(np.sum(library_reflectance[inds]),2)
+
+    a = num/den
+
+    left_term = np.power(1 / (np.sum(np.power(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],2),axis=1) - np.power(np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2)),2)
+
+    ## looped way, depcreated to below vectorization, preserved for context only
+    #right_term = 0
+    #for w in inds:
+    #    right_term += np.power(len(inds)*a*library_reflectance[w] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1),2) * np.power(observed_reflectance_uncertainty[:,w,:],2)
+
+    right_term = np.sum(np.power(len(inds)*a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis] - np.sum(a[:,np.newaxis,:]*library_reflectance[np.newaxis,inds,np.newaxis],axis=1)[:,np.newaxis,:],2) * np.power(observed_reflectance_uncertainty[:,inds,:],2),axis=1)
+
+    psi = np.sqrt(left_term*right_term)
+
+    # Safegaurd against NANs that might occur for non-fits
+    psi[np.isnan(psi)] = 0
+
+    return psi
+
+
+def filepath_to_key(value: str):
+    """ Convert a filepath to a dictionary key in a systematic way.
+    Args:
+        value: filepath to convert
+
+    Returns:
+        string key to dictionary
+
+    """
+    return os.path.basename(value).split('.depth.gz')[0]
+
+
+def unique_file_fractions(fraction_dict: OrderedDict, decoded_expert: OrderedDict):
+    """
+
+    Args:
+        fraction_dict: mineral fractions dictionary
+        decoded_expert: tetracorder expert system decoded to a dictionary
+
+    Returns:
+        unique_file_names: the set of files that must be scanned based on the mineral fractions specified
+        fractions: fraction of each of the minerals included in the fraction_dict as a matrix with rows corresponding
+            to unique_file_names
+        scaling: scaling values for read in band depths, rows correspond to unique_file_names
+        library: the reference library used, corresponding to rows of unique_file_names
+        record: the reference library record number, corresponding to rows of unique_file_names
+    """
+    file_names = []
+    for key, item in fraction_dict.items():
+        file_names = file_names + [x['file'] for x in item]
+    unique_file_names = np.unique(file_names).tolist()
+
+    mineral_names = list(fraction_dict.keys())
+    fractions = np.zeros((len(unique_file_names), len(fraction_dict)))
+    scaling = np.zeros(len(unique_file_names))
+    record = np.zeros(len(unique_file_names), dtype=int)
+    library = np.zeros(len(unique_file_names), dtype=str)
+    for key, item in fraction_dict.items():
+        for constituent in item:
+            logging.info(f'{constituent}')
+            idx = unique_file_names.index(constituent['file'])
+            fractions[idx, mineral_names.index(key)] = constituent['BD_factor']
+            scaling[idx] = constituent['DN_scale']
+            library[idx] = constituent['spectral_library']
+            if 'record' in constituent.keys():
+                record[idx] = constituent['record']
+            else:
+                logging.info('scanning for record in decoded expert system')
+                record[idx] = decoded_expert[filepath_to_key(constituent['file'])]['record']
+            logging.info(f'file: {unique_file_names[idx]}, DN_scale: {scaling[idx]}, record: {record[idx]}')
+
+
+    return unique_file_names, fractions, scaling, library, record
 
 
 if __name__ == "__main__":

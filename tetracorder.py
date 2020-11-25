@@ -47,7 +47,7 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
 
     #emit_utils.common_logs.logtime()
 
-    decoded_expert = {}
+    decoded_expert = OrderedDict()
     # read expert system file and strip comments
     with open(tetra_expert_file, 'r') as fin:
         expert_file_commented = fin.readlines()
