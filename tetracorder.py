@@ -160,7 +160,7 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
                             last_valid = _t
                         elif np.any([vcc in toks[_t] for vcc in valid_constituent_constraints]):
                             if '<' in toks[_t]:
-                                print('less than found in constraints, revise expert reader')
+                                logging.warning('less than found in constraints, revise expert reader')
                             constraint_values = toks[_t].strip().split('>')
                             constraint_name = constraint_values.pop(0)
                             for _local_tok in range(_t+1, last_valid):

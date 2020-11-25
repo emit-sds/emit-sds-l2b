@@ -27,14 +27,19 @@ MINERAL_FRACTION_FILES = [\
     'montmorillonite.group2.txt',
     ]
 
+SPECTRAL_REFERENCE_LIBRARY = {\
+    'splib06': 'Spectral-Library-Reader-master/s06av18a_envi',
+    'sprlb06': 'Spectral-Library-Reader-master/r06av18a_envi',
+    }
+
 
 def main():
 
     parser = argparse.ArgumentParser(description="Translate to Rrs. and/or apply masks")
     parser.add_argument('tetracorder_output_base', type=str, metavar='TETRA_OUTPUT_DIR')
-    parser.add_argument('spectral_reference_library', type=str, metavar='TETRA_LIBRARY_FILE')
     parser.add_argument('output_base', type=str, metavar='OUTPUT')
-    parser.add_argument('-expert_system_file', type=str, default='cmd.lib.setup.t5.2d4', metavar='OUTPUT')
+    parser.add_argument('-spectral_reference_library_config', type=str, metavar='TETRA_LIBRARY_CONFIG_FILE')
+    parser.add_argument('-expert_system_file', type=str, default='cmd.lib.setup.t5.2d4', metavar='EXPERT_SYS_FILE')
     parser.add_argument('-calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
     parser.add_argument('-reflectance_file', type=str, metavar='REFLECTANCE_FILE')
     parser.add_argument('-reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
@@ -49,10 +54,6 @@ def main():
 
     emit_utils.common_logs.logtime()
 
-    library = envi.open(args.spectral_reference_library+'.hdr', args.spectral_reference_library)
-    library_reflectance = library.spectra.copy()
-    library_records = [int(q) for q in library.metadata['record']]
-    wavelengths = np.array([float(q) for q in library.metadata['wavelength']])
 
     if args.calculate_uncertainty == 1:
         args.calculate_uncertainty = True
@@ -82,7 +83,7 @@ def main():
     num_minerals = len(mineral_fractions.keys())
 
     logging.info('Organizing files to aggregate')
-    unique_file_names, fractions, scaling, library, records = unique_file_fractions(mineral_fractions, decoded_expert)
+    unique_file_names, fractions, scaling, library_names, records = unique_file_fractions(mineral_fractions, decoded_expert)
 
     logging.info('Loading complete, set up output file(s)')
     # Set up output files
@@ -107,14 +108,30 @@ def main():
     if args.calculate_uncertainty:
         out_uncertainty = np.zeros((rows, cols, num_minerals), dtype=np.float32)
 
-    library_band_depths = np.zeros(fractions.shape[0])
-    for _f, (filename, record) in enumerate(zip(unique_file_names, records.tolist())):
-        library_band_depths[_f] = calculate_band_depth(wavelengths,
+    #TODO: include option to read in from config file
+    spectral_reference_library_files = SPECTRAL_REFERENCE_LIBRARY
+    libraries = {}
+    for key, item in spectral_reference_library_files.items():
+        library = envi.open(item + '.hdr', item)
+        library_reflectance = library.spectra.copy()
+        library_records = [int(q) for q in library.metadata['record']]
+        wavelengths = np.array([float(q) for q in library.metadata['wavelength']])
+
+        libraries[key] = {'reflectance': library_reflectance,
+                          'library_records': library_records, 'wavelengths': wavelengths}
+
+        band_depths = np.zeros(fractions.shape[0])
+        for _f, (filename, library_name, record) in enumerate(zip(unique_file_names, library_names.tolist(), records.tolist())):
+            if library_name == key:
+                band_depths[_f] = calculate_band_depth(wavelengths,
                                                        library_reflectance[library_records.index(record), :],
                                                        decoded_expert[filepath_to_key(filename)]['features'][0]['continuum'])
+        libraries[key]['band_depths'] = band_depths
 
     logging.info('Begin actual aggregation')
     for _c, constituent_file in enumerate(unique_file_names):
+
+        ref_lib = libraries[library_names[_c]]
 
         fullpath_constituent_file = os.path.join(args.tetracorder_output_base, constituent_file)
 
@@ -140,7 +157,7 @@ def main():
         band_depth = band_depth.astype(dtype=np.float32) / 255.0 * scaling[_c]
 
         # normalize to the depth of the library spectrum, translating to aerial fractions
-        library_normalized_band_depth = band_depth / library_band_depths[_c]
+        library_normalized_band_depth = band_depth / ref_lib['band_depths'][_c]
 
         # convert values < 0, > 1, or bad (nan/inf) to 0
         library_normalized_band_depth[np.logical_not(
@@ -154,9 +171,9 @@ def main():
 
         # Calculate uncertainty
         if args.calculate_uncertainty and np.sum(library_normalized_band_depth != 0) > 0:
-            mixture_uncertainty = calculate_uncertainty(wavelengths, observed_reflectance,
+            mixture_uncertainty = calculate_uncertainty(ref_lib['wavelengths'], observed_reflectance,
                                                         observed_reflectance_uncertainty,
-                                                        library_reflectance[library_records.index(records[_c]), :],
+                                                        ref_lib['reflectance'][ref_lib['records'].index(records[_c]), :],
                                                         decoded_expert[constituent_file]['features'][0]['continuum'])
             out_uncertainty = out_uncertainty + \
                               mixture_uncertainty.reshape((rows, cols, 1)) @ current_mixture_fractions
@@ -277,10 +294,10 @@ def unique_file_fractions(fraction_dict: OrderedDict, decoded_expert: OrderedDic
     fractions = np.zeros((len(unique_file_names), len(fraction_dict)))
     scaling = np.zeros(len(unique_file_names))
     record = np.zeros(len(unique_file_names), dtype=int)
-    library = np.zeros(len(unique_file_names), dtype=str)
+    library = np.empty(len(unique_file_names), dtype="<U10")
+
     for key, item in fraction_dict.items():
         for constituent in item:
-            logging.info(f'{constituent}')
             idx = unique_file_names.index(constituent['file'])
             fractions[idx, mineral_names.index(key)] = constituent['BD_factor']
             scaling[idx] = constituent['DN_scale']
@@ -288,10 +305,9 @@ def unique_file_fractions(fraction_dict: OrderedDict, decoded_expert: OrderedDic
             if 'record' in constituent.keys():
                 record[idx] = constituent['record']
             else:
-                logging.info('scanning for record in decoded expert system')
+                logging.debug('scanning for record in decoded expert system')
                 record[idx] = decoded_expert[filepath_to_key(constituent['file'])]['record']
-            logging.info(f'file: {unique_file_names[idx]}, DN_scale: {scaling[idx]}, record: {record[idx]}')
-
+            logging.debug(f'file: {unique_file_names[idx]}, DN_scale: {scaling[idx]}, library: {library[-1]}, record: {record[idx]}')
 
     return unique_file_names, fractions, scaling, library, record
 
