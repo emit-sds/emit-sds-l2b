@@ -1,4 +1,4 @@
-# David Thompson
+# Philip G. Brodrick
 
 
 import argparse
@@ -45,7 +45,7 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
     else:
         logging.basicConfig(format='%(message)s', level=log_level, filename=log_file)
 
-    #emit_utils.common_logs.logtime()
+    emit_utils.common_logs.logtime()
 
     decoded_expert = OrderedDict()
     # read expert system file and strip comments
@@ -206,8 +206,6 @@ def read_mineral_fractions(file_list: List):
                 if type(local_entry[header[0]]) == float and np.isnan(local_entry[header[0]]):
                     continue
                 fraction_list.append(local_entry)
-                #if local_entry['spectral_library'] != 'splib06':
-                #    print(local_entry)
         mineral_fractions[mineral_names[_f]] = fraction_list
     return mineral_fractions
 
@@ -225,6 +223,7 @@ def main():
 
     args.sort_keys = args.sort_keys == 1
 
+    emit_utils.common_logs.logtime()
     if args.log_file is None:
         logging.basicConfig(format='%(message)s', level=args.log_level)
     else:
@@ -232,15 +231,14 @@ def main():
 
     decoded_expert = decode_expert_system(args.tetra_expert_file, args.groups, args.log_file, log_level=args.log_level)
 
-    #emit_utils.common_logs.logtime()
-
-    #emit_utils.common_logs.logtime()
     with open(args.converted_file, 'w') as file:
         if os.path.splitext(args.converted_file)[-1] == '.yaml':
             outstring = yaml.dump(decoded_expert, sort_keys=args.sort_keys)
         elif os.path.splitext(args.converted_file)[-1] == '.json':
             outstring = json.dumps(decoded_expert, sort_keys=args.sort_keys, indent=4)
         file.write(outstring)
+
+    emit_utils.common_logs.logtime()
 
 
 if __name__ == "__main__":
