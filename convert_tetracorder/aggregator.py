@@ -13,6 +13,7 @@ import logging
 import emit_utils.common_logs
 import os
 import tetracorder
+import re
 
 # TODO: Get these from....direct input?  Configuration file?
 MINERAL_FRACTION_FILES = [\
@@ -96,6 +97,38 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
     return psi
 
 
+def filepath_to_key(value):
+    return os.path.basename(value).split('.depth.gz')[0]
+
+def unique_file_fractions(fraction_dict, decoded_expert):
+    file_names = []
+    for key, item in fraction_dict.items():
+        file_names = file_names + [x['file'] for x in item]
+    unique_file_names = np.unique(file_names).tolist()
+
+    mineral_names = list(fraction_dict.keys())
+    fractions = np.zeros((len(unique_file_names), len(fraction_dict)))
+    scaling = np.zeros(len(unique_file_names))
+    record = np.zeros(len(unique_file_names), dtype=int)
+    for key, item in fraction_dict.items():
+        for constituent in item:
+            logging.info(f'{constituent}')
+            idx = unique_file_names.index(constituent['file'])
+            fractions[idx, mineral_names.index(key)] = constituent['BD_factor']
+            scaling[idx] = constituent['DN_scale']
+            if 'record' in constituent.keys():
+                record[idx] = constituent['record']
+            else:
+                logging.info('scanning for record in decoded expert system')
+                record[idx] = decoded_expert[filepath_to_key(constituent['file'])]['record']
+            logging.info(f'file: {unique_file_names[idx]}, DN_scale: {scaling[idx]}, record: {record[idx]}')
+
+
+    return unique_file_names, fractions, scaling, record
+
+
+
+
 # parse the command line (perform the correction on all command line arguments)
 def main():
 
@@ -124,25 +157,32 @@ def main():
     names = [q.strip() for q in library.metadata['spectra names']]
     wavelengths = np.array([float(q) for q in library.metadata['wavelength']])
 
-    num_minerals = 10
     out_data = None
 
     # Read the EMIT mineral fraction csv
-    translation_file_df = pd.read_csv(args.translation_file)
-    emit_band_names = np.array(list(translation_file_df))[2:].tolist()
-    tetra_record_numbers = np.array(translation_file_df['#Record']).tolist()
-    emit_10_mixture_fractions = np.array(translation_file_df[emit_band_names])
+    #translation_file_df = pd.read_csv(args.translation_file)
+    #emit_band_names = np.array(list(translation_file_df))[2:].tolist()
+    #tetra_record_numbers = np.array(translation_file_df['#Record']).tolist()
+    #emit_10_mixture_fractions = np.array(translation_file_df[emit_band_names])
 
     if args.calculate_uncertainty == 1:
         args.calculate_uncertainty = True
         emit_utils.file_checks.check_raster_files([args.reflectance_file, args.reflectance_uncertainty_file], map_space=False)
-        refl_dataset = gdal.Open(args.reflectance_file, gdal.GA_ReadOnly)
-        observed_reflectance = np.memmap(args.reflectance_file, mode='r',
-                                         shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
-                                                refl_dataset.RasterXSize), dtype=np.float32).copy()
-        observed_reflectance_uncertainty = np.memmap(args.reflectance_uncertainty_file, mode='r',
-                                         shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
-                                                refl_dataset.RasterXSize), dtype=np.float32).copy()
+
+        refl_dataset = envi.open(args.reflectance_file + '.hdr')
+        observed_reflectance = refl_dataset.open_memmap(interleave='bil', writable=False)
+
+        observed_reflectance_uncertainty_dataset = envi.open(args.reflectance_uncertainty_file + '.hdr')
+        observed_reflectance_uncertainty = observed_reflectance_uncertainty_dataset.open_memmap(interleave='bil',
+                                                                                                writable=False)
+
+        #refl_dataset = gdal.Open(args.reflectance_file, gdal.GA_ReadOnly)
+        #observed_reflectance = np.memmap(args.reflectance_file, mode='r',
+        #                                 shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
+        #                                        refl_dataset.RasterXSize), dtype=np.float32).copy()
+        #observed_reflectance_uncertainty = np.memmap(args.reflectance_uncertainty_file, mode='r',
+        #                                 shape=(refl_dataset.RasterYSize, refl_dataset.RasterCount,
+        #                                        refl_dataset.RasterXSize), dtype=np.float32).copy()
     else:
         args.calculate_uncertainty = False
 
@@ -158,159 +198,102 @@ def main():
     mff = [os.path.join(args.tetracorder_output_base, 'cmds.abundances', 'lists.of.files.by.mineral', x) for x
            in MINERAL_FRACTION_FILES]
     mineral_fractions = tetracorder.read_mineral_fractions(mff)
+    num_minerals = len(mineral_fractions.keys())
+
+    logging.info('Organizing files to aggregate')
+    unique_file_names, fractions, scaling, records = unique_file_fractions(mineral_fractions, decoded_expert)
+
+    logging.info('Loading complete, set up output file(s)')
+    # Set up output files
+    input_header = envi.read_envi_header(os.path.join(args.tetracorder_output_base, unique_file_names[0] + '.hdr'))
+    output_header = input_header.copy()
+    if 'file compression' in output_header.keys():
+        del output_header['file compression']
+    if 'wavelengths' in output_header.keys():
+        del output_header['wavelengths']
+
+    output_header['interleave'] = 'bil'
+    output_header['data type'] = 4
+    output_header['bands'] = num_minerals
+    output_header['header offset'] = 0
+    output_header['band names'] = mineral_fractions.keys()
+    cols = int(input_header['samples'])
+    rows = int(input_header['lines'])
+    envi.write_envi_header(f'{args.output_base}.hdr', output_header)
+    envi.write_envi_header(f'{args.output_base}_uncert.hdr', output_header)
+
+    out_data = np.zeros((rows, cols, num_minerals), dtype=np.float32)
+    if args.calculate_uncertainty:
+        out_uncertainty = np.zeros((rows, cols, num_minerals), dtype=np.float32)
 
 
+    library_band_depths = np.zeros(fractions.shape[0])
+    for _f, (filename, record) in enumerate(zip(unique_file_names, records.tolist())):
+        library_band_depths[_f] = calculate_band_depth(wavelengths,
+                                                       library_reflectance[library_records.index(record), :],
+                                                       decoded_expert[filepath_to_key(filename)]['features'][0]['continuum'])
 
+    logging.info('Begin actual aggregation')
+    for _c, constituent_file in enumerate(unique_file_names):
 
-    # read expert system file and strip comments
-    with open(expert_system_file, 'r') as fin:
-        expert_file_commented = fin.readlines()
+        fullpath_constituent_file = os.path.join(args.tetracorder_output_base, constituent_file)
 
-    expert_file_text, orig_lineno = [], []
-    for line_index, line in enumerate(expert_file_commented):
-        if not line.strip().startswith('\#'):
-            orig_lineno.append(line_index)
-            expert_file_text.append(line)
-    del expert_file_commented
+        # read band depth
+        with open(fullpath_constituent_file, 'rb') as fin:
+            compressed = fin.read()
+        decompressed = gzip.decompress(compressed)
 
-    # Go through expert system file one line at a time, after initializing key variables
-    expert_line_index, group, spectrum, output_data, header, output_header, rows, cols = \
-        0, None, None, None, True, None, 0, 0
-    while expert_line_index < len(expert_file_text):
+        band_depth_header = envi.read_envi_header(fullpath_constituent_file + '.hdr')
+        offs = int(band_depth_header['header offset'])
+        vicar = decompressed[:offs].decode('ascii').split(' ')[0]
+        if vicar[:7] != 'LBLSIZE':
+            raise AttributeError(f'Incorrect file format {fullpath_constituent_file},'
+                                 'no LBLSIZE found in VICAR header')
+        # Read the header size from the VICAR header
+        header_size = int(vicar.split('=')[-1])
 
-        # The Header flag excludes the definitions at the start
-        if expert_file_text[expert_line_index].startswith('BEGIN SETUP'):
-            header = False
-        elif header:
-            expert_line_index = expert_line_index + 1
-            continue
+        # Now pull out the rest of the binary file and reshape
+        band_depth = np.frombuffer(decompressed, dtype=np.uint8, count=(rows * cols), offset=header_size)
+        band_depth = band_depth.reshape((rows, cols))
 
-        # if keyword 'group' appears, define the current group name
-        if expert_file_text[expert_line_index].startswith('group'):
-            group = int(expert_file_text[expert_line_index].strip().split()[1])
+        # convert data type
+        band_depth = band_depth.astype(dtype=np.float32) / 255.0 * scaling[_c]
 
-        # if we've gotten to the end of the record, time to pull everything together and write our output
-        if expert_file_text[expert_line_index].startswith('endaction'):
-            if group in [1, 2]:
+        # normalize to the depth of the library spectrum, translating to aerial fractions
+        library_normalized_band_depth = band_depth / library_band_depths[_c]
 
-                # get band depth of spectrum library file
-                try:
-                    library_band_depth = calculate_band_depth(
-                        wavelengths, library_reflectance[library_records.index(record), :], features[0])
+        # convert values < 0, > 1, or bad (nan/inf) to 0
+        library_normalized_band_depth[np.logical_not(
+            np.isfinite(library_normalized_band_depth))] = 0
+        library_normalized_band_depth[library_normalized_band_depth < 0] = 0
+        library_normalized_band_depth[library_normalized_band_depth > 1] = 1
 
-                except ValueError:
-                    expert_line_index = expert_line_index + 1
-                    continue
+        # determine the mix of EMIT minerals
+        current_mixture_fractions = fractions[_c, :].reshape(1, 1, -1)
+        out_data = out_data + library_normalized_band_depth.reshape((rows, cols, 1)) @ current_mixture_fractions
 
-                # get band depths from tetracorder output map
-                groupdir = os.path.join(args.tetracorder_output_base, f'group.{group}um')
+        # Calculate uncertainty
+        if args.calculate_uncertainty and np.sum(library_normalized_band_depth != 0) > 0:
+            mixture_uncertainty = calculate_uncertainty(wavelengths, observed_reflectance,
+                                                        observed_reflectance_uncertainty,
+                                                        library_reflectance[library_records.index(records[_c]), :],
+                                                        decoded_expert[constituent_file]['features'][0]['continuum'])
+            out_uncertainty = out_uncertainty + \
+                              mixture_uncertainty.reshape((rows, cols, 1)) @ current_mixture_fractions
 
-                constituent_file = os.path.join(groupdir, f'{filename}.depth.gz')
-                logging.info(f'loading: {constituent_file}')
-                try:
-                    # read header, arrange output data files
-                    input_header = envi.read_envi_header(constituent_file + '.hdr')
-                    offs = int(input_header['header offset'])
-                    if out_data is None:
-                        output_header = input_header.copy()
-                        if ('file compression' in output_header.keys()):
-                            del output_header['file compression']
-                        output_header['interleave'] = 'bil'
-                        output_header['data type'] = 4
-                        output_header['wavelengths'] = '{'+','.join([str(q) for q in wavelengths])+'}'
-                        output_header['bands'] = num_minerals
-                        output_header['header offset'] = 0
-                        output_header['band names'] = emit_band_names
-                        cols = int(input_header['samples'])
-                        rows = int(input_header['lines'])
-                        out_data = np.zeros((rows, cols, num_minerals), dtype=np.float32)
-                        if args.calculate_uncertainty:
-                            out_uncertainty = np.zeros((rows, cols, num_minerals), dtype=np.float32)
-
-                    # read band depth
-                    with open(constituent_file, 'rb') as fin:
-                        compressed = fin.read()
-                    decompressed = gzip.decompress(compressed)
-
-                    vicar = decompressed[:offs].decode('ascii').split(' ')[0]
-                    if vicar[:7] != 'LBLSIZE':
-                        raise AttributeError(f'Incorrect file format {constituent_file},'
-                                             'no LBLSIZE found in VICAR header')
-                    # Read the header size from the VICAR header
-                    header_size = int(vicar.split('=')[-1])
-
-                    # Now pull out the rest of the binary file and reshape
-                    band_depth = np.frombuffer(decompressed, dtype=np.uint8, count=(rows*cols), 
-                                               offset=header_size)
-                    band_depth = band_depth.reshape((rows, cols))
-
-                    # convert data type
-                    band_depth = band_depth.astype(dtype=np.float32) / 255.0 * data_type_scaling
-
-                    # normalize to the depth of the library spectrum, translating to aerial fractions
-                    library_normalized_band_depth = band_depth / library_band_depth
-
-                    # convert values < 0, > 1, or bad (nan/inf) to 0
-                    library_normalized_band_depth[np.logical_not(
-                        np.isfinite(library_normalized_band_depth))] = 0
-                    library_normalized_band_depth[library_normalized_band_depth < 0] = 0
-                    library_normalized_band_depth[library_normalized_band_depth > 1] = 1
-
-                    # determine the mix of EMIT minerals
-                    current_mixture_fractions = emit_10_mixture_fractions[tetra_record_numbers.index(
-                        record)].copy()
-                    current_mixture_fractions = current_mixture_fractions.reshape(
-                        1, 1, num_minerals)
-                    out_data = out_data + \
-                        library_normalized_band_depth.reshape(
-                            (rows, cols, 1)) @ current_mixture_fractions
-
-                    # Calculate uncertainty
-                    if args.calculate_uncertainty and np.sum(library_normalized_band_depth !=0) > 0:
-                        mixture_uncertainty = calculate_uncertainty(wavelengths, observed_reflectance,
-                                                                    observed_reflectance_uncertainty,
-                                                                    library_reflectance[library_records.index(record), :],
-                                                                    features[0])
-                        out_uncertainty = out_uncertainty + \
-                                          mixture_uncertainty.reshape((rows, cols, 1)) @ current_mixture_fractions
-
-
-
-                except FileNotFoundError:
-                    logging.error(filename+'.depth.gz.hdr not found')
-
-        # SMALL keyword tells us to find the library record number
-        if 'SMALL' in expert_file_text[expert_line_index]:
-            record = int(expert_file_text[expert_line_index].strip().split()[3])
-
-        # 'define output' keyword tells us to get the 8 DN 255 scaling factor
-        if 'define output' in expert_file_text[expert_line_index]:
-            filename = expert_file_text[expert_line_index+2].strip().split()[0]
-            data_type_scaling = float(expert_file_text[expert_line_index+3].strip().split()[4])
-
-        # 'define features' means we've found the location to get the critical feature elements:
-        #  the requisite wavelengths for now.  currently continuum removal threshold ct and lct/rct ignored
-        if 'define features' in expert_file_text[expert_line_index]:
-            feature_line_index = expert_line_index + 1
-            features = []
-            while ('endfeatures' not in expert_file_text[feature_line_index]):
-                toks = expert_file_text[feature_line_index].strip().split()
-                if len(toks) > 5 and toks[0].startswith('f') and toks[1] == 'DLw':
-                    features.append([float(f) for f in toks[2:6]])
-                feature_line_index = feature_line_index + 1
-        expert_line_index = expert_line_index + 1
-
+        #
     # write as BIL interleave
     out_data = np.transpose(out_data, (0, 2, 1))
     with open(args.output_base, 'wb') as fout:
         fout.write(out_data.astype(dtype=np.float32).tobytes())
-    envi.write_envi_header(f'{args.output_base}.hdr', output_header)
 
-    out_uncertainty = np.transpose(out_uncertainty, (0, 2, 1))
-    with open(f'{args.output_base}_uncert', 'wb') as fout:
-        fout.write(out_uncertainty.astype(dtype=np.float32).tobytes())
-    envi.write_envi_header(f'{args.output_base}_uncert.hdr', output_header)
+    if args.calculate_uncertainty:
+        out_uncertainty = np.transpose(out_uncertainty, (0, 2, 1))
+        with open(f'{args.output_base}_uncert', 'wb') as fout:
+            fout.write(out_uncertainty.astype(dtype=np.float32).tobytes())
     emit_utils.common_logs.logtime()
+
+
 
 if __name__ == "__main__":
     main()

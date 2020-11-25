@@ -8,7 +8,10 @@ import numpy as np
 import os
 import logging
 from typing import List
+from collections import OrderedDict
 import emit_utils.common_logs
+import re
+import pandas as pd
 
 DEFAULT_GROUPS = [1,2]
 DEFAULT_LOGFILE = None
@@ -179,31 +182,34 @@ def read_mineral_fractions(file_list: List):
     Returns:
         Dictionary keyed with unique file identifiers corresponding to expert system file
     """
-    mineral_fractions = {}
-    for f in file_list:
-        with open(f, 'r') as fin:
+    mineral_fractions = OrderedDict()
+    mineral_names = [re.split('\.|-', os.path.basename(x))[0] for x in file_list]
+    for _f, filename in enumerate(file_list):
+        with open(filename, 'r') as fin:
             fractions_file_commented = fin.readlines()
-
-        # Hard coded due to inconsistent multi-line abundance file heading
-        header = ['file','DN_scale','BD_factor','title','spectral_library','record']
-        for line in fractions_file_commented:
+        df = None
+        for _line, line in enumerate(fractions_file_commented):
             if not line.strip().startswith('#'):
-                toks = [x.strip() for x in line.split('  ') if x != '']
+                df = pd.read_fwf(filename, skiprows=_line, header=None)
+                break
 
-                namebase = os.path.basename(toks[0]).split('.depth.gz')[0]
-
-                if len(toks) != len(header):
-                    logging.error('Number of split tokens in mineral fractions file does not align'
-                                  ' with expected header\n'
-                                  f'lines: {toks}\nheader: {header}')
-                    raise AttributeError('Invalid file formatting, see log for details')
-
+        ## Hard coded due to inconsistent multi-line abundance file heading
+        header = ['file','DN_scale','BD_factor','title','spectral_library','record']
+        fraction_list = []
+        if df is None:
+            continue
+        else:
+            for idx in range(len(df[0])):
                 local_entry = {}
-                for headname, tok in zip(header, toks):
+                for headname, tok in zip(header, df.iloc[idx,:len(header)].tolist()):
                     local_entry[headname] = tok
-
-                mineral_fractions[namebase] = local_entry
-        return mineral_fractions
+                if type(local_entry[header[0]]) == float and np.isnan(local_entry[header[0]]):
+                    continue
+                fraction_list.append(local_entry)
+                #if local_entry['spectral_library'] != 'splib06':
+                #    print(local_entry)
+        mineral_fractions[mineral_names[_f]] = fraction_list
+    return mineral_fractions
 
 
 def main():
