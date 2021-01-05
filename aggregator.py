@@ -43,6 +43,7 @@ def main():
     parser.add_argument('-calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
     parser.add_argument('-reflectance_file', type=str, metavar='REFLECTANCE_FILE')
     parser.add_argument('-reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
+    parser.add_argument('-detailed_outputs', type=int, choices=[0, 1], default=0, metavar='DETAILED_OUTPUTS')
     parser.add_argument('-log_file', type=str, default=None)
     parser.add_argument('-log_level', type=str, default='INFO')
     args = parser.parse_args()
@@ -54,6 +55,7 @@ def main():
 
     emit_utils.common_logs.logtime()
 
+    args.detailed_outputs = args.detailed_outputs == 1
 
     if args.calculate_uncertainty == 1:
         args.calculate_uncertainty = True
@@ -129,6 +131,13 @@ def main():
         libraries[key]['band_depths'] = band_depths
 
     logging.info('Begin actual aggregation')
+    if args.detailed_outputs:
+        detailed_outputs = {}
+        for name in mineral_fractions.keys():
+            detailed_outputs[name] = {}
+            detailed_outputs[name]['files'] = []
+            detailed_outputs[name]['values'] = []
+
     for _c, constituent_file in enumerate(unique_file_names):
 
         ref_lib = libraries[library_names[_c]]
@@ -167,7 +176,14 @@ def main():
 
         # determine the mix of EMIT minerals
         current_mixture_fractions = fractions[_c, :].reshape(1, 1, -1)
-        out_data = out_data + library_normalized_band_depth.reshape((rows, cols, 1)) @ current_mixture_fractions
+        unmixed_outputs = library_normalized_band_depth.reshape((rows, cols, 1)) @ current_mixture_fractions
+        out_data = out_data + unmixed_outputs
+
+        if args.detailed_outputs:
+            for _b in range(unmixed_outputs.shape[-1]):
+                if np.sum(unmixed_outputs[...,_b]) > 0:
+                    detailed_outputs[list(mineral_fractions.keys())[_b]]['files'].append(constituent_file)
+                    detailed_outputs[list(mineral_fractions.keys())[_b]]['values'].append(unmixed_outputs[...,_b])
 
         # Calculate uncertainty
         if args.calculate_uncertainty and np.sum(library_normalized_band_depth != 0) > 0:
@@ -178,7 +194,18 @@ def main():
             out_uncertainty = out_uncertainty + \
                               mixture_uncertainty.reshape((rows, cols, 1)) @ current_mixture_fractions
 
-        #
+    if args.detailed_outputs:
+        for mineral in mineral_fractions.keys():
+            num_outputs = len(detailed_outputs[mineral]['files'])
+            if num_outputs > 0:
+                output_header['bands'] = num_outputs
+                output_header['band names'] = detailed_outputs[mineral]['files']
+                envi.write_envi_header(f'{args.output_base}_{mineral}_details.hdr', output_header)
+                towrite = np.stack(detailed_outputs[mineral]['values'],axis=1)
+                with open(f'{args.output_base}_{mineral}_details', 'wb') as fout:
+                    fout.write(towrite.astype(dtype=np.float32).tobytes())
+
+    detailed_header = output_header.copy()
     # write as BIL interleave
     out_data = np.transpose(out_data, (0, 2, 1))
     with open(args.output_base, 'wb') as fout:
