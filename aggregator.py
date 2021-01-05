@@ -119,6 +119,10 @@ def main():
         library_records = [int(q) for q in library.metadata['record']]
         wavelengths = np.array([float(q) for q in library.metadata['wavelength']])
 
+        if ';;;' in key:
+            key = key.replace(';;;', ',')
+            logging.debug(f'found comma replacement, now: {key}')
+
         libraries[key] = {'reflectance': library_reflectance,
                           'library_records': library_records, 'wavelengths': wavelengths}
 
