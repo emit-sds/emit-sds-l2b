@@ -99,6 +99,7 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
                 entry['longname'] = longname
                 entry['group'] = group
                 entry['record'] = record
+                entry['spectral_library'] = source_lib
                 entry['name'] = name
                 entry['data_type_scaling'] = data_type_scaling
                 entry['features'] = features
@@ -119,6 +120,7 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
         # SMALL keyword tells us to find the library record number
         if 'SMALL' in expert_file_text[expert_line_index]:
             record = int(expert_file_text[expert_line_index].strip().split()[3])
+            source_lib = expert_file_text[expert_line_index].strip().split()[2].replace(']','').replace('[','')
 
         # 'define output' keyword tells us to get the 8 DN 255 scaling factor
         if 'define output' in expert_file_text[expert_line_index]:
