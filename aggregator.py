@@ -117,7 +117,9 @@ def main():
         library = envi.open(item + '.hdr', item)
         library_reflectance = library.spectra.copy()
         library_records = [int(q) for q in library.metadata['record']]
-        wavelengths = np.array([float(q) for q in library.metadata['wavelength']])
+        hdr = envi.read_envi_header(item + '.hdr')
+        wavelengths = np.array([float(q) for q in hdr['wavelength']])
+        # wavelengths = np.array([float(q) for q in library.metadata['wavelength']])
 
         if ';;;' in key:
             key = key.replace(';;;', ',')
