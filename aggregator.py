@@ -38,14 +38,16 @@ def main():
     parser = argparse.ArgumentParser(description="Translate to Rrs. and/or apply masks")
     parser.add_argument('tetracorder_output_base', type=str, metavar='TETRA_OUTPUT_DIR')
     parser.add_argument('output_base', type=str, metavar='OUTPUT')
-    parser.add_argument('-spectral_reference_library_config', type=str, metavar='TETRA_LIBRARY_CONFIG_FILE')
-    parser.add_argument('-expert_system_file', type=str, default='cmd.lib.setup.t5.2d4', metavar='EXPERT_SYS_FILE')
-    parser.add_argument('-calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
-    parser.add_argument('-reflectance_file', type=str, metavar='REFLECTANCE_FILE')
-    parser.add_argument('-reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
-    parser.add_argument('-detailed_outputs', type=int, choices=[0, 1], default=0, metavar='DETAILED_OUTPUTS')
-    parser.add_argument('-log_file', type=str, default=None)
-    parser.add_argument('-log_level', type=str, default='INFO')
+    parser.add_argument('--spectral_reference_library_config', type=str, metavar='TETRA_LIBRARY_CONFIG_FILE')
+    parser.add_argument('--expert_system_file', type=str, default='cmd.lib.setup.t5.2d4', metavar='EXPERT_SYS_FILE')
+    parser.add_argument('--calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
+    parser.add_argument('--reflectance_file', type=str, metavar='REFLECTANCE_FILE')
+    parser.add_argument('--reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
+    parser.add_argument('--detailed_outputs', type=int, choices=[0, 1], default=0, metavar='DETAILED_OUTPUTS')
+    parser.add_argument('--reference_library', '-slib', type=str, default='Spectral-Library-Reader-master/s06av18a_envi', metavar='REFERENCE_LIBRARY')
+    parser.add_argument('--research_library', '-rlib', type=str, default='Spectral-Library-Reader-master/r06av18a_envi', metavar='RESEARCH_LIBRARY')
+    parser.add_argument('--log_file', type=str, default=None)
+    parser.add_argument('--log_level', type=str, default='INFO')
     args = parser.parse_args()
 
     if args.log_file is None:
@@ -111,7 +113,7 @@ def main():
         out_uncertainty = np.zeros((rows, cols, num_minerals), dtype=np.float32)
 
     #TODO: include option to read in from config file
-    spectral_reference_library_files = SPECTRAL_REFERENCE_LIBRARY
+    spectral_reference_library_files = {'splib06': args.reference_library, 'sprlb06': args.research_library}
     libraries = {}
     for key, item in spectral_reference_library_files.items():
         library = envi.open(item + '.hdr', item)
