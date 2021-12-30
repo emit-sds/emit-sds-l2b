@@ -7,6 +7,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 import spectral.io.envi as envi
 import emit_utils.file_checks
+from emit_utils.file_checks import envi_header
 import logging
 import emit_utils.common_logs
 import os
@@ -63,10 +64,10 @@ def main():
         args.calculate_uncertainty = True
         emit_utils.file_checks.check_raster_files([args.reflectance_file, args.reflectance_uncertainty_file], map_space=False)
 
-        refl_dataset = envi.open(args.reflectance_file + '.hdr')
+        refl_dataset = envi.open(envi_header(args.reflectance_file))
         observed_reflectance = refl_dataset.open_memmap(interleave='bil', writable=False)
 
-        observed_reflectance_uncertainty_dataset = envi.open(args.reflectance_uncertainty_file + '.hdr')
+        observed_reflectance_uncertainty_dataset = envi.open(envi_header(args.reflectance_uncertainty_file))
         observed_reflectance_uncertainty = observed_reflectance_uncertainty_dataset.open_memmap(interleave='bil',
                                                                                                 writable=False)
     else:
@@ -116,7 +117,7 @@ def main():
     spectral_reference_library_files = {'splib06': args.reference_library, 'sprlb06': args.research_library}
     libraries = {}
     for key, item in spectral_reference_library_files.items():
-        library = envi.open(item + '.hdr', item)
+        library = envi.open(envi_header(item), item)
         library_reflectance = library.spectra.copy()
         library_records = [int(q) for q in library.metadata['record']]
         hdr = envi.read_envi_header(item + '.hdr')
@@ -197,8 +198,8 @@ def main():
         if args.calculate_uncertainty and np.sum(library_normalized_band_depth != 0) > 0:
             mixture_uncertainty = calculate_uncertainty(ref_lib['wavelengths'], observed_reflectance,
                                                         observed_reflectance_uncertainty,
-                                                        ref_lib['reflectance'][ref_lib['records'].index(records[_c]), :],
-                                                        decoded_expert[constituent_file]['features'][0]['continuum'])
+                                                        ref_lib['reflectance'][ref_lib['library_records'].index(records[_c]), :],
+                                                        decoded_expert[filepath_to_key(constituent_file)]['features'][0]['continuum'])
             out_uncertainty = out_uncertainty + \
                               mixture_uncertainty.reshape((rows, cols, 1)) @ current_mixture_fractions
 
@@ -213,6 +214,7 @@ def main():
                 with open(f'{args.output_base}_{mineral}_details', 'wb') as fout:
                     fout.write(towrite.astype(dtype=np.float32).tobytes())
 
+    logging.info('Writing output')
     detailed_header = output_header.copy()
     # write as BIL interleave
     out_data = np.transpose(out_data, (0, 2, 1))
@@ -220,6 +222,7 @@ def main():
         fout.write(out_data.astype(dtype=np.float32).tobytes())
 
     if args.calculate_uncertainty:
+        logging.info('Writing output uncertainty')
         out_uncertainty = np.transpose(out_uncertainty, (0, 2, 1))
         with open(f'{args.output_base}_uncert', 'wb') as fout:
             fout.write(out_uncertainty.astype(dtype=np.float32).tobytes())
@@ -268,6 +271,7 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
     :Returns
         band_depth: the uncertainty for the band depth as defined in Clark, 2003.
     """
+
     inds = np.where(np.logical_and(wavelengths >= feature[1], wavelengths <= feature[2]))[0]
 
     num = (len(inds) * np.sum(observed_reflectance[:, inds, :]*library_reflectance[np.newaxis,inds,np.newaxis], axis=1) - \
@@ -302,7 +306,7 @@ def filepath_to_key(value: str):
         string key to dictionary
 
     """
-    return os.path.basename(value).split('.depth.gz')[0]
+    return value.split('.depth.gz')[0]
 
 
 def unique_file_fractions(fraction_dict: OrderedDict, decoded_expert: OrderedDict):
