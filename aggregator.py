@@ -92,7 +92,7 @@ def main():
 
     logging.info('Loading complete, set up output file(s)')
     # Set up output files
-    input_header = envi.read_envi_header(os.path.join(args.tetracorder_output_base, unique_file_names[0] + '.hdr'))
+    input_header = envi.read_envi_header(os.path.join(args.tetracorder_output_base, envi_header(unique_file_names[0])))
     output_header = input_header.copy()
     if 'file compression' in output_header.keys():
         del output_header['file compression']
@@ -106,8 +106,8 @@ def main():
     output_header['band names'] = mineral_fractions.keys()
     cols = int(input_header['samples'])
     rows = int(input_header['lines'])
-    envi.write_envi_header(f'{args.output_base}.hdr', output_header)
-    envi.write_envi_header(f'{args.output_base}_uncert.hdr', output_header)
+    envi.write_envi_header(envi_header(args.output_base), output_header)
+    envi.write_envi_header(envi_header(f'{args.output_base}_uncert'), output_header)
 
     out_data = np.zeros((rows, cols, num_minerals), dtype=np.float32)
     if args.calculate_uncertainty:
@@ -120,7 +120,7 @@ def main():
         library = envi.open(envi_header(item), item)
         library_reflectance = library.spectra.copy()
         library_records = [int(q) for q in library.metadata['record']]
-        hdr = envi.read_envi_header(item + '.hdr')
+        hdr = envi.read_envi_header(envi_header(item))
         wavelengths = np.array([float(q) for q in hdr['wavelength']])
         # wavelengths = np.array([float(q) for q in library.metadata['wavelength']])
 
@@ -209,7 +209,7 @@ def main():
             if num_outputs > 0:
                 output_header['bands'] = num_outputs
                 output_header['band names'] = detailed_outputs[mineral]['files']
-                envi.write_envi_header(f'{args.output_base}_{mineral}_details.hdr', output_header)
+                envi.write_envi_header(envi_header(f'{args.output_base}_{mineral}_details'), output_header)
                 towrite = np.stack(detailed_outputs[mineral]['values'],axis=1)
                 with open(f'{args.output_base}_{mineral}_details', 'wb') as fout:
                     fout.write(towrite.astype(dtype=np.float32).tobytes())

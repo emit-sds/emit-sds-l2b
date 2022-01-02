@@ -40,7 +40,7 @@ def main():
 
     # make global attributes
     logging.debug('Creating global attributes')
-    makeGlobalAttr(nc_ds, args.rfl_file, args.glt_file)
+    makeGlobalAttr(nc_ds, args.abun_file, args.glt_file)
 
     nc_ds.summary = nc_ds.summary + \
         f"\\n\\nThis collection contains L2B spectral abundance estimates of surface mineralology \
