@@ -24,7 +24,7 @@ MINERAL_FRACTION_FILES = [\
     'goethite-all-for-reference.group1.txt',
     'gypsum.group2.txt',
     'chlorite.group2.txt',
-    'illite.group2.txt',
+    'illite+muscovite.group2.txt',
     'montmorillonite.group2.txt',
     ]
 
@@ -159,7 +159,7 @@ def main():
         decompressed = gzip.decompress(compressed)
 
         band_depth_header = envi.read_envi_header(fullpath_constituent_file + '.hdr')
-        offs = int(band_depth_header['header offset'])
+        offs = max(15,int(band_depth_header['header offset']))
         vicar = decompressed[:offs].decode('ascii').split(' ')[0]
         if vicar[:7] != 'LBLSIZE':
             raise AttributeError(f'Incorrect file format {fullpath_constituent_file},'
