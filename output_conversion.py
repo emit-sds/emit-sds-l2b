@@ -40,7 +40,7 @@ def main():
 
     # make global attributes
     logging.debug('Creating global attributes')
-    makeGlobalAttr(nc_ds, args.rfl_file, args.glt_file)
+    makeGlobalAttr(nc_ds, args.abun_file, args.glt_file)
 
     nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance and Uncertainty, 72km, V001"
     nc_ds.summary = nc_ds.summary + \
@@ -73,10 +73,6 @@ def main():
 
     nc_ds.close()
     logging.debug(f'Successfully created {args.output_filename}')
-
-    #TODO add ummg creation
-    import subprocess
-    subprocess.call(f'touch {args.ummg_file}',shell=True)
 
     return
 

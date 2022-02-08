@@ -214,7 +214,7 @@ def read_mineral_fractions(file_list: List):
                 break
 
         ## Hard coded due to inconsistent multi-line abundance file heading
-        header = ['file','DN_scale','BD_factor','title','spectral_library','record']
+        header = ['file','DN_scale','BD_factor','Band_depth', 'title','spectral_library','record']
         fraction_list = []
         if df is None:
             continue
