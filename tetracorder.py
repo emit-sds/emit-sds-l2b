@@ -19,6 +19,8 @@ DEFAULT_LOGLEVEL = 'INFO'
 DEFAULT_SORT_KEYS = False
 
 
+
+
 def recast_globals(to_recast: List, globals: dict):
     for _i in range(len(to_recast)):
         for key, item in globals.items():
@@ -72,6 +74,9 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
         '[G2UMRBDA]': '[G2UMRBDA]',
     }
 
+    groupnames = {}
+    casenames = {}
+
     while expert_line_index < len(expert_file_text):
 
         # The Header flag excludes the definitions at the start
@@ -86,6 +91,17 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
                         if '\#' in line_remainder:
                             line_remainder = line_remainder[:line_remainder.index('\#')]
                         globals[key] = line_remainder
+            elif expert_file_text[expert_line_index].startswith('groupname'):
+                split_line = expert_file_text[expert_line_index].strip().split()
+                group_str = expert_file_text[expert_line_index][len('groupname ' + split_line[1])+1:expert_file_text[expert_line_index].index('\#')]
+                group_str = group_str.replace('region','').strip()
+                group_str = group_str.replace(' broad','-broad').strip()
+                group_str = group_str.replace(' curve','_curve').strip()
+                group_str = group_str.replace('2-2.5um','2um').strip()
+                groupnames[split_line[1]] =  f'group.{group_str}'
+            elif expert_file_text[expert_line_index].startswith('casename'):
+                split_line = expert_file_text[expert_line_index].strip().split()
+                casenames[split_line[1]] = expert_file_text[expert_line_index][len('casename ' + split_line[1]):expert_file_text[expert_line_index].index('\#')]
 
             expert_line_index = expert_line_index + 1
             continue
@@ -98,13 +114,15 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
                 constituent_constraints = {}
                 entry['longname'] = longname
                 entry['group'] = group
+                entry['groupname'] = groupnames[str(group)]
                 entry['record'] = record
                 entry['spectral_library'] = source_lib
                 entry['name'] = name
                 entry['data_type_scaling'] = data_type_scaling
                 entry['features'] = features
                 entry['constituent_constraints'] = constituent_constraints
-                decoded_expert[tetra_filename] = entry
+                #decoded_expert[os.path.join(group, tetra_filename)] = entry
+                decoded_expert[os.path.join(entry['groupname'],tetra_filename)] = entry
 
         if 'TITLE=' in expert_file_text[expert_line_index]:
             toks = expert_file_text[expert_line_index].strip().split()
@@ -196,7 +214,7 @@ def read_mineral_fractions(file_list: List):
                 break
 
         ## Hard coded due to inconsistent multi-line abundance file heading
-        header = ['file','DN_scale','BD_factor','title','spectral_library','record']
+        header = ['file','DN_scale','BD_factor','Band_depth', 'title','spectral_library','record']
         fraction_list = []
         if df is None:
             continue

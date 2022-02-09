@@ -7,6 +7,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 import spectral.io.envi as envi
 import emit_utils.file_checks
+from emit_utils.file_checks import envi_header
 import logging
 import emit_utils.common_logs
 import os
@@ -23,7 +24,7 @@ MINERAL_FRACTION_FILES = [\
     'goethite-all-for-reference.group1.txt',
     'gypsum.group2.txt',
     'chlorite.group2.txt',
-    'illite.group2.txt',
+    'illite+muscovite.group2.txt',
     'montmorillonite.group2.txt',
     ]
 
@@ -38,14 +39,16 @@ def main():
     parser = argparse.ArgumentParser(description="Translate to Rrs. and/or apply masks")
     parser.add_argument('tetracorder_output_base', type=str, metavar='TETRA_OUTPUT_DIR')
     parser.add_argument('output_base', type=str, metavar='OUTPUT')
-    parser.add_argument('-spectral_reference_library_config', type=str, metavar='TETRA_LIBRARY_CONFIG_FILE')
-    parser.add_argument('-expert_system_file', type=str, default='cmd.lib.setup.t5.2d4', metavar='EXPERT_SYS_FILE')
-    parser.add_argument('-calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
-    parser.add_argument('-reflectance_file', type=str, metavar='REFLECTANCE_FILE')
-    parser.add_argument('-reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
-    parser.add_argument('-detailed_outputs', type=int, choices=[0, 1], default=0, metavar='DETAILED_OUTPUTS')
-    parser.add_argument('-log_file', type=str, default=None)
-    parser.add_argument('-log_level', type=str, default='INFO')
+    parser.add_argument('--spectral_reference_library_config', type=str, metavar='TETRA_LIBRARY_CONFIG_FILE')
+    parser.add_argument('--expert_system_file', type=str, default='cmd.lib.setup.t5.2d4', metavar='EXPERT_SYS_FILE')
+    parser.add_argument('--calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
+    parser.add_argument('--reflectance_file', type=str, metavar='REFLECTANCE_FILE')
+    parser.add_argument('--reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
+    parser.add_argument('--detailed_outputs', type=int, choices=[0, 1], default=0, metavar='DETAILED_OUTPUTS')
+    parser.add_argument('--reference_library', '-slib', type=str, default='Spectral-Library-Reader-master/s06av18a_envi', metavar='REFERENCE_LIBRARY')
+    parser.add_argument('--research_library', '-rlib', type=str, default='Spectral-Library-Reader-master/r06av18a_envi', metavar='RESEARCH_LIBRARY')
+    parser.add_argument('--log_file', type=str, default=None)
+    parser.add_argument('--log_level', type=str, default='INFO')
     args = parser.parse_args()
 
     if args.log_file is None:
@@ -61,10 +64,10 @@ def main():
         args.calculate_uncertainty = True
         emit_utils.file_checks.check_raster_files([args.reflectance_file, args.reflectance_uncertainty_file], map_space=False)
 
-        refl_dataset = envi.open(args.reflectance_file + '.hdr')
+        refl_dataset = envi.open(envi_header(args.reflectance_file))
         observed_reflectance = refl_dataset.open_memmap(interleave='bil', writable=False)
 
-        observed_reflectance_uncertainty_dataset = envi.open(args.reflectance_uncertainty_file + '.hdr')
+        observed_reflectance_uncertainty_dataset = envi.open(envi_header(args.reflectance_uncertainty_file))
         observed_reflectance_uncertainty = observed_reflectance_uncertainty_dataset.open_memmap(interleave='bil',
                                                                                                 writable=False)
     else:
@@ -89,7 +92,7 @@ def main():
 
     logging.info('Loading complete, set up output file(s)')
     # Set up output files
-    input_header = envi.read_envi_header(os.path.join(args.tetracorder_output_base, unique_file_names[0] + '.hdr'))
+    input_header = envi.read_envi_header(os.path.join(args.tetracorder_output_base, envi_header(unique_file_names[0])))
     output_header = input_header.copy()
     if 'file compression' in output_header.keys():
         del output_header['file compression']
@@ -103,21 +106,21 @@ def main():
     output_header['band names'] = mineral_fractions.keys()
     cols = int(input_header['samples'])
     rows = int(input_header['lines'])
-    envi.write_envi_header(f'{args.output_base}.hdr', output_header)
-    envi.write_envi_header(f'{args.output_base}_uncert.hdr', output_header)
+    envi.write_envi_header(envi_header(args.output_base), output_header)
+    envi.write_envi_header(envi_header(f'{args.output_base}_uncert'), output_header)
 
     out_data = np.zeros((rows, cols, num_minerals), dtype=np.float32)
     if args.calculate_uncertainty:
         out_uncertainty = np.zeros((rows, cols, num_minerals), dtype=np.float32)
 
     #TODO: include option to read in from config file
-    spectral_reference_library_files = SPECTRAL_REFERENCE_LIBRARY
+    spectral_reference_library_files = {'splib06': args.reference_library, 'sprlb06': args.research_library}
     libraries = {}
     for key, item in spectral_reference_library_files.items():
-        library = envi.open(item + '.hdr', item)
+        library = envi.open(envi_header(item), item)
         library_reflectance = library.spectra.copy()
         library_records = [int(q) for q in library.metadata['record']]
-        hdr = envi.read_envi_header(item + '.hdr')
+        hdr = envi.read_envi_header(envi_header(item))
         wavelengths = np.array([float(q) for q in hdr['wavelength']])
         # wavelengths = np.array([float(q) for q in library.metadata['wavelength']])
 
@@ -195,8 +198,8 @@ def main():
         if args.calculate_uncertainty and np.sum(library_normalized_band_depth != 0) > 0:
             mixture_uncertainty = calculate_uncertainty(ref_lib['wavelengths'], observed_reflectance,
                                                         observed_reflectance_uncertainty,
-                                                        ref_lib['reflectance'][ref_lib['records'].index(records[_c]), :],
-                                                        decoded_expert[constituent_file]['features'][0]['continuum'])
+                                                        ref_lib['reflectance'][ref_lib['library_records'].index(records[_c]), :],
+                                                        decoded_expert[filepath_to_key(constituent_file)]['features'][0]['continuum'])
             out_uncertainty = out_uncertainty + \
                               mixture_uncertainty.reshape((rows, cols, 1)) @ current_mixture_fractions
 
@@ -206,11 +209,12 @@ def main():
             if num_outputs > 0:
                 output_header['bands'] = num_outputs
                 output_header['band names'] = detailed_outputs[mineral]['files']
-                envi.write_envi_header(f'{args.output_base}_{mineral}_details.hdr', output_header)
+                envi.write_envi_header(envi_header(f'{args.output_base}_{mineral}_details'), output_header)
                 towrite = np.stack(detailed_outputs[mineral]['values'],axis=1)
                 with open(f'{args.output_base}_{mineral}_details', 'wb') as fout:
                     fout.write(towrite.astype(dtype=np.float32).tobytes())
 
+    logging.info('Writing output')
     detailed_header = output_header.copy()
     # write as BIL interleave
     out_data = np.transpose(out_data, (0, 2, 1))
@@ -218,6 +222,7 @@ def main():
         fout.write(out_data.astype(dtype=np.float32).tobytes())
 
     if args.calculate_uncertainty:
+        logging.info('Writing output uncertainty')
         out_uncertainty = np.transpose(out_uncertainty, (0, 2, 1))
         with open(f'{args.output_base}_uncert', 'wb') as fout:
             fout.write(out_uncertainty.astype(dtype=np.float32).tobytes())
@@ -266,6 +271,7 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
     :Returns
         band_depth: the uncertainty for the band depth as defined in Clark, 2003.
     """
+
     inds = np.where(np.logical_and(wavelengths >= feature[1], wavelengths <= feature[2]))[0]
 
     num = (len(inds) * np.sum(observed_reflectance[:, inds, :]*library_reflectance[np.newaxis,inds,np.newaxis], axis=1) - \
@@ -300,7 +306,7 @@ def filepath_to_key(value: str):
         string key to dictionary
 
     """
-    return os.path.basename(value).split('.depth.gz')[0]
+    return value.split('.depth.gz')[0]
 
 
 def unique_file_fractions(fraction_dict: OrderedDict, decoded_expert: OrderedDict):
