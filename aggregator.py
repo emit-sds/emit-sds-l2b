@@ -159,7 +159,7 @@ def main():
         decompressed = gzip.decompress(compressed)
 
         band_depth_header = envi.read_envi_header(fullpath_constituent_file + '.hdr')
-        offs = max(15,int(band_depth_header['header offset']))
+        offs = max(50,int(band_depth_header['header offset']))
         vicar = decompressed[:offs].decode('ascii').split(' ')[0]
         if vicar[:7] != 'LBLSIZE':
             raise AttributeError(f'Incorrect file format {fullpath_constituent_file},'
