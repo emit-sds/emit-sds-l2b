@@ -42,7 +42,7 @@ def main():
     logging.debug('Creating global attributes')
     makeGlobalAttr(nc_ds, args.abun_file, args.glt_file)
 
-    nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance and Uncertainty, 72km, V001"
+    nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance and Uncertainty 60 m V001"
     nc_ds.summary = nc_ds.summary + \
         f"\\n\\nThis collection contains L2B spectral abundance estimates of surface mineralology \
         and geolocation data. Spectral abundance is estimated through linear feature matching - see ATBD for  \
