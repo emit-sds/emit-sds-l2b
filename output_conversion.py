@@ -55,7 +55,7 @@ def main():
 
     logging.debug('Creating and writing reflectance metadata')
     add_variable(nc_ds, "sensor_band_parameters/minerals", str, "Minerals", None,
-                 abun_ds.metadata['band names'], {"dimensions": ("number_of_bands",)})
+                 abun_ds.metadata['band names'], {"dimensions": ("bands",)})
 
     logging.debug('Creating and writing location data')
     add_loc(nc_ds, args.loc_file)
@@ -65,7 +65,7 @@ def main():
 
     logging.debug('Write spectral abundance data')
     add_variable(nc_ds, 'spectral_abundance', "f4", "Spectral Abundance", "unitless", abun_ds.open_memmap(interleave='bip')[...].copy(),
-                 {"dimensions":("number_of_scans", "pixels_per_scan", "number_of_bands")})
+                 {"dimensions":("downtrack", "crosstrack", "bands")})
     nc_ds.sync()
     nc_ds.close()
     logging.debug(f'Successfully created {args.output_abun_filename}')
@@ -93,7 +93,7 @@ def main():
 
     logging.debug('Creating and writing reflectance metadata')
     add_variable(nc_ds, "sensor_band_parameters/minerals", str, "Minerals", None,
-                 abun_ds.metadata['band names'], {"dimensions": ("number_of_bands",)})
+                 abun_ds.metadata['band names'], {"dimensions": ("bands",)})
 
     logging.debug('Creating and writing location data')
     add_loc(nc_ds, args.loc_file)
@@ -103,7 +103,7 @@ def main():
 
     add_variable(nc_ds, 'spectral_abundance_uncertainty', "f4", "Spectral Abundance Uncertainty", "unitless",
                  abun_unc_ds.open_memmap(interleave='bip')[...].copy(),
-                 {"dimensions":("number_of_scans", "pixels_per_scan", "number_of_bands")})
+                 {"dimensions":("downtrack", "crosstrack", "bands")})
     nc_ds.sync()
     nc_ds.close()
     logging.debug(f'Successfully created {args.output_abununcert_filename}')
