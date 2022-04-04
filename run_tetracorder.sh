@@ -3,16 +3,15 @@ TETRA_OUT_DIR=${1}
 AGGREGATED_OUT_FILE=${2}
 REFL_FILE=${3}
 REFL_UNCERT_FILE=${4}
-
-source /home/brodrick/tetracorder_install/run_tetracorder_env.txt
-source /home/brodrick/miniconda/bin/activate
-conda activate emit
+EMIT_UTILS_PATH=${5}
+EMIT_SDS_L2B_PATH=${6}
+TETRACORDER_CMD_BASE=${7}
 
 echo 'starting'
 date
 
 TETRA_OUT_DIR_ABS=`readlink -f ${TETRA_OUT_DIR}`
-TETRA_SETUP=/shared/tetracorder5.26a.cmds/cmd-setup-tetrun
+TETRA_SETUP=${TETRACORDER_CMD_BASE}/cmd-setup-tetrun
 
 REFL_ABS_FILE=`readlink -f ${REFL_FILE}`
 OUTPUT_ABS_DIR=`readlink -f ${TETRA_OUT_DIR}`
@@ -20,7 +19,6 @@ AGGREGATED_OUT_FILE_ABS=`readlink -f ${AGGREGATED_OUT_FILE}`
 local_refl=`basename ${REFL_FILE}`
 local_output=`basename ${TETRA_OUT_DIR}`
 current_dir=${PWD}
-
 
 cd /tmp
 
@@ -45,10 +43,10 @@ cd ${current_dir}
 echo 'cleanup finished'
 date
 
-export PYTHONPATH=$PYTHONPATH:/beegfs/scratch/brodrick/emit/emit-sds-l2b/
-export PYTHONPATH=$PYTHONPATH:/beegfs/scratch/brodrick/emit/emit-utils/
+export PYTHONPATH=$PYTHONPATH:${EMIT_SDS_L2B_PATH}
+export PYTHONPATH=$PYTHONPATH:${EMIT_UTILS_PATH}
 
-cd /beegfs/scratch/brodrick/emit/emit-sds-l2b/
+cd ${EMIT_SDS_L2B_PATH}
 python aggregator.py ${TETRA_OUT_DIR_ABS}  ${AGGREGATED_OUT_FILE_ABS} -calculate_uncertainty 0 -reflectance_file ${REFL_FILE} -reflectance_uncertainty_file ${REFL_UNCERT_FILE}
 
 cd ${current_dir}
