@@ -47,7 +47,7 @@ export PYTHONPATH=$PYTHONPATH:${EMIT_SDS_L2B_PATH}
 export PYTHONPATH=$PYTHONPATH:${EMIT_UTILS_PATH}
 
 cd ${EMIT_SDS_L2B_PATH}
-python aggregator.py ${TETRA_OUT_DIR_ABS}  ${AGGREGATED_OUT_FILE_ABS} -calculate_uncertainty 0 -reflectance_file ${REFL_FILE} -reflectance_uncertainty_file ${REFL_UNCERT_FILE}
+python aggregator.py ${TETRA_OUT_DIR_ABS}  ${AGGREGATED_OUT_FILE_ABS} --calculate_uncertainty 0 --reflectance_file ${REFL_FILE} --reflectance_uncertainty_file ${REFL_UNCERT_FILE}
 
 cd ${current_dir}
 echo 'aggregation finished'
