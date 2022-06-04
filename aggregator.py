@@ -40,7 +40,7 @@ def main():
     parser.add_argument('tetracorder_output_base', type=str, metavar='TETRA_OUTPUT_DIR')
     parser.add_argument('output_base', type=str, metavar='OUTPUT')
     parser.add_argument('--spectral_reference_library_config', type=str, metavar='TETRA_LIBRARY_CONFIG_FILE')
-    parser.add_argument('--expert_system_file', type=str, default='cmd.lib.setup.t5.2d4', metavar='EXPERT_SYS_FILE')
+    parser.add_argument('--expert_system_file', type=str, default='cmd.lib.setup.t5.2e1', metavar='EXPERT_SYS_FILE')
     parser.add_argument('--calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
     parser.add_argument('--reflectance_file', type=str, metavar='REFLECTANCE_FILE')
     parser.add_argument('--reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
@@ -340,7 +340,7 @@ def unique_file_fractions(fraction_dict: OrderedDict, decoded_expert: OrderedDic
             idx = unique_file_names.index(constituent['file'])
             fractions[idx, mineral_names.index(key)] = constituent['BD_factor']
             scaling[idx] = constituent['DN_scale']
-            library[idx] = constituent['spectral_library']
+            library[idx] = constituent['spectral_library'][:7]
             if 'record' in constituent.keys():
                 record[idx] = constituent['record']
             else:
