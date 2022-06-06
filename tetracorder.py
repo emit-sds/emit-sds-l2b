@@ -56,7 +56,7 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
 
     expert_file_text, orig_lineno = [], []
     for line_index, line in enumerate(expert_file_commented):
-        if not line.strip().startswith('\#') or 'TITLE=' in line:
+        if (not line.strip().startswith('\#') or 'TITLE=' in line) and len(line.strip()) > 0:
             orig_lineno.append(line_index)
             expert_file_text.append(line)
     del expert_file_commented
@@ -142,8 +142,15 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
 
         # 'define output' keyword tells us to get the 8 DN 255 scaling factor
         if 'define output' in expert_file_text[expert_line_index]:
-            tetra_filename = expert_file_text[expert_line_index+2].strip().split()[0]
-            data_type_scaling = float(expert_file_text[expert_line_index+3].strip().split()[4])
+            line_offset = 0
+            for linehunt in range(100):
+                if 'endoutput' in expert_file_text[expert_line_index+linehunt]:
+                    break
+                if expert_file_text[expert_line_index+linehunt][:2] == '\#':
+                    line_offset +=1
+
+            tetra_filename = expert_file_text[expert_line_index+2+line_offset].strip().split()[0]
+            data_type_scaling = float(expert_file_text[expert_line_index+3+line_offset].strip().split()[4])
 
         # 'define features' means we've found the location to get the critical feature elements:
         #  the requisite wavelengths for now.  currently continuum removal threshold ct and lct/rct ignored
@@ -211,6 +218,7 @@ def read_mineral_fractions(file_list: List):
         for _line, line in enumerate(fractions_file_commented):
             if not line.strip().startswith('#'):
                 df = pd.read_fwf(filename, skiprows=_line, header=None)
+                df = df.dropna()
                 break
 
         ## Hard coded due to inconsistent multi-line abundance file heading
