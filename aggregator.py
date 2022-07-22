@@ -16,16 +16,16 @@ from collections import OrderedDict
 
 # TODO: Get these from....direct input?  Configuration file?
 MINERAL_FRACTION_FILES = [\
-    'kaolinite.group2.txt',
     'calcite.group2.txt',
+    'chlorite.group2.txt',
     'dolomite.group2.txt',
-    'vermiculite.group2.txt',
-    'hematite-all-for-reference.group1.txt',
     'goethite-all-for-reference.group1.txt',
     'gypsum.group2.txt',
-    'chlorite.group2.txt',
+    'hematite-all-for-reference.group1.txt',
     'illite+muscovite.group2.txt',
+    'kaolinite.group2.txt',
     'montmorillonite.group2.txt',
+    'vermiculite.group2.txt',
     ]
 
 SPECTRAL_REFERENCE_LIBRARY = {\
