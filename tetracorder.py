@@ -230,7 +230,10 @@ def read_mineral_fractions(file_list: List):
             for idx in range(len(df[0])):
                 local_entry = {}
                 for headname, tok in zip(header, df.iloc[idx,:len(header)].tolist()):
-                    local_entry[headname] = tok
+                    if headname == 'spectral_library':
+                        local_entry[headname] = tok.split('conv')[0]
+                    else:
+                        local_entry[headname] = tok
                 if type(local_entry[header[0]]) == float and np.isnan(local_entry[header[0]]):
                     continue
                 fraction_list.append(local_entry)
