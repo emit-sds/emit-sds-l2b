@@ -50,6 +50,7 @@ def main():
     parser.add_argument('--reference_library', '-slib', type=str, default='Spectral-Library-Reader-master/s06av18a_envi', metavar='REFERENCE_LIBRARY')
     parser.add_argument('--research_library', '-rlib', type=str, default='Spectral-Library-Reader-master/r06av18a_envi', metavar='RESEARCH_LIBRARY')
     parser.add_argument('--diagnostic_files', action='store_true')
+    parser.add_argument('--reference_band_depth', action='store_true')
     parser.add_argument('--log_file', type=str, default=None)
     parser.add_argument('--log_level', type=str, default='INFO')
     args = parser.parse_args()
@@ -93,7 +94,7 @@ def main():
     num_minerals = len(mineral_fractions.keys())
 
     logging.info('Organizing files to aggregate')
-    unique_file_names, fractions, scaling, library_names, records = unique_file_fractions(mineral_fractions, decoded_expert)
+    unique_file_names, fractions, scaling, library_names, records, reference_band_depths = unique_file_fractions(mineral_fractions, decoded_expert)
 
     if args.diagnostic_files:
         with open(os.path.join(args.output_base, 'mineral_fraction_diagnostic.json'), 'w') as fout: 
@@ -197,7 +198,10 @@ def main():
         band_depth = band_depth.astype(dtype=np.float32) / 255.0 * scaling[_c]
 
         # normalize to the depth of the library spectrum, translating to aerial fractions
-        library_normalized_band_depth = band_depth / ref_lib['band_depths'][_c]
+        if args.reference_band_depth:
+            library_normalized_band_depth = band_depth / reference_band_depths[_c]
+        else:
+            library_normalized_band_depth = band_depth / ref_lib['band_depths'][_c]
 
         # convert values < 0, > 1, or bad (nan/inf) to 0
         library_normalized_band_depth[np.logical_not(
@@ -408,12 +412,14 @@ def unique_file_fractions(fraction_dict: OrderedDict, decoded_expert: OrderedDic
     scaling = np.zeros(len(unique_file_names))
     record = np.zeros(len(unique_file_names), dtype=int)
     library = np.empty(len(unique_file_names), dtype="<U10")
+    reference_band_depths = np.zeros(len(unique_file_names))
 
     for key, item in fraction_dict.items():
         for constituent in item:
             idx = unique_file_names.index(constituent['file'])
             fractions[idx, mineral_names.index(key)] = constituent['BD_factor']
             scaling[idx] = constituent['DN_scale']
+            reference_band_depths[idx] = constituent['Band_depth']
             library[idx] = constituent['spectral_library'][:7]
             if 'record' in constituent.keys():
                 record[idx] = constituent['record']
@@ -422,7 +428,7 @@ def unique_file_fractions(fraction_dict: OrderedDict, decoded_expert: OrderedDic
                 record[idx] = decoded_expert[filepath_to_key(constituent['file'])]['record']
             logging.debug(f'file: {unique_file_names[idx]}, DN_scale: {scaling[idx]}, library: {library[-1]}, record: {record[idx]}')
 
-    return unique_file_names, fractions, scaling, library, record
+    return unique_file_names, fractions, scaling, library, record, reference_band_depths
 
 class SerialEncoder(json.JSONEncoder):
     """Encoder for json to help ensure json objects can be passed to the workflow manager.
