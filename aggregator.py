@@ -174,7 +174,7 @@ def main():
         # convert data type
         band_depth = band_depth.astype(dtype=np.float32) / 255.0 * scaling[_c]
 
-        # normalize to the depth of the library spectrum, translating to aerial fractions
+        # normalize to the depth of the library spectrum, translating to areal fractions
         library_normalized_band_depth = band_depth / ref_lib['band_depths'][_c]
 
         # convert values < 0, > 1, or bad (nan/inf) to 0
