@@ -47,8 +47,9 @@ def main():
     nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance 60 m " + args.version
     nc_ds.summary = nc_ds.summary + \
         f"\\n\\nThis collection contains L2B spectral abundance estimates of surface mineralology \
-        and geolocation data. Spectral abundance is estimated through linear feature matching - see ATBD for  \
-        details. Spectral abundance values are reported as fractions (relative to 1). "
+and geolocation data. Spectral abundance is estimated through linear feature matching - see ATBD for  \
+details. Spectral abundance values are reported as fractions (relative to 1). \
+Geolocation data (latitude, longitude, height) and a lookup table to project the data are also included."
     nc_ds.sync()
 
     logging.debug('Creating dimensions')
@@ -81,12 +82,13 @@ def main():
     logging.debug('Creating global attributes')
     makeGlobalAttr(nc_ds, args.abun_file, args.glt_file)
 
-    nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance Uncertainty 60 m V001"
+    nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance Uncertainty 60 m " + args.version
     nc_ds.summary = nc_ds.summary + \
         f"\\n\\nThis collection contains L2B spectral abundance uncertainty estimates of surface mineralology, \
-        as well as geolocation data. Spectral abundance uncertainty is estimated by propogating reflectance uncertainty \
-        through linear feature matching used for abundance mapping - see ATBD for  details. \
-        Spectral abundance uncertainty values are reported in the same units as spectral abundance (fractions relative to 1)."
+as well as geolocation data. Spectral abundance uncertainty is estimated by propogating reflectance uncertainty \
+through linear feature matching used for abundance mapping - see ATBD for  details. \
+Spectral abundance uncertainty values are reported in the same units as spectral abundance (fractions relative to 1). \
+Geolocation data (latitude, longitude, height) and a lookup table to project the data are also included."
     nc_ds.sync()
 
     logging.debug('Creating dimensions')
