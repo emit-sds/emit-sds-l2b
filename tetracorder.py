@@ -160,9 +160,10 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
             features = []
             while ('endfeatures' not in expert_file_text[expert_line_index]):
                 toks = expert_file_text[expert_line_index].strip().split()
-                if len(toks) > 5 and toks[0].startswith('f') and toks[1] == 'DLw':
+                if len(toks) > 5 and toks[0].startswith('f') and (toks[1] == 'DLw' or toks[1] == 'MLw' or toks[1] == 'OLw'):
                     local_feature = {}
                     local_feature['continuum'] = [float(f) for f in toks[2:6]]
+                    local_feature['feature_type'] = toks[1]
 
                     last_valid = len(toks)
                     for _t in range(len(toks)-1, 5, -1):
@@ -218,6 +219,7 @@ def read_mineral_fractions(file_list: List):
         for _line, line in enumerate(fractions_file_commented):
             if not line.strip().startswith('#'):
                 df = pd.read_fwf(filename, skiprows=_line, header=None)
+                df = df.loc[:,:6]
                 df = df.dropna()
                 break
 

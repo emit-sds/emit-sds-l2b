@@ -13,6 +13,8 @@ import emit_utils.common_logs
 import os
 import tetracorder
 from collections import OrderedDict
+import json
+import matplotlib.pyplot as plt
 
 # TODO: Get these from....direct input?  Configuration file?
 MINERAL_FRACTION_FILES = [\
@@ -44,9 +46,11 @@ def main():
     parser.add_argument('--calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
     parser.add_argument('--reflectance_file', type=str, metavar='REFLECTANCE_FILE')
     parser.add_argument('--reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
-    parser.add_argument('--detailed_outputs', type=int, choices=[0, 1], default=0, metavar='DETAILED_OUTPUTS')
+    parser.add_argument('--detailed_outputs', action='store_true')
     parser.add_argument('--reference_library', '-slib', type=str, default='Spectral-Library-Reader-master/s06av18a_envi', metavar='REFERENCE_LIBRARY')
     parser.add_argument('--research_library', '-rlib', type=str, default='Spectral-Library-Reader-master/r06av18a_envi', metavar='RESEARCH_LIBRARY')
+    parser.add_argument('--diagnostic_files', action='store_true')
+    parser.add_argument('--reference_band_depth', action='store_true')
     parser.add_argument('--log_file', type=str, default=None)
     parser.add_argument('--log_level', type=str, default='INFO')
     args = parser.parse_args()
@@ -85,14 +89,28 @@ def main():
     mff = [os.path.join(args.tetracorder_output_base, 'cmds.abundances', 'lists.of.files.by.mineral', x) for x
            in MINERAL_FRACTION_FILES]
     mineral_fractions = tetracorder.read_mineral_fractions(mff)
+
+
     num_minerals = len(mineral_fractions.keys())
 
     logging.info('Organizing files to aggregate')
-    unique_file_names, fractions, scaling, library_names, records = unique_file_fractions(mineral_fractions, decoded_expert)
+    unique_file_names, fractions, scaling, library_names, records, reference_band_depths = unique_file_fractions(mineral_fractions, decoded_expert)
+
+    if args.diagnostic_files:
+        with open(os.path.join(args.output_base, 'mineral_fraction_diagnostic.json'), 'w') as fout: 
+            fout.write(json.dumps(mineral_fractions, indent=2, sort_keys=True, cls=SerialEncoder))  
 
     logging.info('Loading complete, set up output file(s)')
     # Set up output files
-    input_header = envi.read_envi_header(os.path.join(args.tetracorder_output_base, envi_header(unique_file_names[0])))
+    input_header = None
+    for uf in unique_file_names:
+        header_name = os.path.join(args.tetracorder_output_base, envi_header(uf))
+        if os.path.isfile(header_name):
+            input_header = envi.read_envi_header(header_name)
+            logging.info(f'using {header_name} as header base')
+            break
+        else:
+            logging.debug(f'{header_name} not found - skipping in base header search')
     output_header = input_header.copy()
     if 'file compression' in output_header.keys():
         del output_header['file compression']
@@ -109,6 +127,7 @@ def main():
     envi.write_envi_header(envi_header(args.output_base), output_header)
     envi.write_envi_header(envi_header(f'{args.output_base}_uncert'), output_header)
 
+
     out_data = np.zeros((rows, cols, num_minerals), dtype=np.float32)
     if args.calculate_uncertainty:
         out_uncertainty = np.zeros((rows, cols, num_minerals), dtype=np.float32)
@@ -119,6 +138,7 @@ def main():
     for key, item in spectral_reference_library_files.items():
         library = envi.open(envi_header(item), item)
         library_reflectance = library.spectra.copy()
+        #library_records = [int(q) for q in library.metadata['record'] if int(q) in records.tolist()]
         library_records = [int(q) for q in library.metadata['record']]
         hdr = envi.read_envi_header(envi_header(item))
         wavelengths = np.array([float(q) for q in hdr['wavelength']])
@@ -136,7 +156,7 @@ def main():
             if library_name == key:
                 band_depths[_f] = calculate_band_depth(wavelengths,
                                                        library_reflectance[library_records.index(record), :],
-                                                       decoded_expert[filepath_to_key(filename)]['features'][0]['continuum'])
+                                                       dominant_continuum(decoded_expert, filepath_to_key(filename)))
         libraries[key]['band_depths'] = band_depths
 
     logging.info('Begin actual aggregation')
@@ -152,6 +172,9 @@ def main():
         ref_lib = libraries[library_names[_c]]
 
         fullpath_constituent_file = os.path.join(args.tetracorder_output_base, constituent_file)
+        if os.path.isfile(fullpath_constituent_file) is False:
+            logging.info(f'{fullpath_constituent_file} not found: skipping')
+            continue
 
         # read band depth
         with open(fullpath_constituent_file, 'rb') as fin:
@@ -175,7 +198,10 @@ def main():
         band_depth = band_depth.astype(dtype=np.float32) / 255.0 * scaling[_c]
 
         # normalize to the depth of the library spectrum, translating to aerial fractions
-        library_normalized_band_depth = band_depth / ref_lib['band_depths'][_c]
+        if args.reference_band_depth:
+            library_normalized_band_depth = band_depth / reference_band_depths[_c]
+        else:
+            library_normalized_band_depth = band_depth / ref_lib['band_depths'][_c]
 
         # convert values < 0, > 1, or bad (nan/inf) to 0
         library_normalized_band_depth[np.logical_not(
@@ -229,7 +255,7 @@ def main():
     emit_utils.common_logs.logtime()
 
 
-def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple):
+def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple, record: int = None, name: str = None):
     """ Calculate the Clark, 2003 continuum normalized band depth of a particular feature.
     Args:
         wavelengths: an array of wavelengths corresponding to given reflectance values
@@ -254,6 +280,16 @@ def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: 
 
     # Band Depth definition from Clark, 2003 - max over this range will be taken as the 'band depth'
     depths = 1.0 - reflectance[feature_inds] / continuum[feature_inds]
+
+    if record is not None and name is not None:
+        fig = plt.figure()
+        plt.plot(wavelengths, reflectance)
+        plt.plot(wavelengths[feature_inds], reflectance[feature_inds])
+        plt.plot(wavelengths[feature_inds], continuum[feature_inds])
+        bd_ind = np.argmax(depths)
+        plt.plot([wavelengths[feature_inds][bd_ind], wavelengths[feature_inds][bd_ind]], [reflectance[feature_inds][bd_ind], continuum[feature_inds][bd_ind]])
+        plt.title(f'{record}   |||   {name}\nBD = {max(depths)}')
+        plt.savefig(f'/beegfs/scratch/brodrick/emit/reflectance_analyses/figs/{record}_{name.replace("/","-")}.png',dpi=200,bbox_inches='tight')
 
     return max(depths)
 
@@ -309,6 +345,48 @@ def filepath_to_key(value: str):
     return value.split('.depth.gz')[0]
 
 
+def dominant_continuum(decoded_expert: OrderedDict, keyname: str):
+    
+    local_entry = decoded_expert[filepath_to_key(keyname)]
+    valid_continua = []
+    for feat in local_entry['features']:
+        wl_region = None
+        if local_entry['group'] == 1:
+            wl_region = [0,1.9]
+        elif local_entry['group'] == 2:
+            wl_region = [1.9, 2.5]
+        else:
+            raise AttributeError(f'Invalid Group Found')
+
+        if np.all(np.array(feat['continuum']) > wl_region[0]) and np.all(np.array(feat['continuum']) < wl_region[1]):
+            valid_continua.append(feat)
+    if len(valid_continua) > 1:
+        # Priority order is MLw, DLw, OLw
+        MLw = [x for x in valid_continua if x['feature_type'] == 'MLw']
+        DLw = [x for x in valid_continua if x['feature_type'] == 'DLw']
+        OLw = [x for x in valid_continua if x['feature_type'] == 'OLw']
+
+        if len(MLw) > 0:
+            if len(MLw) > 1:
+                raise AttributeError(f'More then one MLw entries found, unknown situation')
+            return MLw[0]['continuum']
+
+        elif len(DLw) > 0:
+            if len(DLw) > 1:
+                #raise AttributeError(f'More then one DLw entries found, unknown situation')
+                logging.info(f'More than one DLw entries found for {keyname} - arbitrarily selecting the first')
+            return DLw[0]['continuum']
+
+        elif len(OLw) > 0:
+            logging.info(f'Warning - resorting to using OLw in {keyname}')
+            if len(OLw) > 1:
+                raise AttributeError(f'More then one OLw entries found, unknown situation')
+            return OLw[0]['continuum']
+    else:
+        return valid_continua[0]['continuum']
+
+
+
 def unique_file_fractions(fraction_dict: OrderedDict, decoded_expert: OrderedDict):
     """
 
@@ -334,12 +412,14 @@ def unique_file_fractions(fraction_dict: OrderedDict, decoded_expert: OrderedDic
     scaling = np.zeros(len(unique_file_names))
     record = np.zeros(len(unique_file_names), dtype=int)
     library = np.empty(len(unique_file_names), dtype="<U10")
+    reference_band_depths = np.zeros(len(unique_file_names))
 
     for key, item in fraction_dict.items():
         for constituent in item:
             idx = unique_file_names.index(constituent['file'])
             fractions[idx, mineral_names.index(key)] = constituent['BD_factor']
             scaling[idx] = constituent['DN_scale']
+            reference_band_depths[idx] = constituent['Band_depth']
             library[idx] = constituent['spectral_library'][:7]
             if 'record' in constituent.keys():
                 record[idx] = constituent['record']
@@ -348,7 +428,23 @@ def unique_file_fractions(fraction_dict: OrderedDict, decoded_expert: OrderedDic
                 record[idx] = decoded_expert[filepath_to_key(constituent['file'])]['record']
             logging.debug(f'file: {unique_file_names[idx]}, DN_scale: {scaling[idx]}, library: {library[-1]}, record: {record[idx]}')
 
-    return unique_file_names, fractions, scaling, library, record
+    return unique_file_names, fractions, scaling, library, record, reference_band_depths
+
+class SerialEncoder(json.JSONEncoder):
+    """Encoder for json to help ensure json objects can be passed to the workflow manager.
+    """
+
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return super(SerialEncoder, self).default(obj)
+
+
 
 
 if __name__ == "__main__":
