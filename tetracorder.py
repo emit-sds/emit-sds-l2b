@@ -121,6 +121,7 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
                 entry['data_type_scaling'] = data_type_scaling
                 entry['features'] = features
                 entry['constituent_constraints'] = constituent_constraints
+                entry['use'] = use
                 #decoded_expert[os.path.join(group, tetra_filename)] = entry
                 decoded_expert[os.path.join(entry['groupname'],tetra_filename)] = entry
 
@@ -130,6 +131,9 @@ def decode_expert_system(tetra_expert_file, groups=DEFAULT_GROUPS, log_file=DEFA
             longname = name
             for _t in range(2, len(toks)):
                 longname += ' ' + toks[_t]
+        
+        if 'use=' in expert_file_text[expert_line_index]:
+            use = expert_file_text[expert_line_index].split('use=')[1].split('\#')[0].strip()
 
         # if keyword 'group' appears, define the current group name
         if expert_file_text[expert_line_index].startswith('group'):
