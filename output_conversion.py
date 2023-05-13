@@ -23,6 +23,7 @@ def main():
     parser.add_argument('loc_file', type=str, help="EMIT L1B location data ENVI file")
     parser.add_argument('glt_file', type=str, help="EMIT L1B glt ENVI file")
     parser.add_argument('version', type=str, help="3 digit (with leading V) version number")
+    parser.add_argument('software_delivery_version', type=str, help="The extended build number at delivery time")
     parser.add_argument('--ummg_file', type=str, help="Output UMMG filename")
     parser.add_argument('--log_file', type=str, default=None, help="Logging file to write to")
     parser.add_argument('--log_level', type=str, default="INFO", help="Logging level")
@@ -42,13 +43,14 @@ def main():
 
     # make global attributes
     logging.debug('Creating global attributes')
-    makeGlobalAttr(nc_ds, args.abun_file, args.glt_file)
+    makeGlobalAttr(nc_ds, args.abun_file, args.software_delivery_version, glt_envi_file=args.glt_file)
 
     nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance 60 m " + args.version
     nc_ds.summary = nc_ds.summary + \
         f"\\n\\nThis collection contains L2B spectral abundance estimates of surface mineralology \
-        and geolocation data. Spectral abundance is estimated through linear feature matching - see ATBD for  \
-        details. Spectral abundance values are reported as fractions (relative to 1). "
+and geolocation data. Spectral abundance is estimated through linear feature matching - see ATBD for  \
+details. Spectral abundance values are reported as fractions (relative to 1). \
+Geolocation data (latitude, longitude, height) and a lookup table to project the data are also included."
     nc_ds.sync()
 
     logging.debug('Creating dimensions')
@@ -79,18 +81,19 @@ def main():
 
     # make global attributes
     logging.debug('Creating global attributes')
-    makeGlobalAttr(nc_ds, args.abun_file, args.glt_file)
+    makeGlobalAttr(nc_ds, args.abun_unc_file, args.software_delivery_version, glt_envi_file=args.glt_file)
 
-    nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance Uncertainty 60 m V001"
+    nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance Uncertainty 60 m " + args.version
     nc_ds.summary = nc_ds.summary + \
         f"\\n\\nThis collection contains L2B spectral abundance uncertainty estimates of surface mineralology, \
-        as well as geolocation data. Spectral abundance uncertainty is estimated by propogating reflectance uncertainty \
-        through linear feature matching used for abundance mapping - see ATBD for  details. \
-        Spectral abundance uncertainty values are reported in the same units as spectral abundance (fractions relative to 1)."
+as well as geolocation data. Spectral abundance uncertainty is estimated by propogating reflectance uncertainty \
+through linear feature matching used for abundance mapping - see ATBD for  details. \
+Spectral abundance uncertainty values are reported in the same units as spectral abundance (fractions relative to 1). \
+Geolocation data (latitude, longitude, height) and a lookup table to project the data are also included."
     nc_ds.sync()
 
     logging.debug('Creating dimensions')
-    makeDims(nc_ds, args.abun_file, args.glt_file)
+    makeDims(nc_ds, args.abun_unc_file, args.glt_file)
 
     logging.debug('Creating and writing reflectance metadata')
     add_variable(nc_ds, "sensor_band_parameters/minerals", str, "Minerals", None,
