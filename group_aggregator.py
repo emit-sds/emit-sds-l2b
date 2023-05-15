@@ -172,18 +172,18 @@ def main():
                 loc_unc = calculate_uncertainty(wavelengths, observed_reflectance[valid_pixels,:], observed_reflectance_uncertainty[valid_pixels,:], local_lib_refl, local_features)
 
             if group[_c] == 1:
-                out_complete[band_depth > 0,0] = band_depth[band_depth > 0]
-                out_complete[band_depth > 0,1] = _c + 1
+                out_complete[valid_pixels,0] = band_depth[band_depth > 0]
+                out_complete[valid_pixels,1] = _c + 1
                 if args.calculate_uncertainty and np.sum(valid_pixels) > 0:
-                    unc_complete[band_depth > 0,0] = loc_unc
-                unc_complete[band_depth > 0,1] = fit[band_depth > 0]
+                    unc_complete[valid_pixels,0] = loc_unc
+                unc_complete[valid_pixels,1] = fit[band_depth > 0]
 
             if group[_c] == 2:
-                out_complete[band_depth > 0,2] = band_depth[band_depth > 0]
-                out_complete[band_depth > 0,3] = _c + 1
+                out_complete[valid_pixels,2] = band_depth[band_depth > 0]
+                out_complete[valid_pixels,3] = _c + 1
                 if args.calculate_uncertainty and np.sum(valid_pixels) > 0:
-                    unc_complete[band_depth > 0,2] = loc_unc
-                unc_complete[band_depth > 0,3] = fit[band_depth > 0]
+                    unc_complete[valid_pixels,2] = loc_unc
+                unc_complete[valid_pixels,3] = fit[band_depth > 0]
         else:
             logging.warning(f'Library record {library_records[_c]} for {constituent_file} not found in {library_names[_c]}')
         
@@ -300,10 +300,10 @@ def cont_rem(wavelengths: np.array, reflectance: np.array, feature: tuple):
     right_x = wavelengths[int(right_inds.mean())]
     right_y = reflectance[:,right_inds].mean()
     
-    feature_inds = np.logical_and(wavelengths >= feature[0], wavelengths <= feature[3])
+    feature_inds = np.where(np.logical_and(wavelengths >= feature[0], wavelengths <= feature[3]))[0]
 
     continuum_fun = interp1d([left_x, right_x], [left_y, right_y], bounds_error=False, fill_value='extrapolate')
-    continuum = continuum_fun( np.ones((reflectance.shape[0], len(feature_inds))) * (wavelengths[feature_inds])[np.newaxis,:])
+    continuum = continuum_fun( np.ones((reflectance.shape[0], len(feature_inds))) * wavelengths[feature_inds][np.newaxis,:])
     depths = 1 - reflectance[:,feature_inds] / continuum
     return depths
 
@@ -332,17 +332,23 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
         uncertainty: the uncertainty for the band depth as defined in Clark, 2003.
     """
 
+    if np.any(wavelengths > 100):
+        wl_micron = wavelengths / 1000
+    else:
+        wl_micron = wavelengths
+
     unc_output = []
     for feature in feature_set:
 
         if feature['feature_type'] in ['MLw', 'DLw']:
 
             # check to make sure that there are at least some valid reflectances insdide the given continuum
-            if np.any(observed_reflectance[0, np.where(np.logical_and(wavelengths >= feature['continuum'][0], wavelengths <= feature['continuum'][1]))] > 0) and \
-               np.any(observed_reflectance[0, np.where(np.logical_and(wavelengths >= feature['continuum'][2], wavelengths <= feature['continuum'][3]))] > 0):
+            if np.any(observed_reflectance[0, np.where(np.logical_and(wl_micron >= feature['continuum'][0], wl_micron <= feature['continuum'][1]))] > 0) and \
+               np.any(observed_reflectance[0, np.where(np.logical_and(wl_micron >= feature['continuum'][2], wl_micron <= feature['continuum'][3]))] > 0):
 
-                lib_cont = cont_rem(wavelengths, library_reflectance.reshape((1,-1)), feature['continuum']).squeeze()
-                obs_cont = cont_rem(wavelengths, observed_reflectance, feature['continuum'])
+
+                lib_cont = cont_rem(wl_micron, library_reflectance.reshape((1,-1)), feature['continuum']).squeeze()
+                obs_cont = cont_rem(wl_micron, observed_reflectance, feature['continuum'])
 
                 lib_cont_sum = np.sum(lib_cont)
                 lib_cont_squared_sum = np.sum(lib_cont**2)
@@ -355,7 +361,7 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
                              np.sum(lib_cont_sum**2 * np.power(obs_cont,2), axis=1)
 
                 loc_unc = outer_term * np.sqrt(inner_term)
-                unc_output = [loc_unc, len(lib_cont)]
+                unc_output.append([loc_unc, len(lib_cont)])
 
     total_bands = np.sum([x[1] for x in unc_output])
     uncertainty = np.sum([x[0] * x[1] for x in unc_output]) / total_bands
