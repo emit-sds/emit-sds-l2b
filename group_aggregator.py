@@ -38,16 +38,14 @@ def main():
     parser.add_argument('tetracorder_output_base', type=str, metavar='TETRA_OUTPUT_DIR')
     parser.add_argument('mineral_groupings_matrix', type=str)
     parser.add_argument('output_base', type=str, metavar='OUTPUT')
-    parser.add_argument('--spectral_reference_library_config', type=str, metavar='TETRA_LIBRARY_CONFIG_FILE')
     parser.add_argument('--expert_system_file', type=str, default='cmd.lib.setup.t5.27c1', metavar='EXPERT_SYS_FILE')
-    parser.add_argument('--calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
+    parser.add_argument('--calculate_uncertainty', action='store_true', metavar='CALCULATE_UNCERTAINTY')
     parser.add_argument('--reflectance_file', type=str, metavar='REFLECTANCE_FILE')
     parser.add_argument('--reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
     parser.add_argument('--detailed_outputs', action='store_true')
     parser.add_argument('--reference_library', '-slib', type=str, default='Spectral-Library-Reader-master/s06av18a_envi', metavar='REFERENCE_LIBRARY')
     parser.add_argument('--research_library', '-rlib', type=str, default='Spectral-Library-Reader-master/r06av18a_envi', metavar='RESEARCH_LIBRARY')
     parser.add_argument('--diagnostic_files', action='store_true')
-    parser.add_argument('--reference_band_depth', action='store_true')
     parser.add_argument('--log_file', type=str, default=None)
     parser.add_argument('--log_level', type=str, default='INFO')
     args = parser.parse_args()
@@ -59,7 +57,7 @@ def main():
 
     emit_utils.common_logs.logtime()
 
-    if args.calculate_uncertainty == 1:
+    if args.calculate_uncertainty:
         args.calculate_uncertainty = True
         emit_utils.file_checks.check_raster_files([args.reflectance_file, args.reflectance_uncertainty_file], map_space=False)
 
@@ -84,8 +82,8 @@ def main():
                                                       log_level=args.log_level)
 
     mineral_groupings = pd.read_csv(args.mineral_groupings_matrix)
-    mineral_names = [x for _x, x in enumerate(list(mineral_groupings)) if _x > 6 and _x < 17]
-    category_names = [x for _x, x in enumerate(list(mineral_groupings)) if _x >= 17]
+    mineral_names = [x for _x, x in enumerate(list(mineral_groupings)) if _x >= list(mineral_groupings).index('Calcite') and _x <= list(mineral_groupings).index('Vermiculite')]
+    category_names = [x for _x, x in enumerate(list(mineral_groupings)) if _x > list(mineral_groupings).index('Vermiculite')]
 
     library_names = mineral_groupings['Library']
     library_records = mineral_groupings['Record']
@@ -112,8 +110,8 @@ def main():
     depth_filenames = [x + '.depth.gz' for x in filenames]
     fit_filenames = [x + '.fit.gz' for x in filenames]
     
+    # Should be brought in from tetracorder, but not conveniently unpacked from expert system, and currrently univerally 0.5
     scaling = [0.5 for x in range(len(depth_filenames))]
-    
 
     logging.info('Loading complete, set up output file(s)')
     # Set up output files
@@ -170,19 +168,22 @@ def main():
 
         local_lib_refl = (libraries[library_names[_c]]['library_reflectance'])[libraries[library_names[_c]['library_records'].index(library_records[_c])],:]
         local_features = decoded_expert[filepath_to_key(constituent_file)]['features']  
-        loc_unc = calculate_uncertainty(wavelengths, observed_reflectance[valid_pixels,:], observed_reflectance_uncertainty[valid_pixels,:], local_lib_refl, local_features)
+        if args.calculate_uncertainty:
+            loc_unc = calculate_uncertainty(wavelengths, observed_reflectance[valid_pixels,:], observed_reflectance_uncertainty[valid_pixels,:], local_lib_refl, local_features)
 
         if group[_c] == 1:
             out_complete[band_depth > 0,0] = band_depth[band_depth > 0]
             out_complete[band_depth > 0,1] = _c + 1
             unc_complete[band_depth > 0,0] = fit_file[band_depth > 0]
-            unc_complete[band_depth > 0,1] = loc_unc
+            if args.calculate_uncertainty:
+                unc_complete[band_depth > 0,1] = loc_unc
 
         if group[_c] == 2:
             out_complete[band_depth > 0,2] = band_depth[band_depth > 0]
             out_complete[band_depth > 0,3] = _c + 1
             unc_complete[band_depth > 0,2] = fit_file[band_depth > 0]
-            unc_complete[band_depth > 0,3] = loc_unc
+            if args.calculate_uncertainty:
+                unc_complete[band_depth > 0,3] = loc_unc
         
 
     logging.info('Writing output')
