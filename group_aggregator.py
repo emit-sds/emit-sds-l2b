@@ -355,16 +355,17 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
 
                 w_star = np.argmax(lib_cont) 
         
-                outer_term = lib_cont[w_star] / (len(lib_cont) * lib_cont_squared_sum - lib_cont_sum**2)
+                const = lib_cont[w_star] / (len(lib_cont) * lib_cont_squared_sum - lib_cont_sum**2)
 
-                inner_term = len(lib_cont)**2 * np.sum( np.power(obs_cont,2) * np.power(lib_cont,2)[np.newaxis,:],axis=1) +\
-                             np.sum(lib_cont_sum**2 * np.power(obs_cont,2), axis=1)
+                inner_term = np.sum(np.power(const*len(lib_cont)*obs_cont,2) * np.power(lib_cont,2)[np.newaxis,:],axis=1) +\
+                             np.sum(np.power(const * lib_cont_sum,2) * np.power(obs_cont,2), axis=1)
 
-                loc_unc = outer_term * np.sqrt(inner_term)
+                loc_unc = np.sqrt(inner_term)
+
                 unc_output.append([loc_unc, len(lib_cont)])
 
     total_bands = np.sum([x[1] for x in unc_output])
-    uncertainty = np.sum([x[0] * x[1] for x in unc_output]) / total_bands
+    uncertainty = np.sum(np.vstack([x[0] * x[1] for x in unc_output]),axis=0) / total_bands
     return uncertainty
 
 
