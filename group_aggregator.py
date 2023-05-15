@@ -160,7 +160,7 @@ def main():
 
         # read band depth
         band_depth = read_tetra_file(band_depth_file, rows, cols, scaling[_c])
-        fit_file = read_tetra_file(fit_file, rows, cols, scaling[_c])
+        fit = read_tetra_file(fit_file, rows, cols, scaling[_c])
 
         valid_pixels = band_depth > 0
 
@@ -173,14 +173,14 @@ def main():
         if group[_c] == 1:
             out_complete[band_depth > 0,0] = band_depth[band_depth > 0]
             out_complete[band_depth > 0,1] = _c + 1
-            unc_complete[band_depth > 0,0] = fit_file[band_depth > 0]
+            unc_complete[band_depth > 0,0] = fit[band_depth > 0]
             if args.calculate_uncertainty:
                 unc_complete[band_depth > 0,1] = loc_unc
 
         if group[_c] == 2:
             out_complete[band_depth > 0,2] = band_depth[band_depth > 0]
             out_complete[band_depth > 0,3] = _c + 1
-            unc_complete[band_depth > 0,2] = fit_file[band_depth > 0]
+            unc_complete[band_depth > 0,2] = fit[band_depth > 0]
             if args.calculate_uncertainty:
                 unc_complete[band_depth > 0,3] = loc_unc
         
@@ -229,50 +229,13 @@ def read_tetra_file(filename: str, rows: int, cols: int, scaling: float) -> np.n
     header_size = int(vicar.split('=')[-1])
 
     # Now pull out the rest of the binary file and reshape
-    band_depth = np.frombuffer(decompressed, dtype=np.uint8, count=(rows * cols), offset=header_size)
-    band_depth = band_depth.reshape((rows, cols))
+    read_data = np.frombuffer(decompressed, dtype=np.uint8, count=(rows * cols), offset=header_size).copy()
+    read_data = read_data.reshape((rows, cols))
 
     # convert data type
-    band_depth = band_depth.astype(dtype=np.float32) / 255.0 * scaling
+    read_data = read_data.astype(dtype=np.float32) / 255.0 * scaling
 
-    return band_depth
-
-
-def read_tetra_file(filename: str, rows: int, cols: int, scaling: float) -> np.ndarray:
-    """_summary_
-
-    Args:
-        filename (str): _description_
-        rows (int): _description_
-        cols (int): _description_
-        scaling (float): _description_
-
-    Raises:
-        AttributeError: _description_
-
-    Returns:
-        np.ndarray: _description_
-    """
-    # read band depth
-    with open(filename, 'rb') as fin:
-        compressed = fin.read()
-    decompressed = gzip.decompress(compressed)
-
-    band_depth_header = envi.read_envi_header(filename + '.hdr')
-    offs = max(50,int(band_depth_header['header offset']))
-    vicar = decompressed[:offs].decode('ascii').split(' ')[0]
-    if vicar[:7] != 'LBLSIZE':
-        raise AttributeError(f'Incorrect file format {filename},'
-                             'no LBLSIZE found in VICAR header')
-    # Read the header size from the VICAR header
-    header_size = int(vicar.split('=')[-1])
-
-    # Now pull out the rest of the binary file and reshape
-    band_depth = np.frombuffer(decompressed, dtype=np.uint8, count=(rows * cols), offset=header_size)
-    band_depth = band_depth.reshape((rows, cols))
-
-    # convert data type
-    band_depth = band_depth.astype(dtype=np.float32) / 255.0 * scaling
+    return read_data
 
 
 def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple, record: int = None, name: str = None):
