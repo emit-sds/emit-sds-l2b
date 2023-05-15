@@ -62,12 +62,12 @@ def main():
 
         refl_dataset = envi.open(envi_header(args.reflectance_file))
         # bulk-copy in the observed reflectance dataset.  This pre-supposes sufficient memory, but reduces IO costs on non-SSDs.
-        observed_reflectance = refl_dataset.open_memmap(interleave='bil', writable=False).copy()
+        observed_reflectance = refl_dataset.open_memmap(interleave='bip', writable=False).copy()
         wavelengths = np.array([float(x) for x in refl_dataset.metadata['wavelength']])
 
         # bulk-copy in the observed reflectance uncertainty dataset.  This pre-supposes sufficient memory, but reduces IO costs on non-SSDs.
         observed_reflectance_uncertainty_dataset = envi.open(envi_header(args.reflectance_uncertainty_file))
-        observed_reflectance_uncertainty = observed_reflectance_uncertainty_dataset.open_memmap(interleave='bil', writable=False).copy()
+        observed_reflectance_uncertainty = observed_reflectance_uncertainty_dataset.open_memmap(interleave='bip', writable=False).copy()
     else:
         args.calculate_uncertainty = False
 
@@ -87,9 +87,9 @@ def main():
     library_names = mineral_groupings['Library']
     library_records = mineral_groupings['Record']
     el = envi.open(envi_header(args.reference_library))
-    libraries = {'splib06': {'library_reflectance': el.spectra.copy(), 'library_records': np.array([int(q) for q in el.metadata['record']])}}
+    libraries = {'splib06': {'library_reflectance': el.spectra.copy(), 'library_records': [int(q) for q in el.metadata['record']]}}
     el = envi.open(envi_header(args.research_library))
-    libraries['rlib06'] = {'library_reflectance': el.spectra.copy(), 'library_records': np.array([int(q) for q in el.metadata['record']])}
+    libraries['sprlb06'] = {'library_reflectance': el.spectra.copy(), 'library_records': [int(q) for q in el.metadata['record']]}
     del el
 
     mineral_abundance = np.array(mineral_groupings[mineral_names])
@@ -165,24 +165,27 @@ def main():
         valid_pixels = band_depth > 0
 
 
-        local_lib_refl = (libraries[library_names[_c]]['library_reflectance'])[libraries[library_names[_c]['library_records'].index(library_records[_c])],:]
-        local_features = decoded_expert[filepath_to_key(constituent_file)]['features']  
-        if args.calculate_uncertainty:
-            loc_unc = calculate_uncertainty(wavelengths, observed_reflectance[valid_pixels,:], observed_reflectance_uncertainty[valid_pixels,:], local_lib_refl, local_features)
+        if library_records[_c] in libraries[library_names[_c]]['library_records']:
+            local_lib_refl = (libraries[library_names[_c]]['library_reflectance'])[libraries[library_names[_c]]['library_records'].index(library_records[_c]),:]
+            local_features = decoded_expert[filepath_to_key(constituent_file)]['features']  
+            if args.calculate_uncertainty and np.sum(valid_pixels) > 0:
+                loc_unc = calculate_uncertainty(wavelengths, observed_reflectance[valid_pixels,:], observed_reflectance_uncertainty[valid_pixels,:], local_lib_refl, local_features)
 
-        if group[_c] == 1:
-            out_complete[band_depth > 0,0] = band_depth[band_depth > 0]
-            out_complete[band_depth > 0,1] = _c + 1
-            unc_complete[band_depth > 0,0] = fit[band_depth > 0]
-            if args.calculate_uncertainty:
-                unc_complete[band_depth > 0,1] = loc_unc
+            if group[_c] == 1:
+                out_complete[band_depth > 0,0] = band_depth[band_depth > 0]
+                out_complete[band_depth > 0,1] = _c + 1
+                if args.calculate_uncertainty and np.sum(valid_pixels) > 0:
+                    unc_complete[band_depth > 0,0] = loc_unc
+                unc_complete[band_depth > 0,1] = fit[band_depth > 0]
 
-        if group[_c] == 2:
-            out_complete[band_depth > 0,2] = band_depth[band_depth > 0]
-            out_complete[band_depth > 0,3] = _c + 1
-            unc_complete[band_depth > 0,2] = fit[band_depth > 0]
-            if args.calculate_uncertainty:
-                unc_complete[band_depth > 0,3] = loc_unc
+            if group[_c] == 2:
+                out_complete[band_depth > 0,2] = band_depth[band_depth > 0]
+                out_complete[band_depth > 0,3] = _c + 1
+                if args.calculate_uncertainty and np.sum(valid_pixels) > 0:
+                    unc_complete[band_depth > 0,2] = loc_unc
+                unc_complete[band_depth > 0,3] = fit[band_depth > 0]
+        else:
+            logging.warning(f'Library record {library_records[_c]} for {constituent_file} not found in {library_names[_c]}')
         
 
     logging.info('Writing output')
