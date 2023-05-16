@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     wavelengths[0] = -1;
 
     // Read one record at a time
-    for (i=0; i<numrecords; i++) {
+    for (i=0; i<=numrecords; i++) {
              
       USGS_SpectralDataReader::USGSRecord record = reader.aGetRecordUSGSFormat(i);
 

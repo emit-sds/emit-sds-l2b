@@ -304,7 +304,7 @@ def cont_rem(wavelengths: np.array, reflectance: np.array, feature: tuple):
 
     continuum_fun = interp1d([left_x, right_x], [left_y, right_y], bounds_error=False, fill_value='extrapolate')
     continuum = continuum_fun( np.ones((reflectance.shape[0], len(feature_inds))) * wavelengths[feature_inds][np.newaxis,:])
-    depths = 1 - reflectance[:,feature_inds] / continuum
+    depths = 1 - reflectance[:,feature_inds] / continuum, feature_inds
     return depths
 
 
@@ -347,20 +347,34 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
                np.any(observed_reflectance[0, np.where(np.logical_and(wl_micron >= feature['continuum'][2], wl_micron <= feature['continuum'][3]))] > 0):
 
 
-                lib_cont = cont_rem(wl_micron, library_reflectance.reshape((1,-1)), feature['continuum']).squeeze()
-                obs_cont = cont_rem(wl_micron, observed_reflectance, feature['continuum'])
+                # Continuum removal
+                lib_cont, wl_inds = cont_rem(wl_micron, library_reflectance.reshape((1,-1)), feature['continuum'])
+                obs_cont, wl_inds = cont_rem(wl_micron, observed_reflectance, feature['continuum'])
 
+                # remove extra library dimension
+                lib_cont = np.squeeze(lib_cont)
+
+                # subset uncertainty for convenience
+                obs_rfl_unc = observed_reflectance_uncertainty[:, wl_inds]
+
+                # some frequenty summation terms
                 lib_cont_sum = np.sum(lib_cont)
                 lib_cont_squared_sum = np.sum(lib_cont**2)
 
+                # find the band-depth index from the library
                 w_star = np.argmax(lib_cont) 
         
-                const = lib_cont[w_star] / (len(lib_cont) * lib_cont_squared_sum - lib_cont_sum**2)
+                # calculate a 
+                const =  lib_cont[w_star] / (len(lib_cont) * lib_cont_squared_sum - lib_cont_sum**2)
 
-                inner_term = np.sum(np.power(const*len(lib_cont)*obs_cont,2) * np.power(lib_cont,2)[np.newaxis,:],axis=1) +\
-                             np.sum(np.power(const * lib_cont_sum,2) * np.power(obs_cont,2), axis=1)
+                inner_term = np.sum(np.power(obs_rfl_unc,2) * np.power(lib_cont * const * len(lib_cont),2)[np.newaxis,:],axis=1) +\
+                             np.sum(np.power(const * lib_cont_sum,2) * np.power(obs_rfl_unc,2), axis=1)
 
                 loc_unc = np.sqrt(inner_term)
+
+                # for analysis only
+                #slope = (np.sum(obs_cont * lib_cont[np.newaxis,:],axis=1)*len(lib_cont) - np.sum(obs_cont, axis=1)*np.sum(lib_cont)) /( np.sum(lib_cont**2) * len(lib_cont) - np.sum(lib_cont)**2 )
+                #offset = (np.sum(obs_cont, axis=1) - slope * lib_cont_sum) / len(lib_cont)
 
                 unc_output.append([loc_unc, len(lib_cont)])
 
