@@ -137,11 +137,13 @@ def main():
     output_header['band names'] = ['Group 1 Band Depth', 'Group 1 Index', 'Group 2 Band Depth', 'Group 2 Index']
     cols = int(input_header['samples'])
     rows = int(input_header['lines'])
+    output_header['description'] = 'EMIT L2B Minerals'
     
     out_complete_file = f'{args.output_base}_complete'
     envi.write_envi_header(envi_header(out_complete_file), output_header)
 
     output_header['band names'] = ['Group 1 Band Depth Uncertainty', 'Group 1 Fit', 'Group 2 Band Depth Uncertainty', 'Group 2 Fit']
+    output_header['description'] = 'EMIT L2B Mineral Uncertainties'
     unc_complete_file = f'{args.output_base}_complete_uncertainty'
     envi.write_envi_header(envi_header(unc_complete_file), output_header)
 
