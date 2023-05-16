@@ -241,45 +241,6 @@ def read_tetra_file(filename: str, rows: int, cols: int, scaling: float) -> np.n
     return read_data
 
 
-def calculate_band_depth(wavelengths: np.array, reflectance: np.array, feature: tuple, record: int = None, name: str = None):
-    """ Calculate the Clark, 2003 continuum normalized band depth of a particular feature.
-    Args:
-        wavelengths: an array of wavelengths corresponding to given reflectance values
-        reflectance: an array of reflectance values to calculate the band depth from
-        feature: definition of the feature to calculate band depth for, with the first two and last two values defining
-                 the averaging windows used identify the feature of interest.
-    :Returns
-        band_depth: the band depth as defined in Clark, 2003.
-    """
-
-    left_inds = np.where(np.logical_and(wavelengths >= feature[0], wavelengths <= feature[1]))[0]
-    left_x = wavelengths[int(left_inds.mean())]
-    left_y = reflectance[left_inds].mean()
-
-    right_inds = np.where(np.logical_and(wavelengths >= feature[2], wavelengths <= feature[3]))[0]
-    right_x = wavelengths[int(right_inds.mean())]
-    right_y = reflectance[right_inds].mean()
-
-    continuum = interp1d([left_x, right_x], [left_y, right_y],
-                         bounds_error=False, fill_value='extrapolate')(wavelengths)
-    feature_inds = np.logical_and(wavelengths >= feature[0], wavelengths <= feature[3])
-
-    # Band Depth definition from Clark, 2003 - max over this range will be taken as the 'band depth'
-    depths = 1.0 - reflectance[feature_inds] / continuum[feature_inds]
-
-    if record is not None and name is not None:
-        fig = plt.figure()
-        plt.plot(wavelengths, reflectance)
-        plt.plot(wavelengths[feature_inds], reflectance[feature_inds])
-        plt.plot(wavelengths[feature_inds], continuum[feature_inds])
-        bd_ind = np.argmax(depths)
-        plt.plot([wavelengths[feature_inds][bd_ind], wavelengths[feature_inds][bd_ind]], [reflectance[feature_inds][bd_ind], continuum[feature_inds][bd_ind]])
-        plt.title(f'{record}   |||   {name}\nBD = {max(depths)}')
-        plt.savefig(f'/beegfs/scratch/brodrick/emit/reflectance_analyses/figs/{record}_{name.replace("/","-")}.png',dpi=200,bbox_inches='tight')
-
-    return max(depths)
-
-
 def cont_rem(wavelengths: np.array, reflectance: np.array, feature: tuple):
     """This function removes the continuum from a reflectance spectrum
     using the continuum removal method of Kaufman and Tanre (1992)
