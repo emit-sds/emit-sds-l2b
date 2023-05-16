@@ -318,7 +318,9 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
         Assuming that the uncertainty of the continuum removed reflectances equals the uncertainty of the reflectance at that wavelength (for simplicity),
         and given that reflectance uncertainties are assumed to be independent, and that the uncertainty of sum_i (a_i A_i) = sqrt(sum_i (a_i^2 sigma_Ai^2 )):
 
-        bd_unc = L(w_star) / (n sum_w (L(w)^2) - (sum_w (L(w)))^2) * sqrt( n^2 sum_w (L(w)^2 sigma_r(w)^2) + sum_w ( sum_w ( L(w) )^2 * sigma_r(w) ^ 2) ) 
+        let c = L(w_star) / (n sum_w (L(w)^2) - (sum_w (L(w)))^2)
+
+        bd_unc = sqrt( sum_w( (L(w) c n )^2 sigma_r(w)^2) + sum_w ( ( c sum_w (L(w)) )^2 sigma_r(w)^2) )
 
         band depth uncertainties are summed for each feature, proportionately to the number of wavelengths included in that feature
 
