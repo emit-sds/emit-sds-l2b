@@ -56,6 +56,16 @@ def main():
 
     emit_utils.common_logs.logtime()
 
+    if os.path.splitext(args.output_base)[1] in ['.img', '.dat']:
+        basename, ext = os.path.splitext(args.output_base)
+        out_complete_file = f'{basename}_complete{ext}'
+        unc_complete_file = f'{basename}_complete_uncertainty{ext}'
+    else:
+        out_complete_file = f'{args.output_base}_complete'
+        unc_complete_file = f'{args.output_base}_complete_uncertainty'
+    logging.info(f'Output file: {out_complete_file}')
+    logging.info(f'Uncertainty file: {unc_complete_file}')
+
     if args.calculate_uncertainty:
         args.calculate_uncertainty = True
         emit_utils.file_checks.check_raster_files([args.reflectance_file, args.reflectance_uncertainty_file], map_space=False)
@@ -137,14 +147,12 @@ def main():
     output_header['band names'] = ['Group 1 Band Depth', 'Group 1 Index', 'Group 2 Band Depth', 'Group 2 Index']
     cols = int(input_header['samples'])
     rows = int(input_header['lines'])
-    output_header['description'] = 'EMIT L2B Minerals'
-    
-    out_complete_file = f'{args.output_base}_complete'
+    output_header['description'] = 'EMIT L2B Minerals' 
     envi.write_envi_header(envi_header(out_complete_file), output_header)
 
     output_header['band names'] = ['Group 1 Band Depth Uncertainty', 'Group 1 Fit', 'Group 2 Band Depth Uncertainty', 'Group 2 Fit']
     output_header['description'] = 'EMIT L2B Mineral Uncertainties'
-    unc_complete_file = f'{args.output_base}_complete_uncertainty'
+
     envi.write_envi_header(envi_header(unc_complete_file), output_header)
 
     out_complete = np.zeros((rows, cols, 4), dtype=np.float32)
