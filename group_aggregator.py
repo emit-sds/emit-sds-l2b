@@ -224,7 +224,7 @@ def read_tetra_file(filename: str, rows: int, cols: int, scaling: float) -> np.n
         compressed = fin.read()
     decompressed = gzip.decompress(compressed)
 
-    band_depth_header = envi.read_envi_header(filename + '.hdr')
+    band_depth_header = envi.read_envi_header(envi_header(filename))
     offs = max(50,int(band_depth_header['header offset']))
     vicar = decompressed[:offs].decode('ascii').split(' ')[0]
     if vicar[:7] != 'LBLSIZE':
