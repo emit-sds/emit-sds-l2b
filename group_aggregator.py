@@ -203,6 +203,19 @@ def main():
     emit_utils.common_logs.logtime()
 
 
+def get_offset(filename: str):
+    """Read in filename line by line, split based on the "header offset = " string, and return the offset value
+
+    Args:
+        filename (str): filename is the name of the file to be read
+    """
+    with open(filename, 'r', encoding='windows-1252') as fin:
+        for line in fin:
+            if 'header offset' in line:
+                return max(50, int(line.split('=')[1].strip()))
+    return 
+
+    
 def read_tetra_file(filename: str, rows: int, cols: int, scaling: float) -> np.ndarray:
     """
     Reads a compressed tetracorder file and returns a numpy array
@@ -223,9 +236,8 @@ def read_tetra_file(filename: str, rows: int, cols: int, scaling: float) -> np.n
     with open(filename, 'rb') as fin:
         compressed = fin.read()
     decompressed = gzip.decompress(compressed)
-
-    band_depth_header = envi.read_envi_header(envi_header(filename))
-    offs = max(50,int(band_depth_header['header offset']))
+    
+    offs = get_offset(envi_header(filename))
     vicar = decompressed[:offs].decode('ascii').split(' ')[0]
     if vicar[:7] != 'LBLSIZE':
         raise AttributeError(f'Incorrect file format {filename},'
