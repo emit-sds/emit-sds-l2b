@@ -1,4 +1,8 @@
-# David R. Thompson and Philip G. Brodrick
+"""
+Aggregation from tetracorder and uncertainty generation for l2bmin product.
+
+Authors: Philip G. Brodrick, philip.brodrick@jpl.nasa.gov
+"""
 
 
 import argparse
@@ -12,24 +16,7 @@ import logging
 import emit_utils.common_logs
 import os
 import tetracorder
-from collections import OrderedDict
-import json
-import matplotlib.pyplot as plt
 import pandas as pd
-
-# TODO: Get these from....direct input?  Configuration file?
-MINERAL_FRACTION_FILES = [\
-    'calcite.group2.txt',
-    'chlorite.group2.txt',
-    'dolomite.group2.txt',
-    'goethite-all-for-reference.group1.txt',
-    'gypsum.group2.txt',
-    'hematite-all-for-reference.group1.txt',
-    'illite+muscovite.group2.txt',
-    'kaolinite.group2.txt',
-    'montmorillonite.group2.txt',
-    'vermiculite.group2.txt',
-    ]
 
 
 def main():
