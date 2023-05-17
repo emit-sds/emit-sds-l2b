@@ -15,6 +15,8 @@ import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from emit_utils.file_checks import envi_header
 
+plt.switch_backend('agg')
+
 
 def main():
 
