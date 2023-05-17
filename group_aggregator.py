@@ -24,7 +24,8 @@ def main():
     parser = argparse.ArgumentParser(description="Translate to Rrs. and/or apply masks")
     parser.add_argument('tetracorder_output_base', type=str, metavar='TETRA_OUTPUT_DIR')
     parser.add_argument('mineral_groupings_matrix', type=str)
-    parser.add_argument('output_base', type=str, metavar='OUTPUT')
+    parser.add_argument('output_file', type=str, metavar='OUTPUT')
+    parser.add_argument('output_unc_file', type=str, metavar='OUTPUT')
     parser.add_argument('--expert_system_file', type=str, default='cmd.lib.setup.t5.27c1', metavar='EXPERT_SYS_FILE')
     parser.add_argument('--reflectance_file', type=str, metavar='REFLECTANCE_FILE')
     parser.add_argument('--reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
@@ -42,16 +43,6 @@ def main():
         logging.basicConfig(format='%(message)s', level=args.log_level, filename=args.log_file)
 
     emit_utils.common_logs.logtime()
-
-    if os.path.splitext(args.output_base)[1] in ['.img', '.dat']:
-        basename, ext = os.path.splitext(args.output_base)
-        out_complete_file = f'{basename}_complete{ext}'
-        unc_complete_file = f'{basename}_complete_uncertainty{ext}'
-    else:
-        out_complete_file = f'{args.output_base}_complete'
-        unc_complete_file = f'{args.output_base}_complete_uncertainty'
-    logging.info(f'Output file: {out_complete_file}')
-    logging.info(f'Uncertainty file: {unc_complete_file}')
 
     if args.calculate_uncertainty:
         args.calculate_uncertainty = True
@@ -135,12 +126,12 @@ def main():
     cols = int(input_header['samples'])
     rows = int(input_header['lines'])
     output_header['description'] = 'EMIT L2B Minerals' 
-    envi.write_envi_header(envi_header(out_complete_file), output_header)
+    envi.write_envi_header(envi_header(args.output_file), output_header)
 
     output_header['band names'] = ['Group 1 Band Depth Uncertainty', 'Group 1 Fit', 'Group 2 Band Depth Uncertainty', 'Group 2 Fit']
     output_header['description'] = 'EMIT L2B Mineral Uncertainties'
 
-    envi.write_envi_header(envi_header(unc_complete_file), output_header)
+    envi.write_envi_header(envi_header(args.output_unc_file), output_header)
 
     out_complete = np.zeros((rows, cols, 4), dtype=np.float32)
     unc_complete = np.zeros((rows, cols, 4), dtype=np.float32)
@@ -188,11 +179,11 @@ def main():
     logging.info('Writing output')
     # write as BIL interleave
     out_complete = np.transpose(out_complete, (0, 2, 1))
-    with open(out_complete_file, 'wb') as fout:
+    with open(args.output_file, 'wb') as fout:
         fout.write(out_complete.astype(dtype=np.float32).tobytes())
 
     unc_complete = np.transpose(unc_complete, (0, 2, 1))
-    with open(unc_complete_file, 'wb') as fout:
+    with open(args.output_unc_file, 'wb') as fout:
         fout.write(unc_complete.astype(dtype=np.float32).tobytes())
         
     emit_utils.common_logs.logtime()
