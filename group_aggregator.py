@@ -204,10 +204,10 @@ def get_offset(filename: str):
     Args:
         filename (str): filename is the name of the file to be read
     """
-    with open(filename, 'r', encoding='windows-1252') as fin:
-        for line in fin:
-            if 'header offset' in line:
-                return max(50, int(line.split('=')[1].strip()))
+    with open(filename, 'r', encoding='latin-1') as fin:
+      for line in fin:
+          if 'header offset' in line:
+              return max(50, int(line.split('=')[1].strip()))
     return 
 
     
