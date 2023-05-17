@@ -27,11 +27,11 @@ def main():
     args = parser.parse_args()
 
     ds = envi.open(envi_header(args.input_file))
-    dat = ds.open_memmap(interleave='bip')
+    dat = ds.open_memmap(interleave='bip').copy()
     dat[dat == -9999] = np.nan
     if args.unc_file is not None:
         unc_ds = envi.open(envi_header(args.unc_file))
-        unc = unc_ds.open_memmap(interleave='bip')
+        unc = unc_ds.open_memmap(interleave='bip').copy()
         unc[unc == -9999] = np.nan
 
     fig = plt.figure(figsize=(20,20)) 
