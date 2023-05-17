@@ -10,6 +10,9 @@ from emit_utils.daac_converter import add_variable, makeDims, makeGlobalAttr, ad
 from emit_utils.file_checks import netcdf_ext, envi_header
 from spectral.io import envi
 import logging
+import numpy as np
+import pandas as pd
+import os
 
 
 def main():
@@ -77,10 +80,22 @@ Geolocation data (latitude, longitude, height) and a lookup table to project the
     add_variable(nc_ds, 'group_2_mineral_id', "u2", "Group 2 Mineral ID", "unitless", abun_ds.open_memmap(interleave='bip')[...,3].copy(),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
     nc_ds.sync()
-    nc_ds.close()
     logging.debug(f'Successfully created {args.output_abun_filename}')
 
+    df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'mineral_grouping_matrix_20230503.csv'))
+    embed_keys = ['Index','Record','Name','URL','Group','Library']
+    keytype = ['u4','u4',str,str,'u4',str]
 
+    nc_ds.createDimension('minerals', len(df))
+
+    for ek, ekt in zip(embed_keys, keytype):
+        if ekt == str:
+            converted_dat = np.array(df[ek]).astype('S')
+        else:
+            converted_dat = np.array(df[ek])
+        add_variable(nc_ds, f'mineral_metadata/{ek.lower()}', ekt, ek, None, converted_dat, {"dimensions": ("minerals",)})
+    nc_ds.sync()
+    nc_ds.close()
 
     # make the netCDF4 file
     logging.info(f'Creating netCDF4 file: {args.output_abununcert_filename}')
