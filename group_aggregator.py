@@ -123,6 +123,7 @@ def main():
     output_header['data type'] = 4
     output_header['bands'] = 4
     output_header['header offset'] = 0
+    output_header['data ignore value'] = -9999
     output_header['band names'] = ['Group 1 Band Depth', 'Group 1 Index', 'Group 2 Band Depth', 'Group 2 Index']
     cols = int(input_header['samples'])
     rows = int(input_header['lines'])
