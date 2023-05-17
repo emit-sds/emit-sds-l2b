@@ -43,7 +43,7 @@ def main():
     plt.colorbar(im, cax=cax)
 
     ax = plt.subplot(gs[0,1])
-    plt.imshow(dat[...,2], vmin=0, vmax=0.25)
+    im = plt.imshow(dat[...,2], vmin=0, vmax=0.25)
     plt.xlabel('Crosstrack')
     plt.ylabel('Downtrack')
     plt.title('Group 2 Band Depth')
@@ -54,7 +54,7 @@ def main():
 
     if args.unc_file is not None:
         ax = plt.subplot(gs[1,0])
-        plt.imshow(unc[...,0], vmin=0, vmax=0.025)
+        im = plt.imshow(unc[...,0], vmin=0, vmax=0.025)
         plt.xlabel('Crosstrack')
         plt.ylabel('Downtrack')
         plt.title('Group 1 Band Depth Uncertainty')
@@ -63,7 +63,7 @@ def main():
         plt.colorbar(im, cax=cax)
 
         ax = plt.subplot(gs[1,1])
-        plt.imshow(unc[...,2], vmin=0, vmax=0.025)
+        im = plt.imshow(unc[...,2], vmin=0, vmax=0.025)
         plt.xlabel('Crosstrack')
         plt.ylabel('Downtrack')
         plt.title('Group 2 Band Depth Uncertainty')
