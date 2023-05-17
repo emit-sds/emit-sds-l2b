@@ -51,6 +51,7 @@ def main():
         refl_dataset = envi.open(envi_header(args.reflectance_file))
         # bulk-copy in the observed reflectance dataset.  This pre-supposes sufficient memory, but reduces IO costs on non-SSDs.
         observed_reflectance = refl_dataset.open_memmap(interleave='bip', writable=False).copy()
+        mask = observed_reflectance[...,10] == -9999
         wavelengths = np.array([float(x) for x in refl_dataset.metadata['wavelength']])
 
         # bulk-copy in the observed reflectance uncertainty dataset.  This pre-supposes sufficient memory, but reduces IO costs on non-SSDs.
@@ -174,6 +175,8 @@ def main():
                 unc_complete[valid_pixels,3] = fit[band_depth > 0]
         else:
             logging.warning(f'Library record {library_records[_c]} for {constituent_file} not found in {library_names[_c]}')
+    out_complete[mask,:] = -9999
+    unc_complete[mask,:] = -9999
         
 
     logging.info('Writing output')

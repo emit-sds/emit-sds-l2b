@@ -28,9 +28,11 @@ def main():
 
     ds = envi.open(envi_header(args.input_file))
     dat = ds.open_memmap(interleave='bip')
+    dat[dat == -9999] = np.nan
     if args.unc_file is not None:
         unc_ds = envi.open(envi_header(args.unc_file))
         unc = unc_ds.open_memmap(interleave='bip')
+        unc[unc == -9999] = np.nan
 
     fig = plt.figure(figsize=(20,20)) 
     gs = gridspec.GridSpec(2, 2, width_ratios=[1, 1], height_ratios=[1, 1])

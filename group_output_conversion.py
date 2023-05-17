@@ -73,11 +73,11 @@ Geolocation data (latitude, longitude, height) and a lookup table to project the
     logging.debug('Write spectral abundance data')
     add_variable(nc_ds, 'group_1_band_depth', "f4", "Group 1 Band Depth", "unitless", abun_ds.open_memmap(interleave='bip')[...,0].copy(),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
-    add_variable(nc_ds, 'group_1_mineral_id', "u2", "Group 1 Mineral ID", "unitless", abun_ds.open_memmap(interleave='bip')[...,1].copy(),
+    add_variable(nc_ds, 'group_1_mineral_id', "i2", "Group 1 Mineral ID", "unitless", abun_ds.open_memmap(interleave='bip')[...,1].copy().astype(np.int16),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
     add_variable(nc_ds, 'group_2_band_depth', "f4", "Group 2 Band Depth", "unitless", abun_ds.open_memmap(interleave='bip')[...,2].copy(),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
-    add_variable(nc_ds, 'group_2_mineral_id', "u2", "Group 2 Mineral ID", "unitless", abun_ds.open_memmap(interleave='bip')[...,3].copy(),
+    add_variable(nc_ds, 'group_2_mineral_id', "i2", "Group 2 Mineral ID", "unitless", abun_ds.open_memmap(interleave='bip')[...,3].copy().astype(np.int16),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
     nc_ds.sync()
     logging.debug(f'Successfully created {args.output_abun_filename}')
@@ -130,11 +130,11 @@ Geolocation data (latitude, longitude, height) and a lookup table to project the
 
     add_variable(nc_ds, 'group_1_band_depth_unc', "f4", "Group 1 Band Depth Uncertainty", "unitless", abun_unc_ds.open_memmap(interleave='bip')[...,0].copy(),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
-    add_variable(nc_ds, 'group_1_fit', "u2", "Group 1 Fit", "unitless", abun_unc_ds.open_memmap(interleave='bip')[...,1].copy(),
+    add_variable(nc_ds, 'group_1_fit', "f4", "Group 1 Fit", "unitless", abun_unc_ds.open_memmap(interleave='bip')[...,1].copy(),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
     add_variable(nc_ds, 'group_2_band_depth_unc', "f4", "Group 2 Band Depth Uncertainty", "unitless", abun_unc_ds.open_memmap(interleave='bip')[...,2].copy(),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
-    add_variable(nc_ds, 'group_2_fit', "u2", "Group 2 Fit", "unitless", abun_unc_ds.open_memmap(interleave='bip')[...,3].copy(),
+    add_variable(nc_ds, 'group_2_fit', "f4", "Group 2 Fit", "unitless", abun_unc_ds.open_memmap(interleave='bip')[...,3].copy(),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
 
     nc_ds.sync()
