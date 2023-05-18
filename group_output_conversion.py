@@ -60,10 +60,6 @@ Geolocation data (latitude, longitude, height) and a lookup table to project the
     logging.debug('Creating dimensions')
     makeDims(nc_ds, args.abun_file, args.glt_file)
 
-    logging.debug('Creating and writing reflectance metadata')
-    add_variable(nc_ds, "sensor_band_parameters/minerals", str, "Minerals", None,
-                 abun_ds.metadata['band names'], {"dimensions": ("bands",)})
-
     logging.debug('Creating and writing location data')
     add_loc(nc_ds, args.loc_file)
 
@@ -117,10 +113,6 @@ Geolocation data (latitude, longitude, height) and a lookup table to project the
 
     logging.debug('Creating dimensions')
     makeDims(nc_ds, args.abun_unc_file, args.glt_file)
-
-    logging.debug('Creating and writing reflectance metadata')
-    add_variable(nc_ds, "sensor_band_parameters/minerals", str, "Minerals", None,
-                 abun_ds.metadata['band names'], {"dimensions": ("bands",)})
 
     logging.debug('Creating and writing location data')
     add_loc(nc_ds, args.loc_file)
