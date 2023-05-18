@@ -48,7 +48,7 @@ def main():
     logging.debug('Creating global attributes')
     makeGlobalAttr(nc_ds, args.abun_file, args.software_delivery_version, glt_envi_file=args.glt_file)
 
-    nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance 60 m " + args.version
+    nc_ds.title = "EMIT L2B Estimated Mineral Identification and Band Depth 60 m " + args.version
     nc_ds.summary = nc_ds.summary + \
         f"\\n\\nThis collection contains L2B band depth and geologic identification data. Band depth \
 is estimated through linear feature matching - see ATBD for \
@@ -105,7 +105,7 @@ Geolocation data (latitude, longitude, height) and a lookup table to project the
     logging.debug('Creating global attributes')
     makeGlobalAttr(nc_ds, args.abun_unc_file, args.software_delivery_version, glt_envi_file=args.glt_file)
 
-    nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance Uncertainty 60 m " + args.version
+    nc_ds.title = "EMIT L2B Estimated Mineral Identification and Band Depth Uncertainty 60 m " + args.version
     nc_ds.summary = nc_ds.summary + \
         f"\\n\\nThis collection contains L2B band depth uncertainty estimates of surface minerals, the fit quality of each mineral, \
 and geolocation data. Band depth uncertainty is estimated by propogating reflectance uncertainty \
