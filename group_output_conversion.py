@@ -51,9 +51,9 @@ def main():
     nc_ds.title = "EMIT L2B Estimated Mineral Spectral Abundance 60 m " + args.version
     nc_ds.summary = nc_ds.summary + \
         f"\\n\\nThis collection contains L2B band depth and geologic identification data. Band depth \
-    is estimated through linear feature matching - see ATBD for  \
+is estimated through linear feature matching - see ATBD for \
 details. This collection includes band depth for both \'Group 1\' and \'Group 2\' minerals, which frequently co-occur. \
-The band depth reported is that of the given mineral identified, which is also reported in a separate band.    \
+The band depth reported is that of the given mineral identified, which is also reported in a separate band. \
 Geolocation data (latitude, longitude, height) and a lookup table to project the data are also included."
     nc_ds.sync()
 
@@ -111,7 +111,7 @@ Geolocation data (latitude, longitude, height) and a lookup table to project the
 and geolocation data. Band depth uncertainty is estimated by propogating reflectance uncertainty \
 through linear feature matching used for abundance mapping - see ATBD for  details. \
 Band depth uncertainty and fit qualities are provided for both \'Group 1\' and \'Group 2\' minerals, which frequently co-occur. \
-Fit quality indicates how well the library-normalized observed spectra match the selected library spectra.  \
+Fit quality indicates how well the library-normalized observed spectra match the selected library spectra. \
 Geolocation data (latitude, longitude, height) and a lookup table to project the data are also included."
     nc_ds.sync()
 
