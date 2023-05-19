@@ -42,7 +42,7 @@ def main():
     parser.add_argument('tetracorder_output_base', type=str, metavar='TETRA_OUTPUT_DIR')
     parser.add_argument('output_base', type=str, metavar='OUTPUT')
     parser.add_argument('--spectral_reference_library_config', type=str, metavar='TETRA_LIBRARY_CONFIG_FILE')
-    parser.add_argument('--expert_system_file', type=str, default='cmd.lib.setup.t5.27a1', metavar='EXPERT_SYS_FILE')
+    parser.add_argument('--expert_system_file', type=str, default='cmd.lib.setup.t5.27c1', metavar='EXPERT_SYS_FILE')
     parser.add_argument('--calculate_uncertainty', type=int, choices=[0,1], metavar='CALCULATE_UNCERTAINTY')
     parser.add_argument('--reflectance_file', type=str, metavar='REFLECTANCE_FILE')
     parser.add_argument('--reflectance_uncertainty_file', type=str, metavar='REFLECTANCE_UNCERTAINTY_FILE')
@@ -61,8 +61,6 @@ def main():
         logging.basicConfig(format='%(message)s', level=args.log_level, filename=args.log_file)
 
     emit_utils.common_logs.logtime()
-
-    args.detailed_outputs = args.detailed_outputs == 1
 
     if args.calculate_uncertainty == 1:
         args.calculate_uncertainty = True
@@ -100,11 +98,15 @@ def main():
         with open(os.path.join(args.output_base, 'mineral_fraction_diagnostic.json'), 'w') as fout: 
             fout.write(json.dumps(mineral_fractions, indent=2, sort_keys=True, cls=SerialEncoder))  
 
+        with open(os.path.join(args.output_base, 'decoded_expert.json'), 'w') as fout: 
+            fout.write(json.dumps(decoded_expert, indent=2, sort_keys=True, cls=SerialEncoder))  
+
     logging.info('Loading complete, set up output file(s)')
     # Set up output files
     input_header = None
     for uf in unique_file_names:
         header_name = os.path.join(args.tetracorder_output_base, envi_header(uf))
+        print(header_name)
         if os.path.isfile(header_name):
             input_header = envi.read_envi_header(header_name)
             logging.info(f'using {header_name} as header base')
@@ -220,6 +222,7 @@ def main():
                     detailed_outputs[list(mineral_fractions.keys())[_b]]['files'].append(constituent_file)
                     detailed_outputs[list(mineral_fractions.keys())[_b]]['values'].append(unmixed_outputs[...,_b])
 
+
         # Calculate uncertainty
         if args.calculate_uncertainty and np.sum(library_normalized_band_depth != 0) > 0:
             mixture_uncertainty = calculate_uncertainty(ref_lib['wavelengths'], observed_reflectance,
@@ -230,15 +233,27 @@ def main():
                               mixture_uncertainty.reshape((rows, cols, 1)) @ current_mixture_fractions
 
     if args.detailed_outputs:
+        output_header['bands'] = 0
+        num_outputs = 0
+        output_header_bn = []
         for mineral in mineral_fractions.keys():
-            num_outputs = len(detailed_outputs[mineral]['files'])
-            if num_outputs > 0:
-                output_header['bands'] = num_outputs
-                output_header['band names'] = detailed_outputs[mineral]['files']
-                envi.write_envi_header(envi_header(f'{args.output_base}_{mineral}_details'), output_header)
-                towrite = np.stack(detailed_outputs[mineral]['values'],axis=1)
-                with open(f'{args.output_base}_{mineral}_details', 'wb') as fout:
-                    fout.write(towrite.astype(dtype=np.float32).tobytes())
+            lno = len(detailed_outputs[mineral]['files'])
+            num_outputs += lno
+            if lno > 0:
+                output_header_bn.extend(detailed_outputs[mineral]['files'])
+                
+        output_header['bands'] = num_outputs
+        output_header['band names'] = output_header_bn
+        envi.write_envi_header(envi_header(f'{args.output_base}_{mineral}_details'), output_header)
+        detailed_out_ds = envi.create_image(envi_header(f'{args.output_base}_details'), output_header, ext='',
+                                                  force=True)
+        detailed_out = detailed_out_ds.open_memmap(interleave='bip',writable=True)
+        out_idx = 0
+        for mineral in mineral_fractions.keys():
+            for ov in detailed_outputs[mineral]['values']:
+                detailed_out[:,:,out_idx] = ov.astype(dtype=np.float32)
+                out_idx +=1
+
 
     logging.info('Writing output')
     detailed_header = output_header.copy()
