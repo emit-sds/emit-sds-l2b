@@ -268,7 +268,7 @@ def cont_rem(wavelengths: np.array, reflectance: np.array, continuum_idx, valid_
     
     feature_inds = np.where(np.logical_and.reduce((np.arange(len(valid_wavelengths)) >= left_inds[0], 
                                                    np.arange(len(valid_wavelengths)) <= right_inds[1],
-                                                   valid_wavelengths)))
+                                                   valid_wavelengths)))[0]
 
     continuum_fun = interp1d([left_x, right_x], [left_y, right_y], bounds_error=False, fill_value='extrapolate')
     continuum = continuum_fun( np.ones((reflectance.shape[0], len(feature_inds))) * wavelengths[feature_inds][np.newaxis,:])
