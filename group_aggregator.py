@@ -245,33 +245,73 @@ def read_tetra_file(filename: str, rows: int, cols: int, scaling: float) -> np.n
     return read_data
 
 
-def cont_rem(wavelengths: np.array, reflectance: np.array, feature: tuple):
+def cont_rem(wavelengths: np.array, reflectance: np.array, continuum_idx, valid_wavelengths):
     """This function removes the continuum from a reflectance spectrum
     using the continuum removal method of Kaufman and Tanre (1992)
 
     Args:
         wavelengths (array): An array of wavelengths
         reflectance (array): An array of reflectance values
-        feature (float): The feature value to use for removing the continuum
+        continuum_idx (tuple): arrays of left and right continuum indices
+        valid_wavelengths (array): A boolean array indicating if each wavelength position is valid
 
     Returns:
         array: An array of continuum removed reflectance values
     """
-    left_inds = np.where(np.logical_and(wavelengths >= feature[0], wavelengths <= feature[1]))[0]
+
+    left_inds, right_inds = continuum_idx
     left_x = wavelengths[int(left_inds.mean())]
     left_y = reflectance[:,left_inds].mean()
 
-    right_inds = np.where(np.logical_and(wavelengths >= feature[2], wavelengths <= feature[3]))[0]
     right_x = wavelengths[int(right_inds.mean())]
     right_y = reflectance[:,right_inds].mean()
     
-    feature_inds = np.where(np.logical_and(wavelengths >= feature[0], wavelengths <= feature[3]))[0]
+    feature_inds = np.where(np.logical_and.reduce((np.arange(len(valid_wavelengths)) >= left_inds[0], 
+                                                   np.arange(len(valid_wavelengths)) <= right_inds[1],
+                                                   valid_wavelengths)))
 
     continuum_fun = interp1d([left_x, right_x], [left_y, right_y], bounds_error=False, fill_value='extrapolate')
     continuum = continuum_fun( np.ones((reflectance.shape[0], len(feature_inds))) * wavelengths[feature_inds][np.newaxis,:])
     depths = 1 - reflectance[:,feature_inds] / continuum, feature_inds
-    return depths
+    return depths, feature_inds
 
+
+def get_continuum_idx(wavelengths: np.array, feature: tuple, valid_wavelengths: np.array):
+    """Get the continuum indices for the given feature
+
+    Args:
+        wavelengths (np.array): Array of wavelengths.
+        feature (tuple): A tuple containing the start and end wavelengths of the feature.
+        valid_wavelengths (np.array): Array of valid wavelengths.
+
+    Returns:
+        np.array, np.array: a tuple of index arrays for both continuum edges, or None if there is no valid continuum found.
+    """
+    left_inds = np.where(np.logical_and.reduce((wavelengths >= feature[0], wavelengths <= feature[1], valid_wavelengths)))[0]
+    right_inds = np.where(np.logical_and.reduce((wavelengths >= feature[2], wavelengths <= feature[3], valid_wavelengths)))[0]
+    if len(left_inds) > 0 and len(right_inds) > 0:
+        return left_inds, right_inds
+
+    if len(left_inds) == 0:
+        interior_left = wavelengths - feature['continuum'][1]
+        interior_left[interior_left < 0] = np.nan
+        if np.all(np.isnan(interior_left)):
+            return None
+        interior_left = np.array([np.argmin(interior_left)])
+        if len(right_inds) > 0:
+            return interior_left, right_inds
+
+    if len(right_inds) == 0:
+        interior_right = feature['continuum'][2] - wavelengths
+        interior_right[interior_right < 0] = np.nan
+        if np.all(np.isnan(interior_right)):
+            return None
+        interior_right = np.array([np.argmin(interior_right)])
+        if len(left_inds) > 0:
+            return left_inds, interior_right
+        else:
+            return interior_left, interior_right
+    
 
 def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array, observed_reflectance_uncertainty: np.array, library_reflectance: np.array, feature_set: dict):
     """ Calculate the uncertainty of the Clark, 2003 continuum normalized band depth of a particular feature.
@@ -303,47 +343,47 @@ def calculate_uncertainty(wavelengths: np.array, observed_reflectance: np.array,
         wl_micron = wavelengths / 1000
     else:
         wl_micron = wavelengths
+    valid_wavelengths = observed_reflectance[0,:] != -0.01
 
     unc_output = []
     for feature in feature_set:
 
         if feature['feature_type'] in ['MLw', 'DLw']:
 
-            # check to make sure that there are at least some valid reflectances insdide the given continuum
-            if np.any(observed_reflectance[0, np.where(np.logical_and(wl_micron >= feature['continuum'][0], wl_micron <= feature['continuum'][1]))] > 0) and \
-               np.any(observed_reflectance[0, np.where(np.logical_and(wl_micron >= feature['continuum'][2], wl_micron <= feature['continuum'][3]))] > 0):
+            continuum_idx = get_continuum_idx(wl_micron, feature['continuum'], valid_wavelengths)
+            if continuum_idx is None:
+                continue
 
+            # Continuum removal
+            lib_cont, wl_inds = cont_rem(wl_micron, library_reflectance.reshape((1,-1)), continuum_idx, valid_wavelengths)
+            obs_cont, wl_inds = cont_rem(wl_micron, observed_reflectance, continuum_idx, valid_wavelengths)
 
-                # Continuum removal
-                lib_cont, wl_inds = cont_rem(wl_micron, library_reflectance.reshape((1,-1)), feature['continuum'])
-                obs_cont, wl_inds = cont_rem(wl_micron, observed_reflectance, feature['continuum'])
+            # remove extra library dimension
+            lib_cont = np.squeeze(lib_cont)
 
-                # remove extra library dimension
-                lib_cont = np.squeeze(lib_cont)
+            # subset uncertainty for convenience
+            obs_rfl_unc = observed_reflectance_uncertainty[:, wl_inds]
 
-                # subset uncertainty for convenience
-                obs_rfl_unc = observed_reflectance_uncertainty[:, wl_inds]
+            # some frequenty summation terms
+            lib_cont_sum = np.sum(lib_cont)
+            lib_cont_squared_sum = np.sum(lib_cont**2)
 
-                # some frequenty summation terms
-                lib_cont_sum = np.sum(lib_cont)
-                lib_cont_squared_sum = np.sum(lib_cont**2)
-
-                # find the band-depth index from the library
-                w_star = np.argmax(lib_cont) 
+            # find the band-depth index from the library
+            w_star = np.argmax(lib_cont) 
         
-                # calculate a 
-                const =  lib_cont[w_star] / (len(lib_cont) * lib_cont_squared_sum - lib_cont_sum**2)
+            # calculate a 
+            const =  lib_cont[w_star] / (len(lib_cont) * lib_cont_squared_sum - lib_cont_sum**2)
 
-                inner_term = np.sum(np.power(obs_rfl_unc,2) * np.power(lib_cont * const * len(lib_cont),2)[np.newaxis,:],axis=1) +\
-                             np.sum(np.power(const * lib_cont_sum,2) * np.power(obs_rfl_unc,2), axis=1)
+            inner_term = np.sum(np.power(obs_rfl_unc,2) * np.power(lib_cont * const * len(lib_cont),2)[np.newaxis,:],axis=1) +\
+                         np.sum(np.power(const * lib_cont_sum,2) * np.power(obs_rfl_unc,2), axis=1)
 
-                loc_unc = np.sqrt(inner_term)
+            loc_unc = np.sqrt(inner_term)
 
-                # for analysis only
-                #slope = (np.sum(obs_cont * lib_cont[np.newaxis,:],axis=1)*len(lib_cont) - np.sum(obs_cont, axis=1)*np.sum(lib_cont)) /( np.sum(lib_cont**2) * len(lib_cont) - np.sum(lib_cont)**2 )
-                #offset = (np.sum(obs_cont, axis=1) - slope * lib_cont_sum) / len(lib_cont)
+            # for analysis only
+            #slope = (np.sum(obs_cont * lib_cont[np.newaxis,:],axis=1)*len(lib_cont) - np.sum(obs_cont, axis=1)*np.sum(lib_cont)) /( np.sum(lib_cont**2) * len(lib_cont) - np.sum(lib_cont)**2 )
+            #offset = (np.sum(obs_cont, axis=1) - slope * lib_cont_sum) / len(lib_cont)
 
-                unc_output.append([loc_unc, len(lib_cont)])
+            unc_output.append([loc_unc, len(lib_cont)])
 
     total_bands = np.sum([x[1] for x in unc_output])
     uncertainty = np.sum(np.vstack([x[0] * x[1] for x in unc_output]),axis=0) / total_bands
