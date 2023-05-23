@@ -272,7 +272,7 @@ def cont_rem(wavelengths: np.array, reflectance: np.array, continuum_idx, valid_
 
     continuum_fun = interp1d([left_x, right_x], [left_y, right_y], bounds_error=False, fill_value='extrapolate')
     continuum = continuum_fun( np.ones((reflectance.shape[0], len(feature_inds))) * wavelengths[feature_inds][np.newaxis,:])
-    depths = 1 - reflectance[:,feature_inds] / continuum, feature_inds
+    depths = 1 - reflectance[:,feature_inds] / continuum
     return depths, feature_inds
 
 
