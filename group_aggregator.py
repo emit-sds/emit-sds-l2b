@@ -267,7 +267,7 @@ def cont_rem(wavelengths: np.array, reflectance: np.array, continuum_idx, valid_
     right_y = reflectance[:,right_inds].mean()
     
     feature_inds = np.where(np.logical_and.reduce((np.arange(len(valid_wavelengths)) >= left_inds[0], 
-                                                   np.arange(len(valid_wavelengths)) <= right_inds[1],
+                                                   np.arange(len(valid_wavelengths)) <= right_inds[-1],
                                                    valid_wavelengths)))[0]
 
     continuum_fun = interp1d([left_x, right_x], [left_y, right_y], bounds_error=False, fill_value='extrapolate')
