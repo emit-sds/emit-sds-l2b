@@ -293,7 +293,7 @@ def get_continuum_idx(wavelengths: np.array, feature: tuple, valid_wavelengths: 
         return left_inds, right_inds
 
     if len(left_inds) == 0:
-        interior_left = wavelengths - feature['continuum'][1]
+        interior_left = wavelengths - feature[1]
         interior_left[interior_left < 0] = np.nan
         if np.all(np.isnan(interior_left)):
             return None
@@ -302,7 +302,7 @@ def get_continuum_idx(wavelengths: np.array, feature: tuple, valid_wavelengths: 
             return interior_left, right_inds
 
     if len(right_inds) == 0:
-        interior_right = feature['continuum'][2] - wavelengths
+        interior_right = feature[2] - wavelengths
         interior_right[interior_right < 0] = np.nan
         if np.all(np.isnan(interior_right)):
             return None
