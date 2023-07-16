@@ -177,7 +177,8 @@ def main():
         else:
             logging.warning(f'Library record {library_records[_c]} for {constituent_file} not found in {library_names[_c]}')
     out_complete[mask,:] = -9999
-    unc_complete[mask,:] = -9999
+    if args.calculate_uncertainty:
+        unc_complete[mask,:] = -9999
         
 
     logging.info('Writing output')
