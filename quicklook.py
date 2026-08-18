@@ -13,7 +13,9 @@ import subprocess
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from emit_utils.file_checks import envi_header
+from netCDF4 import Dataset
+
+# from emit_utils.file_checks import envi_header
 
 plt.switch_backend('agg')
 
@@ -26,12 +28,26 @@ def main():
     parser.add_argument('--unc_file', type=str, metavar='uncertainty file')
     args = parser.parse_args()
 
-    ds = envi.open(envi_header(args.input_file))
-    dat = ds.open_memmap(interleave='bip').copy()
+    if args.input_file.endswith('.nc'):
+        nc = Dataset(args.input_file)
+        g1 = nc.variables['group_1_band_depth'][:].astype(float)
+        g2 = nc.variables['group_2_band_depth'][:].astype(float)
+        nc.close()
+        dat = np.stack([g1, np.zeros_like(g1), g2], axis=-1)
+    else:
+        ds = envi.open(envi_header(args.input_file))
+        dat = ds.open_memmap(interleave='bip').copy()
     dat[dat == -9999] = np.nan
     if args.unc_file is not None:
-        unc_ds = envi.open(envi_header(args.unc_file))
-        unc = unc_ds.open_memmap(interleave='bip').copy()
+        if args.unc_file.endswith('.nc'):
+            unc_nc = Dataset(args.unc_file)
+            u1 = unc_nc.variables['group_1_band_depth_unc'][:].astype(float)
+            u2 = unc_nc.variables['group_2_band_depth_unc'][:].astype(float)
+            unc_nc.close()
+            unc = np.stack([u1, np.zeros_like(u1), u2], axis=-1)
+        else:
+            unc_ds = envi.open(envi_header(args.unc_file))
+            unc = unc_ds.open_memmap(interleave='bip').copy()
         unc[unc == -9999] = np.nan
 
     fig = plt.figure(figsize=(20,20)) 
