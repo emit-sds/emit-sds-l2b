@@ -3,16 +3,15 @@ Quicklook generation from L2bmin products.
 
 Authors: Philip G. Brodrick, philip.brodrick@jpl.nasa.gov
 """
-
-from spectral.io import envi
-import numpy as np
-from osgeo import gdal
 import argparse
-import os
-import subprocess
+
+import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+from matplotlib import gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from netCDF4 import Dataset
+from spectral.io import envi
+
 from emit_utils.file_checks import envi_header
 
 plt.switch_backend('agg')
@@ -20,21 +19,35 @@ plt.switch_backend('agg')
 
 def main():
 
-    parser = argparse.ArgumentParser(description="Translate to Rrs. and/or apply masks")
+    parser = argparse.ArgumentParser(description="Create l2b mineral quicklook")
     parser.add_argument('input_file', type=str, metavar='l2b file')
     parser.add_argument('output_file', type=str, metavar='output file to write')
     parser.add_argument('--unc_file', type=str, metavar='uncertainty file')
     args = parser.parse_args()
 
-    ds = envi.open(envi_header(args.input_file))
-    dat = ds.open_memmap(interleave='bip').copy()
+    if args.input_file.endswith('.nc'):
+        nc = Dataset(args.input_file)
+        g1 = nc.variables['group_1_band_depth'][:].astype(float)
+        g2 = nc.variables['group_2_band_depth'][:].astype(float)
+        nc.close()
+        dat = np.stack([g1, np.zeros_like(g1), g2], axis=-1)
+    else:
+        ds = envi.open(envi_header(args.input_file))
+        dat = ds.open_memmap(interleave='bip').copy()
     dat[dat == -9999] = np.nan
     if args.unc_file is not None:
-        unc_ds = envi.open(envi_header(args.unc_file))
-        unc = unc_ds.open_memmap(interleave='bip').copy()
+        if args.unc_file.endswith('.nc'):
+            unc_nc = Dataset(args.unc_file)
+            u1 = unc_nc.variables['group_1_band_depth_unc'][:].astype(float)
+            u2 = unc_nc.variables['group_2_band_depth_unc'][:].astype(float)
+            unc_nc.close()
+            unc = np.stack([u1, np.zeros_like(u1), u2], axis=-1)
+        else:
+            unc_ds = envi.open(envi_header(args.unc_file))
+            unc = unc_ds.open_memmap(interleave='bip').copy()
         unc[unc == -9999] = np.nan
 
-    fig = plt.figure(figsize=(20,20)) 
+    fig = plt.figure(figsize=(20,20))
     gs = gridspec.GridSpec(2, 2, width_ratios=[1, 1], height_ratios=[1, 1])
 
     ax = plt.subplot(gs[0,0])
@@ -54,7 +67,6 @@ def main():
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(im, cax=cax)
-
 
     if args.unc_file is not None:
         ax = plt.subplot(gs[1,0])
