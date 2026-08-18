@@ -19,7 +19,7 @@ plt.switch_backend('agg')
 
 def main():
 
-    parser = argparse.ArgumentParser(description="Translate to Rrs. and/or apply masks")
+    parser = argparse.ArgumentParser(description="Create l2b mineral quicklook")
     parser.add_argument('input_file', type=str, metavar='l2b file')
     parser.add_argument('output_file', type=str, metavar='output file to write')
     parser.add_argument('--unc_file', type=str, metavar='uncertainty file')
@@ -67,7 +67,6 @@ def main():
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(im, cax=cax)
-
 
     if args.unc_file is not None:
         ax = plt.subplot(gs[1,0])
