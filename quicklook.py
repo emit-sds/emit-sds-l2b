@@ -3,17 +3,14 @@ Quicklook generation from L2bmin products.
 
 Authors: Philip G. Brodrick, philip.brodrick@jpl.nasa.gov
 """
-
-from spectral.io import envi
-import numpy as np
-from osgeo import gdal
 import argparse
-import os
-import subprocess
+
+import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+from matplotlib import gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from netCDF4 import Dataset
+from spectral.io import envi
 
 from emit_utils.file_checks import envi_header
 
@@ -50,7 +47,7 @@ def main():
             unc = unc_ds.open_memmap(interleave='bip').copy()
         unc[unc == -9999] = np.nan
 
-    fig = plt.figure(figsize=(20,20)) 
+    fig = plt.figure(figsize=(20,20))
     gs = gridspec.GridSpec(2, 2, width_ratios=[1, 1], height_ratios=[1, 1])
 
     ax = plt.subplot(gs[0,0])
