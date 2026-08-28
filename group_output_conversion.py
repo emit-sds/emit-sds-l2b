@@ -107,8 +107,8 @@ Geolocation data (latitude, longitude, height) and a lookup table to project the
 
     logging.debug('Load and mask abundance')
     def mask_key(ds, key):
-        data = ds.variables[key][:].copy()
-        data[rfl_mask,:] = -9999
+        data = np.squeeze(ds.variables[key][:].copy())
+        data[rfl_mask] = -9999
         return data
 
     logging.debug('Write spectral abundance data')
