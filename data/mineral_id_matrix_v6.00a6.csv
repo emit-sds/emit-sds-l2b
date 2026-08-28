@@ -1,0 +1,313 @@
+index,id,group,library,record,title,path,url
+1,green_plastic_tarp_1um,1,splib06,6858,Plastic_Tarp GDS339 Green W1R1Fa,group.1um/organic_green_plastic_tarp_1um,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Plastic_Tarp_GDS339_Green_ASDFRa_AREF.html
+2,hematite.fine.gr.gds76,1,sprlb06,744,Hematite.02+Quartz.98 GDS76 W1R1Ha,group.1um/fe3+_hematite.fine.gr.gds76,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hematite.02+Quartz.98_GDS76_BECKa_AREF.html
+3,goethite.medgr.ws222,1,sprlb06,882,Goethite WS222 <250um MedGrn W1R1H_ AREF,group.1um/fe3+_goethite.medgr.ws222,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Goethite_WS222_Medium_Gr._BECKa_AREF.html
+4,goethite+qtz.medgr.gds240,1,splib06,5736,Goethite0.02+Quartz GDS240 W1R1Ba,group.1um/fe3+_goethite+qtz.medgr.gds240,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Goethite0.02+Quartz_GDS240_BECKa_AREF.html
+5,goethite.fingr.mpcma2,1,splib06,1878,Goethite MPCMA2-B FineGr adj W1R1Bb,group.1um/fe3+_goethite.fingr.mpcma2,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Goethite_MPCMA2-B_FineGr_adj_BECKb_AREF.html
+6,goethite.medcoarsegr.mpc,1,sprlb06,852,Goethite MPCMA2-C M-Crsgrad2 W1R1Hb AREF,group.1um/fe3+_goethite.medcoarsegr.mpcma2,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Goethite_MPCMA2-C_M-Crsgrad2_BECKb_AREF.html
+7,goethite.coarsegr.ws222,1,sprlb06,894,Goethite WS222 coarse grain W1R1H_,group.1um/fe3+_goethite.coarsegr.ws222,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Goethite_WS222_Coarse_Gr._BECKa_AREF.html
+8,goethite.thincoat,1,splib06,6168,Goethite_Thin_Film WS222 W1R1Ba,group.1um/fe3+_goethite.thincoat,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Goethite_Thin_Film_WS222_BECKa_AREF.html
+9,goeth+jarosite.amx11,1,splib06,5730,Goeth+qtz.5+Jarosite.5 AMX11 W1R1BbS,group.1um/fe3+_goeth+jarosite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Goeth+qtz.5+Jarosite.5_AMX11_BECKb_AREF.html
+10,pyrite,1,splib06,6042,Pyrite LV95-6A Weath on Tail W1R1Bb,group.1um/sulfide_pyrite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Pyrite_LV95-6A_Weath_on_Tail_BECKb_AREF.html
+11,schwertmannite,1,splib06,4476,Schwertmannite BZ93-1 W1R1Bb,group.1um/fe3+_sulfate_schwertmannite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Schwertmannite_BZ93-1_BECKb_AREF.html
+12,Mn-Coating,1,splib06,6144,Blck_Mn_Coat_Tailngs LV95-3 W1R1Bb,group.1um/Mn-Coating,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Blck_Mn_Coat_Tailngs_LV95-3_BECKb_AREF.html
+13,AMD.assemb1,1,splib06,5316,Acid_Mine_Dr Assemb1-Fe3+ W1R1Fb,group.1um/fe3+mix_AMD.assemb1,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Acid_Mine_Dr_Assemb1-Fe3+_ASDFRb_AREF.html
+14,AMD.assemb2,1,splib06,5322,Acid_Mine_Dr Assemb2-Fe3+ W1R1Fb,group.1um/fe3+mix_AMD.assemb2,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Acid_Mine_Dr_Assemb2-Fe3+_ASDFRb_AREF.html
+15,kjarosite200,1,splib06,2568,Jarosite GDS99 K 200C Syn W1R1BaS,group.1um/fe3+_sulfate_kjarosite200,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_GDS99_K_200C_Syn_BECKa_AREF.html
+16,goethite.lepidocrosite,1,sprlb06,732,Lepidocrosite GDS80 (Syn) W1R1Hb,group.1um/fe3+_goethite.lepidocrosite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Lepidocrocite_GDS80_(Syn)_BECKb_AREF.html
+17,chlor+muscphy,1,splib06,5634,Chlorite+Muscovite CU93-65A W1R1Ba,group.1um/fe2+_chlor+muscphy,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chlorite+Muscovite_CU93-65A_BECKa_AREF.html
+18,Fe2++goeth+musc,1,sprlb06,900,Goethite CU91-252 coatedchip W1R1H_,group.1um/fe2+_goeth+musc,No available USGS Spectral Library 7 Description Reference
+19,chlor+goeth.propylzone,1,splib06,5604,Chlor+Goethite CU93-4B Phyl W1R1Ba,group.1um/fe2+fe3+_chlor+goeth.propylzone,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chlor+Goethite_CU93-4B_Phyl_BECKa_AREF.html
+20,generic.Fe2+nrw.cummingtonite,1,splib06,1446,Cummingtonite HS294.3B W1R1Bc,group.1um/fe2+generic_nrw.cummingtonite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Cummingtonite_HS294.3B_BECKc_AREF.html
+21,generic.Fe2+nrw.actinolite,1,splib06,72,Actinolite NMNHR16485 W1R1Bb,group.1um/fe2+generic_nrw.actinolite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Actinolite_NMNHR16485_BECKb_AREF.html
+22,generic.Fe2+nrw.hs-actinolite,1,splib06,42,Actinolite HS22.3B W1R1Bb,group.1um/fe2+generic_nrw.hs-actinolite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Actinolite_HS22.3B_BECKb_AREF.html
+23,pyroxene.hypersthene.pyx02.e.g1,1,splib06,2334,Hypersthene NMNHC2368 W1R1Bb,group.1um/fe2+_pyroxene.hypersthene,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hypersthene_NMNHC2368_BECKb_AREF.html
+24,fe2+pyroxene.diopside,1,splib06,1548,Diopside NMNHR18685 ~160 Pyx W1R1Bb,group.1um/fe2+_pyroxene.diopside,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Diopside_NMNHR18685_~160_Pyx_BECKb_AREF.html
+25,generic.Fe2+med.jadeite,1,splib06,2502,Jadeite HS343.3B W1R1Bb,group.1um/fe2+generic_med.jadeite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jadeite_HS343.3B_BECKb_AREF.html
+26,pigeonite,1,splib06,3966,Pigeonite HS199.3B W1R1Bb,group.1um/fe2+_pyroxene_clino_pigeonite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Pigeonite_HS199.3B_BECKc_AREF.html
+27,epidote.gds26.a.g1,1,splib06,1668,Epidote GDS26.a 75-200um W1R1Bb,group.1um/epidote,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Epidote_GDS26.a_75-200um_BECKb_AREF.html
+28,fe3+bearing1,1,splib06,5724,Fe-Hydroxide SU93-106 amorph W1R1Bb,group.1um/fe3+bearing1,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Fe-Hydroxide_SU93-106_amorph_BECKb_AREF.html
+29,ferrihydrite,1,splib06,1740,"Ferrihydrite GDS75 Syn, F6 W1R1Bb",group.1um/fe3+_ferrihydrite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Ferrihydrite_GDS75_Syn_F6_BECKb_AREF.html
+30,hematite.med.gr.gds27,1,sprlb06,738,Hematite GDS27 W1R1Ha,group.1um/fe3+_hematite.med.gr.gds27,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hematite_GDS27_BECKa_AREF.html
+31,hematite.thincoat,1,splib06,6198,Hematite_Thin_Film GDS27 W1R1Ba,group.1um/fe3+_hematite.thincoat,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hematite_Thin_Film_GDS27_BECKa_AREF.html
+32,hematite.fine.gr.fe2602,1,splib06,2100,Hematite FE2602 W1R1Bb,group.1um/fe3+_hematite.fine.gr.fe2602,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hematite_FE2602_BECKb_AREF.html
+33,hematite.fine.gr.ws161,1,sprlb06,906,Hematite WS161 W1R1Hb,group.1um/fe3+_hematite.fine.gr.ws161,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hematite_WS161_BECKb_AREF.html
+34,nontronite.ng-1.a.g1,1,splib06,3558,Nontronite NG-1.a W1R1Bb,group.1um/fe3+_smectite_nontronite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Nontronite_NG-1.a_BECKb_AREF.html
+35,generic.Fe2+brd.br5a_actinolite,1,splib06,5328,Actinolite-Hornfels BR93-5a W1R1Bc,group.1um/fe2+generic_brd.br5a_actinolite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Actinolite-Hornfels_BR93-5a_BECKc_AREF.html
+36,Fe2+_and_hematite_br5b,1,sprlb06,846,Magnetite_skarn BR93-5B W1R1Hb AREF,group.1um/fe2+fe3+mix_with_hematite_br5b,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Magnetite_skarn_BR93-5B_BECKb_AREF.html
+37,generic.Fe2+brd.br22c_actinolite,1,splib06,5334,Actinolite-Tremolit BR93-22C W1R1Bb,group.1um/fe2+generic_brd.br22c_actinolite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Actinolite-Tremolit_BR93-22C_BECKb_AREF.html
+38,fe2+br33a_bioqtzmonz_epidote,1,splib06,1656,Epidote BR93-33a W1R1Bb AREF,group.1um/fe2+generic_br33a_bioqtzmonz_epidote,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Epidote_BR93-33a_BECKb_AREF.html
+39,generic.Fe2+brd.br36a_chlorite,1,splib06,5490,Biotite-Chlorite_Mx BR93-36A W1R1Bb,group.1um/fe2+generic_brd.br36a_chlorite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Biotite-Chlorite_Mx_BR93-36A_BECKb_AREF.html
+40,Fe2+_hematite_weathering,1,splib06,5460,Basalt_weathered BR93-43 W1R1Bb,group.1um/fe2+fe3+_hematite_weathering,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Basalt_weathered_BR93-43_BECKb_AREF.html
+41,generic.Fe2+basalt_br46b,1,splib06,5454,Basalt_fresh BR93-46B W1R1Bb,group.1um/fe2+generic_basalt_br46b,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Basalt_fresh_BR93-46B_BECKb_AREF.html
+42,hematite.lg.gr.br25a,1,sprlb06,840,Hematite_Coatd_Qtzt BR93-25A W1R1Hb AREF,group.1um/fe3+_hematite.lg.gr.br25a,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hematite_Coatd_Qtzt_BR93-25A_BECKa_AREF.html
+43,hematite.med.gr.br25b,1,splib06,6174,Hematite_Coatd_Qtz BR93-25B W1R1Bb,group.1um/fe3+_hematite.med.gr.br25b,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hematite_Coatd_Qtz_BR93-25B_BECKa_AREF.html
+44,hematite.lg.gr.br25c,1,sprlb06,816,Hematite_Coatd_Qtzt BR93-25C W1R1Hb AREF,group.1um/fe3+_hematite.lg.gr.br25c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hematite_Coatd_Qtzt_BR93-25C_BECKa_AREF.html
+45,nanohematite.BR34b2,1,splib06,3468,Nanohematite BR93-34B2 W1R1BbS,group.1um/fe3+_hematite.nano.BR34b2,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Nanohematite_BR93-34B2_BECKb_AREF.html
+46,hematite-nano+goethite-fg-amix,1,sprlb06,1026,nHematit+fg-Goethit 34B2+MPC W1R1Hb,group.1um/fe3+_hematite-nano+goethite-fg-amix,No available USGS Spectral Library 7 Description Reference
+47,nanohematite.BR34b2b,1,sprlb06,918,Nanohematite FBR93-34B2b ed1 W1R1Hb,group.1um/fe3+_hematite.nano.BR34b2b,No available USGS Spectral Library 7 Description Reference
+48,hematite.lg.gr.br34c,1,sprlb06,822,Hematite_Coatd_Qtz BR93-34C W1R1Ha AREF,group.1um/fe3+_hematite.lg.gr.br34c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hematite_Coatd_Qtz_BR93-34C_BECKa_AREF.html
+49,jarosite_br34a2,1,splib06,6210,Jarosite_on_Qtzite BR93-34A2 W1R1Bb,group.1um/fe3+_sulfate_jarosite_br34a2,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_on_Qtzite_BR93-34A2_BECKa_AREF.html
+50,generic.Fe2+.broad_br60b,1,splib06,5340,Actinolite_Dolomit BR93-60B W1R1BbS,group.1um/fe2+generic_broad_br60b,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Actinolite_Dolomit_BR93-60B_BECKb_AREF.html
+51,generic.Fe2+.vbroad_br20,1,splib06,6036,Phlogopite_Sand_Mix BR93-20 W1R1Ba,group.1um/fe2+generic_vbroad_br20,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Phlogopite_Sand_Mix_BR93-20_BECKa_AREF.html
+52,RTsludge,1,splib06,6942,Renyolds_TnlSldgWet SM93-15w W1R1Ba,group.1um/fe2+fe3+_water_RTsludge,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Renyolds_TnlSldgWet_SM93-15w_BECKa_AREF.html
+53,chlorite.clinochlor,1,sprlb06,660,Clinochlore GDS158 Flagst W1R1Hb,group.1um/fe2+_chlorite.clinochlor,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Clinochlore_GDS158_Flagstaff_ASDNGb_AREF.html
+54,chlorite.Felow.clinochlor,1,splib06,1200,Clinochlore NMNH83369 W1R1Bb,group.1um/fe2+_chlorite.Felow.clinochlor,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Clinochlore_NMNH83369_BECKb_AREF.html
+55,chlorite.thuringite.smr-15.c.g1,1,splib06,4890,Thuringite SMR-15.c 32um W1R1Ba,group.1um/fe2+_chlorite.thuringite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Thuringite_SMR-15.c_32um_NIC4aa_RREF.html
+56,azurite.ws316.g1,1,splib06,720,Azurite WS316 W1R1Ba,group.1um/copper_carbonate_azurite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Azurite_WS316_BECKa_AREF.html
+57,pitchlimonite,1,splib06,3990,Pitch_Limonite GDS104 Cu W1R1B?,group.1um/fe3+copper-hydroxide_pitchlimonite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Pitch_Limonite_GDS104_Cu_BECKu_AREF.html
+58,malachite.hs254.3b.g1,1,splib06,2964,Malachite HS254.3B W1R1Bb,group.1um/copper_carbonate_malachite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Malachite_HS254.3B_BECKb_AREF.html
+59,bluefflor,1,splib06,5496,Blue_Efflorscnt_Min SU93-300 W1R1Bb,group.1um/copper_sulfate_bluefflor,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Blue_Efflorscnt_Min_SU93-300_BECKb_AREF.html
+60,greenslime,1,splib06,6594,Green_Slime SM93-14A Summitv W1R1Ba,group.1um/copper_precipitate_greenslime,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Green_Slime_SM93-14A_Summitv_BECKa_AREF.html
+61,olivine-lrg-gr,1,splib06,3696,Olivine HS285.4B Fo80 W1R1Bb,group.1um/fe2+_olivine-lrg-gr,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Olivine_HS285.4B_Fo80_BECKb_AREF.html
+62,olivine-fine-gr,1,splib06,3666,Olivine GDS71.a Fo91 65um W1R1Bb,group.1um/fe2+_olivine-fine-gr,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Olivine_GDS71.a_Fo91_65um_BECKb_AREF.html
+63,rhodochrosite,1,splib06,4278,Rhodochrosite HS338.3B W1R1Bb,group.1um/carbonate_rhodochrosite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Rhodochrosite_HS338.3B_BECKb_AREF.html
+64,siderite1,1,splib06,4560,Siderite HS271.3B W1R1Ba,group.1um/fe2+generic_carbonate_siderite1,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Siderite_HS271.3B_BECKa_AREF.html
+65,riebeckite,1,splib06,4362,Riebeckite NMNH122689 Amph W1R1Ba,group.1um/fe2+generic_amphibole_riebeckite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Riebeckite_NMNH122689_Amph_BECKa_AREF.html
+66,coquimbite,1,splib06,1386,Coquimbite GDS22 W1R1Bc,group.1um/fe3+fe2+_sulfate_coquimbite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Coquimbite_GDS22_BECKc_AREF.html
+67,copiapite,1,splib06,1374,Copiapite GDS21 W1R1Bb,group.1um/fe3+fe2+_sulfate_copiapite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Copiapite_GDS21_BECKb_AREF.html
+68,chrysocolla.hs297.3b.g1,1,splib06,1134,Chrysocolla HS297.3B W1R1Bb,group.1um/copper_chrysocolla,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chrysocolla_HS297.3B_ASDFRb_AREF.html
+69,neodymium_oxide_g1,1,splib06,3498,Neodymium_Oxide GDS34 W1R1Ba,group.1um/ree_neodymium_oxide_g1,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Neodymium_Oxide_GDS34_BECKa_AREF.html
+70,samarium_oxide_g1,1,splib06,4410,Samarium_Oxide GDS36 W1R1Ba,group.1um/ree_samarium_oxide_g1,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Samarium_Oxide_GDS36_BECKa_AREF.html
+71,axinite,1,splib06,708,Axinite HS342.3B W1R1Bb,group.1um/fe2+generic_axinite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Axinite_HS342.3B_BECKb_AREF.html
+72,staurolite,1,splib06,4728,Staurolite HS188.3B W1R1Bb,group.1um/fe2+generic_staurolite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Staurolite_HS188.3B_BECKc_AREF.html
+73,almandine,1,splib06,216,Almandine WS479 Garnet W1R1Bb,group.1um/fe2+generic_almandine,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Almandine_WS479_Garnet_BECKb_AREF.html
+74,augite,1,splib06,678,Augite NMNH120049 W1R1Bb,group.1um/fe2+_pyroxene_augite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Augite_NMNH120049_BECKb_AREF.html
+75,pyroxene.bronzite.hs9.3b.g1,1,splib06,810,Bronzite HS9.3B Pyroxene W1R1Bc,group.1um/fe2+_pyroxene.bronzite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Bronzite_HS9.3B_Pyroxene_BECKc_AREF.html
+76,butlerite,1,splib06,858,Butlerite GDS25 W1R1Ba,group.1um/fe2+generic_sulfate_butlerite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Butlerite_GDS25_BECKa_AREF.html
+77,feldspar.bytownite,1,splib06,882,Bytownite HS106.3B Plagio W1R1Bc,group.1um/fe2+_feldspar.bytownite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Bytownite_HS106.3B_Plagio_BECKc_AREF.html
+78,chalcopyrite,1,splib06,1002,Chalcopyrite HS431.3B W1R1Bb,group.1um/sulfide_copper_chalcopyrite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chalcopyrite_HS431.3B_BECKb_AREF.html
+79,chromite,1,splib06,1122,Chromite HS281.3B W1R1Bb,group.1um/fe2+_chromite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chromite_HS281.3B_ASDFRc_AREF.html
+80,cinnabar,1,splib06,1164,Cinnabar HS133.3B W1R1Bc,group.1um/sulfide_cinnabar,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Cinnabar_HS133.3B_BECKc_AREF.html
+81,cuprite,1,splib06,1458,Cuprite HS127.3B W1R1Bb,group.1um/copper_oxide_cuprite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Cuprite_HS127.3B_BECKb_AREF.html
+82,desert.varnish1,1,splib06,6156,Desert_Varnish GDS141 W1R1Ba,group.1um/fe3+mn_desert.varnish1,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Desert_Varnish_GDS141_BECKa_AREF.html
+83,desert.varnish2,1,splib06,6162,Desert_Varnish GDS78A Rhy W1R1Ba,group.1um/fe3+mn_desert.varnish2,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Desert_Varnish_GDS78A_Rhy_BECKa_AREF.html
+84,enstatite,1,splib06,1644,Enstatite NMNH128288 W1R1Bc,group.1um/fe2+_pyroxene_enstatite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Enstatite_NMNH128288_BECKc_AREF.html
+85,hedenbergite,1,splib06,2088,Hedenbergite NMNH119197 W1R1Bb,group.1um/fe2+_pyroxene_hedenbergite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hedenbergite_NMNH119197_BECKb_AREF.html
+86,lazurite,1,splib06,2796,Lazurite HS418.3B W1R1Bb,group.1um/sulfate_lazurite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Lazurite_HS418.3B_BECKb_AREF.html
+87,maghemite,1,splib06,2928,Maghemite GDS81 Syn (M-3) W1R1Bb,group.1um/fe3+_maghemite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Maghemite_GDS81_Syn_(M-3)_BECKb_AREF.html
+88,magnetite,1,splib06,2940,Magnetite HS195.3B W1R1Bb,group.1um/magnetite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Magnetite_HS195.3B_BECKb_AREF.html
+89,manganite,1,splib06,4158,Pyrolusite HS138.3B W1R1Bb,group.1um/mn_oxide_pyrolusite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Pyrolusite_HS138.3B_BECKb_AREF.html
+90,microcline,1,splib06,3042,Microcline HS103.3B Feldspar W1R1Bc,group.1um/fe2+_feldspar_microcline,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Microcline_HS103.3B_Feldspar_BECKc_AREF.html
+91,albite_hs143,1,splib06,132,Albite HS143.3B Plagioclase W1R1Bc,group.1um/fe2+_feldspar_albite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Albite_HS143.3B_Plagioclase_BECKc_AREF.html
+92,orthoclase,1,splib06,3852,Orthoclase NMNH142137 Fe W1R1Bb,group.1um/fe2+_feldspar_orthoclase,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Orthoclase_NMNH142137_Fe_BECKb_AREF.html
+93,inosilicate_pectolite,1,splib06,3882,Pectolite NMNH94865.a W1R1Bb,group.1um/inosilicate_pectolite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Pectolite_NMNH94865.a_BECKb_AREF.html
+94,mn2+_rhodonite,1,splib06,4314,Rhodonite NMNHC6148 >250um W1R1Bb,group.1um/mn2+_rhodonite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Rhodonite_NMNHC6148_gt250um_BECKb_AREF.html
+95,sulfur,1,splib06,4776,Sulfur GDS94 Reagent W1R1Ba,group.1um/sulfur,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Sulfur_GDS94_Reagent_BECKa_AREF.html
+295,fe3+_hematite.nano.KP58610-400nm,1,sprlb06,1170,Hematite-nano_KP58610 400nm,group.1um/fe3+_hematite.nano.KP58610,No available USGS Spectral Library 7 Description Reference
+296,fe3+_hematite.nano-0.3+quartz,1,sprlb06,1182,Hematite-n0.03_KP58610+Qtz,group.1um/fe3+_hematite.nano-0.3+qtz,No available USGS Spectral Library 7 Description Reference
+297,fe3+_goethite.nano-70nm,1,sprlb06,1194,Goethite-nano_KP943 70nm,group.1um/fe3+_goethite.nano-70nm,No available USGS Spectral Library 7 Description Reference
+298,fe3+_goethite.nano0.05+quartz,1,sprlb06,1200,Goethite-n0.50_KP943+Qtz,group.1um/fe3+_goethite.nano0.5+qtz,No available USGS Spectral Library 7 Description Reference
+299,fe3+_hematite.1+goethite.9-hg1,1,sprlb06,1224,Hematite.10+Goethite.90 hg1,group.1um/fe3+_hematite.1+goethite.9hg1,No available USGS Spectral Library 7 Description Reference
+300,fe3+_hematite.2+goethite.8-hg2,1,sprlb06,1230,Hematite.20 Goethite.80 hg2,group.1um/fe3+_hematite.2+goethite.8hg2,No available USGS Spectral Library 7 Description Reference
+301,fe3+_hematite.3+goethite.7-hg3,1,sprlb06,1236,Hematite.30 Goethite.70 hg3,group.1um/fe3+_hematite.3+goethite.7hg3,No available USGS Spectral Library 7 Description Reference
+302,fe3+_hematite.1+goethite.4+qtz,1,sprlb06,1332,Hematite0.1+Goeth0.4+Qtz.5,group.1um/fe3+_hematite.1+goeth.4+qtz,No available USGS Spectral Library 7 Description Reference
+303,fe3+_hematite.4+goethite.1+qtz,1,sprlb06,1338,Hematite0.4+Goeth0.1+Qtz.5,group.1um/fe3+_hematite.4+goeth.1+qtz,No available USGS Spectral Library 7 Description Reference
+304,nh3jarosite-scr-nhj,1,splib06,390,Ammonio-Jarosite SCR-NHJ,group.1um/fe3+_sulfate_nh3jarosite,No available USGS Spectral Library 7 Description Reference
+305,jarosite-na-gds100,1,splib06,2514,"Jarosite GDS100 Na,Sy 90C",group.1um/fe3+_sulfate_jarosite-na-gds100,"https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_GDS100_Na,Sy_90C.html"
+306,jarosite-na-gds101,1,splib06,2526,"Jarosite GDS101 Na,Sy 200C",group.1um/fe3+_sulfate_jarosite-na-gds101,"https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_GDS101_Na,Sy_200C.html"
+307,jarosite-k-90c-gds98,1,splib06,2550,Jarosite GDS98 K 90C Syn,group.1um/fe3+_sulfate_jarosite-k-90c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_GDS98_K_90C_Syn.html
+308,jarosite-K-JR2501,1,splib06,2586,Jarosite JR2501 (K),group.1um/fe3+_sulfate_jarosite-K-JR2501,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_JR2501_(K).html
+309,jarosite-na-nmnh95074-1,1,splib06,2592,Jarosite NMNH95074-1 (Na),group.1um/fe3+_sulfate_jarosite-na-nmnh,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_NMNH95074-1_(Na).html
+310,jarosite-H3O-SJ-1,1,splib06,2604,"Jarosite SJ-1 H3O,10-20%",group.1um/fe3+_sulfate_jarosite-H3O-SJ-1,"https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_SJ-1_H3O,10-20%.html"
+311,jarosite-thinfilm-GDS243,1,splib06,6204,Jarosite_Thin_Film GDS243,group.1um/fe3+_sulfate_jarosite-thinfilm,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_Thin_Film_GDS243.html
+96,dryveg.grass.long,2,splib06,7128,Dry_Long_Grass AV87-2 W1R1Ba,group.2um/organic_vegetation-dry-grass-long,No available USGS Spectral Library 7 Description Reference
+97,dryveg.grass.golden,2,splib06,7248,Grass_Golden_Dry GDS480 W1R1Fa,group.2um/organic_vegetation-dry-grass-golden,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Grass_Golden_Dry_GDS480_ASDFRa_AREF.html
+98,dryveg.wood,2,splib06,6912,Plywood GDS365 Fresh Pine W1R1Fa,group.2um/organic_vegetation-dry-wood,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Plywood_GDS365_Fresh_Pine_ASDFRa_AREF.html
+99,plastic.tarp1,2,splib06,6864,Plastic_Tarp GDS340 Blu_Wovn W1R1Fa,group.2um/organic_plastic-tarp1,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Plastic_Tarp_GDS340_Blu_Wovn_ASDFRa_AREF.html
+100,plastic.Vinyl,2,splib06,6876,Plastic_Vinyl GDS372 White W1R1Fa,group.2um/organic_plastic-vinyl,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Plastic_Vinyl_GDS372_White_ASDFRa_AREF.html
+101,fiberglass.roofing,2,splib06,6558,Fiberglass GDS337 Grn Roofng W1R1Fa,group.2um/organic_fiberglass-roofing,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Fiberglass_GDS337_Grn_Roofng_ASDFRa_AREF.html
+102,plastic.polystyrene,2,splib06,6936,Polystyrene GDS345 BluInsul W1R1Fa,group.2um/organic_plastic-polystyrene,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Polystyrene_GDS345_BluInsul_ASDFRa_AREF.html
+103,plastic.pete,2,splib06,6816,Plastic_PETE GDS380 Clear W1R1Fa,group.2um/organic_plastic-pete,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Plastic_PETE_GDS380_Clear_ASDFRa_AREF.html
+104,plastic.pete2,2,splib06,6810,Plastic_PETE GDS379 TrnslBrn W1R1Fa,group.2um/organic_plastic-pete2,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Plastic_PETE_GDS379_TrnslBrn_ASDFRa_AREF.html
+105,plastic.hdpe.1,2,splib06,6714,Plastic_HDPE GDS393 GlosWhTr W1R1Fa,group.2um/organic_plastic-hdpe.1,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Plastic_HDPE_GDS393_GlosWhTr_ASDFRa_AREF.html
+106,paint.1,2,splib06,6672,Painted_Aluminum GDS333 LgGr W1R1Fa,group.2um/organic_paint-1,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Painted_Aluminum_GDS333_LgGr_ASDFRa_AREF.html
+107,plastic.pete3,2,splib06,6834,Plastic_PETE GDS383 Clrbluis W1R1Fa,group.2um/organic_plastic-pete3,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Plastic_PETE_GDS383_Clrbluis_ASDFRa_AREF.html
+108,plastic.pete4,2,splib06,6810,Plastic_PETE GDS379 TrnslBrn W1R1Fa,group.2um/organic_plastic-pete4,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Plastic_PETE_GDS379_TrnslBrn_ASDFRa_AREF.html
+109,kalun150c,2,splib06,300,Alunite GDS97 K Syn (150C) W2R4Na,group.2um/sulfate_kalun150c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_GDS97_K_Syn_(150C)_NIC4a_RREF.html
+110,kalun250c,2,splib06,294,Alunite GDS96 K Syn (250C) W2R4Na,group.2um/sulfate_kalun250c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_GDS96_K_Syn_(250C)_NIC4a_RREF.html
+111,kalun450c,2,splib06,324,Alunite RES-2 K Syn (450C) W2R4Na,group.2um/sulfate_kalun450c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_RES-2_K_Syn_(450C)_NIC4a_RREF.html
+112,naalun150c,2,splib06,288,Alunite GDS95 Na Syn (150C) W2R4Na,group.2um/sulfate_naalun150c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_GDS95_Na_Syn_(150C)_NIC4a_RREF.html
+113,naalun300c,2,splib06,336,Alunite RES-4 Na Syn (300C) W2R4Na,group.2um/sulfate_naalun300c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_RES-4_Na_Syn_(300C)_NIC4a_RREF.html
+114,naalun450c,2,splib06,330,Alunite RES-3 Na Syn (450C) W2R4Na,group.2um/sulfate_naalun450c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_RES-3_Na_Syn_(450C)_NIC4a_RREF.html
+115,na82alun100c,2,splib06,246,Alunite GDS82 Na82 W1R1Bb,group.2um/sulfate_na82alun100c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_GDS82_Na82_BECKb_AREF.html
+116,natroalun+dickite,2,splib06,5382,Alunite+Dickite MV99-6-26b W1R1Fc,group.2um/sulfate+kaolingrp_natroalun+dickite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite+Dickite_MV99-6-26b_ASDFRc_AREF.html
+117,na63alun300c,2,splib06,252,Alunite GDS83 Na63 W1R1Bb,group.2um/sulfate_na63alun300c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_GDS83_Na63_BECKb_AREF.html
+118,na40alun400c,2,splib06,342,Alunite RES-9 Summitv (400C) W2R4Nb,group.2um/sulfate_na40alun400c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_RES-9_Summitv_(400C)_ASDNGb_AREF.html
+119,alunNa03,2,splib06,276,Alunite GDS84 Na03 W2R4Na,group.2um/sulfate_alunNa03,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_GDS84_Na03_BECKa_AREF.html
+120,alunNa56450c,2,splib06,348,Alunite RES10 NA56% Syn 450C W2R4Na,group.2um/sulfate_alunNa56450c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_RES10_NA56percent_Syn_450C_NIC4a_RREF.html
+121,alunNa78.450c,2,splib06,354,Alunite RES12 NA78% Syn 450C W2R4NaIS,group.2um/sulfate_alunNa78.450c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_RES12_NA78percent_Syn_450C_NIC4a_RREF.html
+122,alun35K65Na.low,2,splib06,5394,Alunite0.35K+.65Na CU91-217H W2R4Nb,group.2um/sulfate_alun35K65Na.low,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite0.35K+.65Na_CU91-217H_ASDFRb_AREF.html
+123,alun73K27Na.low,2,splib06,5418,Alunite0.73K+.27Na CU91-217D W2R4Na,group.2um/sulfate_alun73K27Na.low,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite0.73K+.27Na_CU91-217D_NIC4a_RREF.html
+124,alun66K34Na.low,2,splib06,5412,Alunite0.66K+.34Na CU91-217A W2R4Nb,group.2um/sulfate_alun66K34Na.low,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite0.66K+.34Na_CU91-217A_NIC4b_RREF.html
+125,muscovite-med-Al,2,splib06,5976,Muscovite CU91-250A med Al W2R4NbS,group.2um/micagrp_muscovite-med-Al,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite.5+MuscCU91-250A_AMX4_BECKa_AREF.html
+126,calcite.33+kaol.33+mus-AMXr2,2,sprlb06,1038,Calcite.33+Kaol.33+Mus AMXr2 W1R1Ba,group.2um/calcite.33+kaol.33+mus-AMXr2,No available USGS Spectral Library 7 Description Reference
+127,muscovite-medhigh-Al,2,sprlb06,654,Muscovite GDS113 Ruby >37um W1R1Hb,group.2um/micagrp_muscovite-medhigh-Al,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Muscovite_GDS113_Ruby_ASDNGa_AREF.html
+128,paragonite,2,splib06,3876,Paragonite GDS109 W1R1Ba,group.2um/micagrp_paragonite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Paragonite_GDS109_BECKa_AREF.html
+129,illite,2,sprlb06,714,Illite IMt-1.b <2um W1R1BaS,group.2um/micagrp_illite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Illite_IMt-1.b_lt2um_ASDNGa_AREF.html
+130,illite.gds4,2,sprlb06,726,Illite GDS4.2 Marblehead_WI W1R1H_,group.2um/micagrp_illite.gds4,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Illite_GDS4.2_Marblehead_ASDNGb_AREF.html
+131,muscovite-low-Al,2,splib06,3306,Muscovite CU93-1 low-Al Phyl W2R4Nb,group.2um/micagrp_muscovite-low-Al,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Muscovite_CU93-1_low-Al_Phyl_NIC4b_RREF.html
+132,muscoviteFerich,2,splib06,3372,Muscovite GDS116 Tanzania W1R1Ba,group.2um/micagrp_muscoviteFerich,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Muscovite_GDS116_Tanzania_BECKa_AREF.html
+133,kaolwxl,2,sprlb06,606,Kaolinite CM9 (wxl) W1R1Hb,group.2um/kaolgrp_kaolinite_wxl,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Kaolinite_CM9_ASDNGb_AREF.html
+134,kaolpxl,2,sprlb06,672,Kaolinite KGa-2 (pxl) W1R1Hb,group.2um/kaolgrp_kaolinite_pxl,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Kaolinite_KGa-2_(pxl)_ASDNGb_AREF.html
+135,halloy,2,sprlb06,684,Halloysite NMNH106237 W1R1Ha,group.2um/kaolgrp_halloysite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Halloysite_NMNH106237_ASDNGa_AREF.html
+136,kaolgrp_nacrite,2,splib06,3462,Nacrite GDS88,group.2um/kaolgrp_nacrite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Nacrite_GDS88_BECKc_AREF.html
+137,dickite,2,sprlb06,708,Dickite NMNH106242 W1R1Bb,group.2um/kaolgrp_dickite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Dickite_NMNH106242_ASDNGb_AREF.html
+138,gypsum,2,sprlb06,618,Gypsum HS333.3B (Selenite) W1R1Ha,group.2um/sulfate_gypsum,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Gypsum_HS333.3B_(Selenite)_ASDNGa_AREF.html
+139,kaolin.5+smect.5,2,splib06,5868,Kaolin_Smect H89-FR-2 .5Kaol W1R1Bb,group.2um/kaolin.5+smect.5,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Kaolin_Smect_H89-FR-2_.5Kaol_BECKb_AREF.html
+140,kaolin.3+smect.7,2,splib06,5880,Kaolin_Smect H89-FR-5 .3Kaol W1R1Bb,group.2um/kaolin.3+smect.7,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Kaolin_Smect_H89-FR-5_.3Kaol_BECKb_AREF.html
+141,montna,2,sprlb06,588,Montmorillonite SWy-1 W1R1Hb,group.2um/smectite_montmorillonite_na_highswelling,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Montmorillonite_SWy-1_ASDNGb_AREF.html
+142,montmorillonite_fe,2,sprlb06,54,Montmorillonite_Fe GDS759A,group.2um/smectite_montmorillonite_fe_swelling,No available USGS Spectral Library 7 Description Reference
+143,montca,2,sprlb06,600,Montmorillonite SAz-1 W1R1Hb,group.2um/smectite_montmorillonite_ca_swelling,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Montmorillonite_SAz-1_ASDNGb_AREF.html
+144,hydrated_basaltic_glass,2,sprlb06,60,HyBasaltGlassMLUT03-9CMarP&T,group.2um/sioh_hydrated_basaltic_glass,No available USGS Spectral Library 7 Description Reference
+145,sulfate_kieserite,2,sprlb06,66,Kieserite Batch4 GDS671,group.2um/sulfate_kieserite,No available USGS Spectral Library 7 Description Reference
+146,sulfate_szomolnokite,2,sprlb06,150,Szomolnokite NMNH104303 UT,group.2um/sulfate_szomolnokite,No available USGS Spectral Library 7 Description Reference
+147,sulfate_szomolnokite_heated,2,sprlb06,192,Szomolnokite GDS874 Heat275C,group.2um/sulfate_szomolnokite_heated,No available USGS Spectral Library 7 Description Reference
+148,perchlorate_mg,2,sprlb06,96,Perchlorate_Mg GDS851.2 220K,group.2um/perchlorate_mg,No available USGS Spectral Library 7 Description Reference
+149,perchlorate_na,2,sprlb06,144,Perchlorate_Na GDS857 230C,group.2um/perchlorate_na,No available USGS Spectral Library 7 Description Reference
+150,beidellite_gds123,2,splib06,5466,Beidellite+Montmor GDS123,group.2um/smectite_beidellite_gds123,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Beidellite+Montmor_GDS123_ASDFRb_AREF.html
+151,beidellite_gds124,2,splib06,5478,Beidellite+Montmor GDS124,group.2um/smectite_beidellite_gds124,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Beidellite_GDS124_ASDFRb_AREF.html
+152,chalcedony,2,splib06,990,Chalcedony CU91-6A W1R1Ba,group.2um/sioh_chalcedony,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chalcedony_CU91-6A_BECKa_AREF.html
+153,diaspore.hs416.3b.g2,2,splib06,1488,Diaspore HS416.3B W1R1Bb,group.2um/hydroxide_diaspore,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Diaspore_HS416.3B_BECKb_AREF.html
+154,pyrophyllite,2,splib06,4188,Pyrophyllite PYS1A fine gr W1R1Ba,group.2um/pyrophyllite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Pyrophyllite_PYS1A_gt250um_ASDNGa_AREF.html
+155,kaol.75+pyroph.25,2,splib06,6054,Pyrophyl.25+wxlKaol.75 AMX17,group.2um/kaol.75+pyroph.25,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Pyrophyl.25+wxlKaol.75_AMX17_BECKb_AREF.html
+156,pyroph.5+mont0.5,2,splib06,6060,Pyrophyl.50+Ca-Mont.50 AMX16 W1R1Ba,group.2um/pyroph.5+mont0.5,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Pyrophyl.50+Ca-Mont.50_AMX16_BECKa_AREF.html
+157,pyroph.5+alunit.5,2,splib06,5358,Alun366+.50PyroPYS1A GDS222 W1R1Bb,group.2um/pyroph.5+alunit.5,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alun366+.50PyroPYS1A_GDS222_BECKb_AREF.html
+158,alunite+pyrophyl,2,splib06,5370,Alunite+Pyrophyl SD1093A W1R1Bb,group.2um/alunite+pyrophyl,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite+Pyrophyl_SD1093A_BECKb_AREF.html
+159,pyroph+tr.musc,2,splib06,6048,Pyrophyl+Muscovite JH_PYRM1 W1R1Fb,group.2um/pyroph+tr.musc,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Pyrophyl+Muscovite_JH_PYRM1_ASDFRb_AREF.html
+160,musc+pyroph,2,splib06,5988,Muscovite+Pyrophyl JH_PYRP1 W1R1Fb,group.2um/musc+pyroph,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Muscovite+Pyrophyl_JH_PYRP1_ASDFRb_AREF.html
+161,alunite+musc+pyroph,2,splib06,5352,Alun0.3+Musc0.4+Pyro0.3 AMX1 W1R1Ba,group.2um/alunite+musc+pyroph,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alun0.3+Musc0.4+Pyro0.3_AMX1_BECKa_AREF.html
+162,alunite.5+kaol.5,2,splib06,5406,Alunite0.5+Kaol_KGa-1 AMX3 W1R1Bb,group.2um/alunite.5+kaol.5,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite0.5+Kaol_KGa-1_AMX3_BECKb_AREF.html
+163,kaol.75+alun.25,2,splib06,5910,Kaolwxl.75+Alun_HS295 AMX14 W1R1Bb,group.2um/kaol.75+alun.25,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Kaolwxl.75+Alun_HS295_AMX14_BECKb_AREF.html
+164,Kalun+kaol.intmx,2,splib06,5820,Kalun+kaol+gth mv2-ar3 W1R1Fb,group.2um/Kalun+kaol.intmx,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Kalun+kaol+gth_mv2-ar3_ASDFRb_AREF.html
+165,Na-alun+kaol.intmx,2,splib06,5364,Alun_Na+Kaol+Hemat MV00-11a W1R1Fc,group.2um/Na-alun+kaol.intmx,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alun_Na+Kaol+Hemat_MV00-11a_ASDFRc_AREF.html
+166,kaolin.5+muscov.medAl,2,splib06,5832,Kaol.5+MuscCU91-250A AMX13 W1R1Bb,group.2um/kaolin.5+muscov.medAl,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Kaol.5+MuscCU91-250A_AMX13_BECKb_AREF.html
+167,kaolin.5+muscov.medhighAl,2,splib06,5838,Kaol_Wxl+0.5Musc_Ruby AMX12 W1R1Ba,group.2um/kaolin.5+muscov.medhighAl,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Kaol_Wxl+0.5Musc_Ruby_AMX12_BECKa_AREF.html
+168,kaolin+musc.intimat,2,sprlb06,870,Kaol+Musc_intimate CU93-5C W1R1Ha AREF,group.2um/kaolin+musc.intimat,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Kaol+Muscov_intimate_CU93-5C_ASDNGa_AREF.html
+169,musc+jarosite.intimat,2,sprlb06,876,Muscov+Jaros CU93-314 coatng W1R1Hb,group.2um/musc+jarosite.intimat,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Muscov+Jaros_CU93-314_coatng_ASDNGb_AREF.html
+170,gypsum+jar+illite.intmix,2,splib06,5748,Gyp+jar+ill BRCM1 Marysvale W1R1Fb,group.2um/sulfate-mix_gypsum+jar+illite.intmix,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Gyp+jar+ill_BRCM1_Marysvale_ASDFRb_AREF.html
+171,gyp+jar+musc.amix,2,splib06,5766,Gyp.5+Kjar.3+hAlmsc.2 AMX24 W1R1Ba,group.2um/sulfate-mix_gyp+jar+musc.amix,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Gyp.5+Kjar.3+hAlmsc.2_AMX24_BECKa_AREF.html
+172,gyp+jar+musc+dick.amix,2,splib06,5760,Gyp.4+jr20+msc.2+dic.2 AMX23 W1R1Ba,group.2um/sulfate-mix_gyp+jar+musc+dick.amix,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Gyp.4+jr20+msc.2+dic.2_AMX23_BECKa_AREF.html
+173,musc+gyp+jar+dick.amix,2,splib06,5754,Gyp.3+jr.1+msc.4+dic.2 AMX22 W1R1Ba,group.2um/musc+gyp+jar+dick.amix,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Gyp.3+jr.1+msc.4+dic.2_AMX22_BECKa_AREF.html
+174,dick+musc+gyp+jar.amix,2,splib06,5670,Dic.4+msc.3+gyp.2+jr.1 AMX20 W1R1Ba,group.2um/dick+musc+gyp+jar.amix,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Dic.4+msc.3+gyp.2+jr.1_AMX20_BECKa_AREF.html
+175,alunite.5+musc.5,2,splib06,5388,Alunite.5+MuscCU91-250A AMX4 W1R1Ba,group.2um/alunite.5+musc.5,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite.5+MuscCU91-250A_AMX4_BECKa_AREF.html
+176,alunite.33+kaol.33+musc.33,2,splib06,5346,Alun.33+Kaol.33+Musc.33 AMX2 W1R1Ba,group.2um/alunite.33+kaol.33+musc.33,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alun.33+Kaol.33+Musc.33_AMX2_BECKa_AREF.html
+177,muscovite+chlorite,2,splib06,5982,Muscovite+Chlorite CU91-253D W2R4Na,group.2um/muscovite+chlorite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Muscovite+Chlorite_CU91-253D_NIC4a_RREF.html
+178,ammonillsmec,2,sprlb06,786,Ammonio-Illite/Smectit GDS87 W1R1Hb,group.2um/smectite_ammonillsmec,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Ammonio-Illite-Smect_GDS87_BECKb_AREF.html
+179,buddington,2,splib06,846,Buddingtonite GDS85 D-206 W1R1Bb,group.2um/feldspar_buddingtonite_ammonium,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Buddingtonite_GDS85_D-206_BECKb_AREF.html
+180,buddington.namont,2,splib06,5502,Buddingtnt+Na-Mont CU93-260B W2R4Nb,group.2um/feldspar_buddington.namont,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Buddingtnt+Na-Mont_CU93-260B_NIC4b_RREF.html
+181,buddington.namont2,2,splib06,5502,Buddingtnt+Na-Mont CU93-260B W2R4Nb,group.2um/feldspar_buddington.namont2,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Buddingtnt+Na-Mont_CU93-260B_NIC4b_RREF.html
+182,ammonalun,2,splib06,5436,Alunite_NH4+Jaro NMNH145596A W1R1Bb,group.2um/sulfate_ammonalunite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Alunite_NH4+Jaro_NMNH145596A_BECKb_AREF.html
+183,ammonjaros,2,splib06,390,Ammonio-Jarosite SCR-NHJ W1R1Ba,group.2um/sulfate_ammonjarosite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Ammonio-Jarosite_SCF-NHJ_BECKa_AREF.html
+184,dolomite,2,sprlb06,612,Dolomite HS102.3B W1R1Hb,group.2um/carbonate_dolomite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Dolomite_HS102.3B_ASDNGb_AREF.html
+185,actinolite,2,splib06,72,Actinolite NMNHR16485 W1R1Bb,group.2um/actinolite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Actinolite_NMNHR16485_BECKb_AREF.html
+186,amphibole,2,splib06,402,Amphibole NMNH78662 W1R1Bb,group.2um/amphibole,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Amphibole_NMNH78662_BECKb_AREF.html
+187,biotite_HS28.3B,2,splib06,774,Biotite HS28.3B W1R1Bb,group.2um/micagrp_biotite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Biotite_HS28.3B_BECKa_AREF.html
+188,biotite-phlogopite-P23-5,2,sprlb06,912,Biotite-phlogopite P23-5 Sam W1R1H_,group.2um/micagrp_biotite-phlogopite,No available USGS Spectral Library 7 Description Reference
+189,chlorite-skarn,2,splib06,5664,Chlorite_Serpentine BR93-22B W1R1Bb,group.2um/chlorite-skarn,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chlorite_Serpentine_BR93-22B_BECKb_AREF.html
+190,chlorite,2,splib06,1080,Chlorite SMR-13.b 60-104um W1R1Ba,group.2um/chlorite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chlorite_SMR-13.b_60-104um_BECKa_AREF.html
+191,prehnite+.50chlorite,2,sprlb06,252,Prehnite+.50Chlorite AMIX,group.2um/prehnite+.50chlorite,No available USGS Spectral Library 7 Description Reference
+192,prehnite+.67chlorite,2,sprlb06,258,Prehnite+.67Chlorite AMIX,group.2um/prehnite+.67chlorite,No available USGS Spectral Library 7 Description Reference
+193,prehnite+.75chlorite,2,sprlb06,264,Prehnite+.75Chlorite AMIX,group.2um/prehnite+.75chlorite,No available USGS Spectral Library 7 Description Reference
+194,aragonite,2,sprlb06,276,Aragonite GDS898 Moracco,group.2um/carbonate_aragonite,No available USGS Spectral Library 7 Description Reference
+195,clinochlore.gds158,2,sprlb06,660,Clinochlore GDS158 Flagst W1R1Hb,group.2um/chlorite_clinochlore,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Clinochlore_GDS158_Flagstaff_ASDNGb_AREF.html
+196,clinochlore.nmnh83369,2,splib06,1212,Clinochlore NMNH83369,group.2um/chlorite_clinochlore.nmnh83369,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Clinochlore_NMNH83369_BECKb_AREF.html
+197,clinochlore.fe.gds157,2,sprlb06,648,Clinochlore_Fe GDS157.b W1R1Ha,group.2um/chlorite_clinochlore.fe.gds157,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Clinochlore_Fe_GDS157.b_ASDFRa_AREF.html
+198,clinochlore.fe.sc-cca-1,2,splib06,1260,Clinochlore_Fe SC-CCa-1.b,group.2um/chlorite_clinochlore.fe.sc-cca-1,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Clinochlore_Fe_SC-CCa-1.b_BECKa_AREF.html
+199,cookeite-CAr-1.a,2,splib06,1338,Cookeite CAr-1.a 104-150um,group.2um/chlorite_cookeite-car-1.a,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Cookeite_CAr-1.a_104-150um_BECKb_AREF.html
+200,cookeite-CAr-1.c,2,splib06,1368,Cookeite CAr-1.c <30um,group.2um/chlorite_cookeite-car-1.c,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Cookeite_CAr-1.c_lt30um_BECKb_AREF.html
+201,chlorite.thuringite.smr-15.b.g2,2,splib06,4872,Thuringite SMR-15.b 32um W1R1Ba,group.2um/chlorite_thuringite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Thuringite_SMR-15.b_80um_BECKa_AREF.html
+202,epidote.gds26.a.g2,2,splib06,1668,Epidote GDS26.a 75-200um W1R1Bb,group.2um/epidote,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Epidote_GDS26.a_75-200um_BECKb_AREF.html
+203,hornblende,2,splib06,2274,Hornblende_Fe HS115.3B W1R1Bc,group.2um/hornblende,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hornblende_Fe_HS115.3B_BECKc_AREF.html
+204,jarosite-Na,2,splib06,2538,Jarosite GDS24 Na W1R1Bb,group.2um/sulfate_jarosite-Na,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_GDS24_Na_BECKb_AREF.html
+205,jarosite-K,2,splib06,2568,Jarosite GDS99 K 200C Syn W1R1Ba,group.2um/sulfate_jarosite-K,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_GDS99_K_200C_Syn_BECKa_AREF.html
+206,jarosite-lowT,2,splib06,2604,"Jarosite SJ-1 H3O,10-20% W1R1Bb",group.2um/sulfate_jarosite-lowT,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Jarosite_SJ-1_H3O_10-20percent_BECKb_AREF.html
+207,phlogopite,2,splib06,3930,Phlogopite HS23.3B W1R1Bb,group.2um/phlogopite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Phlogopite_HS23.3B_BECKa_AREF.html
+208,tremolite.or.talc,2,splib06,5142,Tremolite HS18.3 W1R1Bc,group.2um/tremolite.or.talc,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Tremolite_HS18.3_BECKc_AREF.html
+209,talc.crsgrnd,2,splib06,4800,Talc GDS23 74-250um fr W1R1Ba,group.2um/talc.crsgrnd,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Talc_GDS23_ASDNGa_AREF.html
+210,talc.fngrnd,2,splib06,4830,Talc WS659 W1R1Bb,group.2um/talc.fngrnd,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Talc_WS659_BECKb_AREF.html
+211,talc+calcite.parkcity,2,splib06,5538,Calcite+Talc PC99-1G W1R1Fc,group.2um/talc+calcite.parkcity,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calcite+Talc_PC99-1G_ASDFRc_AREF.html
+212,talc+carbonate.parkcity,2,splib06,5682,Dolomit+Calcite+Talc PC99-1E W1R1Fc,group.2um/talc+carbonate.parkcity,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Dolomit+Calcite+Talc_PC99-1E_ASDFRc_AREF.html
+213,calcite+0.2Ca-mont,2,splib06,5568,Calcite.8+Ca-Montmor.2 AMX15 W1R1BbS,group.2um/carbonate_calcite+0.2Ca-mont,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calcite.8+Ca-Montmor.2_AMX15_BECKb_AREF.html
+214,magnesite,2,splib06,5922,Magnesite+Hydroma HS47.3B W1R1Ba,group.2um/carbonate_magnesite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Magnesite+Hydromag_HS47.3B_BECKa_AREF.html
+215,calcite.ws272.g2,2,sprlb06,666,Calcite WS272 W1R1Ha,group.2um/carbonate_calcite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calcite_WS272_ASDNGa_AREF.html
+216,calcite+dolomite.5,2,splib06,5532,Calcite+Dolomite.5 AMX8 W1R1Bb,group.2um/carbonate_calcite+dolomite.5,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calcite.5+Dolomite.5_AMX8_BECKb_AREF.html
+217,dolo+.5ca-mont,2,splib06,5694,Dolomite.50+Ca-Montmor AMX10 W1R1Bb,group.2um/carbonate_dolo+.5ca-mont,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Dolomite.5+Ca-Mont.5_AMX10_BECKb_AREF.html
+218,calcite.25+dolom.25+Na-mont.5,2,splib06,5514,Calc.25+dolo.25+mont.5 AMX18 W1R1Bb,group.2um/calcite.25+dolom.25+Na-mont.5,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calc.25+Dolo.25+Na-Mon_AMX18_BECKb_AREF.html
+219,calcite.25+dolom.25+Ca-mont.5,2,splib06,5508,Calc.25+Dolo.25+Ca-Mon AMX7 W1R1Bb,group.2um/carbonate_calcite.25+dolom.25+Ca-mont.5,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calc.25+Dolo.25+Ca-Mont_AMX7_BECKb_AREF.html
+220,siderite,2,splib06,4560,Siderite HS271.3B W1R1Ba,group.2um/carbonate_siderite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Siderite_HS271.3B_BECKa_AREF.html
+221,nontronite.ng-1.a.g2,2,splib06,3558,Nontronite NG-1.a W1R1Bb,group.2um/smectite_nontronite_swelling,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Nontronite_NG-1.a_BECKb_AREF.html
+222,hectorite,2,sprlb06,696,Hectorite SHCa-1.Ac-B W1R1Hb,group.2um/clay_hectorite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hectorite_SHCa-1.Ac-B_BECKb_AREF.html
+223,saponite.or.talc,2,sprlb06,702,Saponite SapCa-1.AcB W1R1Hb,group.2um/saponite.or.talc,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Saponite_SapCa-1.AcB_BECKb_AREF.html
+224,sepiolite,2,sprlb06,690,Sepiolite SepNev-1.AcB W1R1Ha,group.2um/sepiolite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Sepiolite_SepNev-1.AcB_BECKa_AREF.html
+225,calcite+0.2Na-mont,2,splib06,5574,Calcite.80+Mont_Swy-1 GDS212 W1R1Ba,group.2um/calcite+0.2Na-mont,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calcite.80+Mont_Swy-1_GDS212_BECKa_AREF.html
+226,calcite+0.5Ca-mont,2,splib06,5526,Calcite+.50Ca-Mont AMX6 W1R1Bb,group.2um/calcite+0.5Ca-mont,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calcite.5+.Ca-Mont.5_AMX6_BECKb_AREF.html
+227,calcite+0.3muscovite,2,splib06,5520,Calcite+.33Muscov AMX5 Ruby W1R1Ba,group.2um/carbonate_calcite+0.3muscovite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calcite+.33Muscov_AMX5_Ruby_BECKa_AREF.html
+228,drygrass+.17Na-mont,2,sprlb06,30,Grass_dry+0.17%Na-Mont AMX35 W1R1Ba AREF,group.2um/organic_drygrass+.17Na-mont,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Grass_dry.83+.17NaMont_AMX35_BECKb_AREF.html
+229,dolomite.5+Na-mont.5,2,splib06,5688,Dolomite.5+Na-mont.5 AMX21 W1R1Bb,group.2um/carbonate_dolomite.5+Na-mont.5,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Dolomite.5+Na-Mont.5_AMX21_BECKb_AREF.html
+230,calcite.33+Ca-mont.67,2,splib06,5544,Calcite.33+Ca-mont.67 AMX19 W1R1Bb,group.2um/carbonate_smectite_calcite.33+Ca-mont.67,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calcite.33+Ca-Mont.67_AMX19_BECKb_AREF.html
+231,calcite+0.2kaolwxl,2,splib06,5580,Calcite.80wt+Kaol_CM9 GDS213 W1R1Ba,group.2um/carbonate_calcite+0.2kaolwxl,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calcite.80wt+Kaol_CM9_GDS213_BECKa_AREF.html
+232,calcite0.7+kaol0.3,2,splib06,5562,Calcite.7+Kaolwxl.3 AMX9 W1R1Ba,group.2um/carbonate_calcite0.7+kaol0.3,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Calcite.7+Kaolin-wxl.3_AMX9_BECKa_AREF.html
+233,clintonite,2,splib06,1314,Clintonite NMNH126553 W1R1Bc,group.2um/phyllosilicate.clintonite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Clintonite_NMNH126553_BECKc_AREF.html
+234,palygorskite,2,splib06,3870,Palygorskite PFL-1 Attapulg W1R1Bb,group.2um/palygorskite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Palygorskite_PFL-1_Attapulg_BECKb_AREF.html
+235,zoisite,2,splib06,5298,Zoisite HS347.3B W1R1Bb,group.2um/zoisite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Zoisite_HS347.3B_BECKb_AREF.html
+236,elbaite,2,splib06,1626,Elbaite NMNH94217-1.c <74 W1R1Bb,group.2um/elbaite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Elbaite_NMNH94217-1.c_lt74_BECKb_AREF.html
+237,gibbsite,2,splib06,1824,Gibbsite WS214 W1R1Bb,group.2um/hydroxide_gibbsite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Gibbsite_WS214_BECKb_AREF.html
+238,niter,2,splib06,3546,Niter GDS43 (K-Saltpeter) W1R1Ba,group.2um/nitrate_niter,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Niter_GDS43_(K-Saltpeter)_BECKa_AREF.html
+239,topaz,2,splib06,5040,Topaz Mt._Antero_#5 W1R1Bb,group.2um/topaz,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Topaz_Mt_Antero_%235_BECKb_AREF.html
+240,rhodochrosite.hs338.3b.g2,2,splib06,4278,Rhodochrosite HS338.3B W1R1Bb,group.2um/carbonate_rhodochrosite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Rhodochrosite_HS338.3B_BECKb_AREF.html
+241,witherite,2,splib06,5268,Witherite HS273.3B W1R1Ba,group.2um/carbonate_witherite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Witherite_HS273.3B_BECKa_AREF.html
+242,prehnite.gds613,2,splib06,4026,Prehnite GDS613.a <60um,group.2um/prehnite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Prehnite_GDS613.a_lt60um_ASDFRa_AREF.html
+243,prehnite+muscovite,2,splib06,3126,"Mizzonite BM1931,12 Scapolte W1R1Bc",group.2um/prehnite+muscovite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Mizzonite_BM1931-12_Scapolte_BECKc_AREF.html
+244,Pinnoite,2,splib06,3978,Pinnoite NMNH123943 W1R1Ba,group.2um/borate_pinnoite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Pinnoite_NMNH123943_BECKa_AREF.html
+245,polyhalite,2,splib06,3996,Polyhalite NMNH92669-4 W1R1Ba,group.2um/polyhalite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Polyhalite_NMNH92669-4_BECKa_AREF.html
+246,rivadavite,2,splib06,4368,Rivadavite NMNH170164 Amph W1R1Ba,group.2um/rivadavite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Rivadavite_NMNH170164_BECKa_AREF.html
+247,howlite,2,splib06,2298,Howlite GDS155 W1R1Ba,group.2um/howlite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Howlite_GDS155_BECKa_AREF.html
+248,ulexite,2,splib06,5190,Ulexite HS441.3B W1R1Ba,group.2um/ulexite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Ulexite_HS441.3B_BECKa_AREF.html
+249,white.crust,2,splib06,6114,White_Crust LV30 starkeyite W1R1Fc,group.2um/white.crust.starkeyite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/White_Crust_LV30_starkeyite_ASDFRc_AREF.html
+250,analcime,2,splib06,414,Analcime GDS1 Zeolite W1R1Ba,group.2um/zeolite_analcime,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Analcime_GDS1_Zeolite_BECKa_AREF.html
+251,brucite,2,splib06,834,Brucite HS247.3B W1R1Bc,group.2um/hydroxide_brucite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Brucite_HS247.3B_BECKc_AREF.html
+252,carnallite,2,splib06,942,Carnallite NMNH98011 W1R1Bb,group.2um/chloride_carnallite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Carnallite_NMNH98011_BECKb_AREF.html
+253,colemanite,2,splib06,1320,Colemanite GDS143 W1R1Bb,group.2um/borate_colemanite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Colemanite_GDS143_BECKb_AREF.html
+254,datolite,2,splib06,1470,Datolite HS442.3B W1R1Bb,group.2um/datolite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Datolite_HS442.3B_BECKb_AREF.html
+255,hydrogrossular,2,splib06,2310,Hydrogrossular NMNH120555 W1R1Bb,group.2um/hydrogrossular,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Hydrogrossular_NMNH120555_BECKb_AREF.html
+256,lepidolite,2,splib06,2862,Lepidolite NMNH88526-1 W1R1Ba,group.2um/micagrp_lepidolite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Lepidolite_NMNH88526-1_BECKa_AREF.html
+257,margarite,2,splib06,2976,Margarite GDS106 W1R1Bc,group.2um/micagrp_margarite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Margarite_GDS106_BECKc_AREF.html
+258,mascagnite,2,splib06,3012,Mascagnite GDS65.b (fr) W1R1Ba,group.2um/sulfate_mascagnite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Mascagnite_GDS65.b_(fr)_BECKa_AREF.html
+259,mirabilite-wet_soil,2,splib06,3114,Mirabilite GDS150 Na2SO4 W1R1Ba,group.2um/sulfate_mirabilite-wet_soil,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Mirabilite_GDS150_Na2SO4_BECKa_AREF.html
+260,natrolite,2,splib06,3474,Natrolite HS169.3B Zeolite W1R1Bb,group.2um/zeolite_natrolite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Natrolite_HS169.3B_Zeolite_BECKb_AREF.html
+261,richterite,2,splib06,4338,Richterite NMNH150800 HCl W1R1Bb,group.2um/richterite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Richterite_NMNH150800_HCl_BECKb_AREF.html
+262,chrysotile.coarse-fibrous,2,splib06,1152,Chrysotile ML99-12A Coar Fib W1R1Fb,group.2um/serpentine_chrysotile.coarse-fibrous,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chrysotile_ML99-12A_Coar_Fib_ASDFRb_AREF.html
+263,chrysotile.med-fine-fibrous,2,splib06,1158,Chrysotile ML99-12C Fine Fib W1R1Fb,group.2um/serpentine_chrysotile.med-fine-fibrous,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chrysotile_ML99-12C_Fine_Fib_ASDFRb_AREF.html
+264,chrysotile.fine-fibrous,2,splib06,1146,Chrysotile HS323.1B W1R1Ba,group.2um/serpentine_chrysotile.fine-fibrous,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chrysotile_HS323.1B_BECKa_AREF.html
+265,cronstedtite_M3542,2,splib06,1440,Cronstedtite M3542,group.2um/serpentine_cronstedtite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Cronstedtite_M3542_BECKb_AREF.html
+266,illite.roscoelite,2,splib06,4380,Roscoelite EN124 W1R1Bb,group.2um/micagrp_illite.roscoelite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Roscoelite_EN124_BECKb_AREF.html
+267,strontianite,2,splib06,4764,Strontianite HS272.3B W1R1Bb,group.2um/carbonate_strontianite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Strontianite_HS272.3B_BECKb_AREF.html
+268,syngenite,2,splib06,4788,Syngenite GDS139 W1R1Ba,group.2um/sulfate_syngenite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Syngenite_GDS139_BECKa_AREF.html
+269,chrysocolla.hs297.3b.g2,2,splib06,1134,Chrysocolla HS297.3B W1R1Bb,group.2um/chrysocolla,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Chrysocolla_HS297.3B_ASDFRb_AREF.html
+270,azurite.ws316.g2,2,splib06,720,Azurite WS316 W1R1Ba,group.2um/carbonate_azurite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Azurite_WS316_BECKa_AREF.html
+271,malachite.hs254.3b.g2,2,splib06,2964,Malachite HS254.3B W1R1Bb,group.2um/carbonate_malachite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Malachite_HS254.3B_BECKb_AREF.html
+272,cyanide-CdK,2,splib06,6522,Cyanide_Cadmium_Potassium W2R4Na RREF,group.2um/cyanide-CdK,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Cyanide_Cadmium_Potassium_BECKa_AREF.html
+273,cyanide-NiK,2,splib06,6528,Cyanide_Nickel_Potassium W2R4Na RREF,group.2um/cyanide-NiK,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Cyanide_Nickel_Potassium_BECKa_AREF.html
+274,cyanide-trihydrate,2,splib06,6534,Cyanide_Trihydrate CT1 W1R1Ba,group.2um/cyanide-trihydrate,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Cyanide_Trihydrate_CT1_BECKa_AREF.html
+275,cyanide-KFe,2,splib06,6552,Cyanide_Potassium_Ferro W1R1Ba,group.2um/cyanide-KFe,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Cyanide_Potassium_Ferro_BECKa_AREF.html
+276,cyanide-ZnK,2,splib06,6540,Cyanide_Zinc_Potassium W1R1Ba,group.2um/cyanide-ZnK,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Cyanide_Zinc_Potassium_BECKa_AREF.html
+277,plastic.grnhs.roof,2,splib06,6690,Plastic GGA-54 Grnhouse Roof W1R1Ba,group.2um/organic_plastic.grnhs.roof,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Plastic_GGA-54_Grnhouse_Roof_BECKa_AREF.html
+278,benzene+montswy,2,splib06,6606,Montmorill+Benzene SWy 1ml W1R1Ba,group.2um/organic_benzene+montswy,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Montmorill+Benzene_SWy_1ml_BECKa_AREF.html
+279,trichlor,2,splib06,6624,Montmorill+Trichlor SWy 1ml W1R1Ba,group.2um/organic_trichlor+montswy,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Montmorill+Trichlor_SWy_1ml_BECKa_AREF.html
+280,toluene+montswy,2,splib06,6618,Montmorill+Toluene SWy .5ml W1R1Ba,group.2um/organic_toluene+montswy,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Montmorill+Toluene_SWy_.5ml_BECKa_AREF.html
+281,unleaded.gas,2,splib06,6630,Montmorill+Unleaded_Gas SWy W1R1Ba,group.2um/organic_unleaded.gas+montswy,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Montmorill+Unleaded_Gas_SWy_BECKa_AREF.html
+282,tce,2,splib06,6612,Montmorill+TCE SWy saturated W1R1Ba,group.2um/organic_tce+montswy,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Montmorill+TCE_SWy_saturated_BECKa_AREF.html
+283,zunyite,2,splib06,5310,Zunyite GDS-241B <150um W1R1B?,group.2um/zunyite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Zunyite_GDS241B_lt150um_BECKu_AREF.html
+284,sulfate-mix_gypsum.trace.dust+debris-WTC01-2,2,splib06,7008,WTC_Dust_Debris WTC01-2 W1R1Fa,group.2um/sulfate-mix_gypsum.trace.dust+debris-WTC01-2,https://crustal.usgs.gov/speclab/data/HTMLmetadata/WTC_Dust_Debris_WTC01-2_ASDFRa_AREF.html
+285,gypsum.trace.dust+debris-WTC01-28,2,splib06,7014,WTC_Dust_Debris WTC01-28 W1R1Fa,group.2um/sulfate-mix_gypsum.trace.dust+debris-WTC01-28,https://crustal.usgs.gov/speclab/data/HTMLmetadata/WTC_Dust_Debris_WTC01-28_ASDFRa_AREF.html
+286,chrysotile.gypsum.wtc01-8,2,splib06,6498,Coated_Steel_Girder WTC01-8 W1R1Fa,group.2um/chrysotile.gypsum.wtc01-8,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Coated_Steel_Girder_WTC01-8_ASDFRa_AREF.html
+287,portlandite,2,splib06,4008,Portlandite GDS525 Ca(OH)2 W1R1Fa,group.2um/portlandite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Portlandite_GDS525_Ca(OH)2_ASDFRa_AREF.html
+288,potassium_nitrate,2,sprlb06,234,Potassium Nitrate GDS43,group.2um/nitrate_potassium,No available USGS Spectral Library 7 Description Reference
+289,sodium_nitrate,2,sprlb06,240,Sodium Nitrate GDS883,group.2um/nitrate_sodium,No available USGS Spectral Library 7 Description Reference
+290,vermiculite_GDS458,2,sprlb06,624,Vermiculite GDS458 W1R1Hc,group.2um/micagrp_vermiculite_GDS458,No available USGS Spectral Library 7 Description Reference
+291,vermiculite_ALB4SA00,2,sprlb06,630,Vermiculite ALB4SA00 W1R1Hc,group.2um/micagrp_vermiculite_ALB4SA00,No available USGS Spectral Library 7 Description Reference
+292,vermiculite_WS682,2,sprlb06,636,Vermiculite WS682 W1R1Hc,group.2um/micagrp_vermiculite_WS682,No available USGS Spectral Library 7 Description Reference
+293,vermiculite_WS681,2,sprlb06,642,Vermiculite WS681 W1R1Hc,group.2um/micagrp_vermiculite_WS681,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Vermiculite_WS681_BECKc_AREF.html
+294,methane-gas-2.37um-experimental,2,sprlb06,1008,CO2+O2+CH4 TRANSM ModtranZ20,group.2um/methane-gas-2.37um-experimental,No available USGS Spectral Library 7 Description Reference
+312,sulfate-bloedite,2,splib06,798,Bloedite GDS147,group.2um/sulfate-bloedite,https://crustal.usgs.gov/speclab/data/HTMLmetadata/Bloedite_GDS147.html

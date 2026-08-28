@@ -34,6 +34,7 @@ def main():
     parser.add_argument('--history_file', type=str, help="File containing NetCDF history attribute - concatenated run command and input files list", default="")
     parser.add_argument('--daynight', type=str, help="Value of Day/Night flag", default="Day")
     parser.add_argument('--ummg_file', type=str, help="Output UMMG filename")
+    parser.add_argument('--rfl_file', type=str, help="Reflectance file for masking only (any file with -9999 in the correct positions will work)")
     parser.add_argument('--log_file', type=str, default=None, help="Logging file to write to")
     parser.add_argument('--log_level', type=str, default="INFO", help="Logging level")
     args = parser.parse_args()
@@ -53,6 +54,9 @@ def main():
     # make global attributes
     logging.debug('Creating global attributes')
     makeGlobalAttrBase(nc_ds)
+
+    logging.debug('Fetch reflectance-based mask')
+    rfl_mask = envi.open(envi_header(args.rfl_file)).open_memmap(interleave='bip')[:, :, 0] == -9999
 
     # Add scene specific attributes
     nc_ds.flight_line = os.path.basename(args.output_abun_file)[:19]
@@ -101,25 +105,33 @@ Geolocation data (latitude, longitude, height) and a lookup table to project the
     logging.debug('Creating and writing glt data')
     add_glt(nc_ds, args.glt_file)
 
+    logging.debug('Load and mask abundance')
+    def mask_key(ds, key):
+        data = ds.variables[key][:].copy()
+        data[rfl_mask,:] = -9999
+        return data
+
     logging.debug('Write spectral abundance data')
-    add_variable(nc_ds, 'group_1_band_depth', "f4", "Group 1 Band Depth", "unitless", abun_ds.variables['group_1_band_depth'][:],
+    add_variable(nc_ds, 'group_1_band_depth', "f4", "Group 1 Band Depth", "unitless", mask_key(abun_ds, 'group_1_band_depth'),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
-    add_variable(nc_ds, 'group_1_mineral_id', "i2", "Group 1 Mineral ID", "unitless", abun_ds.variables['group_1_mineral_id'][:],
+    add_variable(nc_ds, 'group_1_mineral_id', "i2", "Group 1 Mineral ID", "unitless", mask_key(abun_ds, 'group_1_mineral_id'),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
-    add_variable(nc_ds, 'group_2_band_depth', "f4", "Group 2 Band Depth", "unitless", abun_ds.variables['group_2_band_depth'][:],
+    add_variable(nc_ds, 'group_2_band_depth', "f4", "Group 2 Band Depth", "unitless", mask_key(abun_ds, 'group_2_band_depth'),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
-    add_variable(nc_ds, 'group_2_mineral_id', "i2", "Group 2 Mineral ID", "unitless", abun_ds.variables['group_2_mineral_id'][:],
+    add_variable(nc_ds, 'group_2_mineral_id', "i2", "Group 2 Mineral ID", "unitless", mask_key(abun_ds, 'group_2_mineral_id'),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
     nc_ds.sync()
     logging.debug(f'Successfully created {args.output_abun_file}')
 
     logging.debug("Embedding mineral metadata")
     ref_df = pd.read_csv(args.mineral_grouping_file)
+    ref_df['path_name'] = ref_df['path'].apply(os.path.basename)
     nc_ds.createDimension("minerals", len(ref_df))
     METADATA_COLUMNS = [
         ("index", "index", "u4"),
         ("record", "record", "u4"),
-        ("name", "title", str),
+        ("name", "path_name", str),
+        ("sample_name", "title", str),
         ("url", "url", str),
         ("group", "group", "u4"),
         ("library", "library", str),
@@ -198,13 +210,13 @@ Geolocation data (latitude, longitude, height) and a lookup table to project the
     logging.debug('Creating and writing glt data')
     add_glt(nc_ds, args.glt_file)
 
-    add_variable(nc_ds, 'group_1_band_depth_unc', "f4", "Group 1 Band Depth Uncertainty", "unitless", abununcert_ds.variables['group_1_band_depth_unc'][:],
+    add_variable(nc_ds, 'group_1_band_depth_unc', "f4", "Group 1 Band Depth Uncertainty", "unitless", mask_key(abununcert_ds, 'group_1_band_depth_unc'),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
-    add_variable(nc_ds, 'group_1_fit', "f4", "Group 1 Fit", "unitless", abununcert_ds.variables['group_1_fit'][:],
+    add_variable(nc_ds, 'group_1_fit', "f4", "Group 1 Fit", "unitless", mask_key(abununcert_ds, 'group_1_fit'),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
-    add_variable(nc_ds, 'group_2_band_depth_unc', "f4", "Group 2 Band Depth Uncertainty", "unitless", abununcert_ds.variables['group_2_band_depth_unc'][:],
+    add_variable(nc_ds, 'group_2_band_depth_unc', "f4", "Group 2 Band Depth Uncertainty", "unitless", mask_key(abununcert_ds, 'group_2_band_depth_unc'),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
-    add_variable(nc_ds, 'group_2_fit', "f4", "Group 2 Fit", "unitless", abununcert_ds.variables['group_2_fit'][:],
+    add_variable(nc_ds, 'group_2_fit', "f4", "Group 2 Fit", "unitless", mask_key(abununcert_ds, 'group_2_fit'),
                  {"dimensions":("downtrack", "crosstrack"), "zlib": True, "complevel": 9})
 
     nc_ds.sync()
