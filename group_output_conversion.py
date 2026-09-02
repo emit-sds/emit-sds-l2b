@@ -132,7 +132,6 @@ Geolocation data (latitude, longitude, height) and a lookup table to project the
         ("record", "record", "u4"),
         ("name", "path_name", str),
         ("sample_name", "title", str),
-        ("url", "url", str),
         ("group", "group", "u4"),
         ("library", "library", str),
     ]
